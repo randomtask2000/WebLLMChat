@@ -1,0 +1,26 @@
+{
+  "name": "Claude WebLLM",
+  "short_name": "Claude WebLLM",
+  "description": "Claude WebLLM Chat Application with AI models",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "type": "image/png",
+      "sizes": "1170x2532"
+    }
+  ]
+}

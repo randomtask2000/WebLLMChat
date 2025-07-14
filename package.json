@@ -11,7 +11,11 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "prettier --check . && eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "mobile:build": "npm run build && npx cap sync",
+    "mobile:ios": "npx cap open ios",
+    "mobile:run:ios": "npx cap run ios",
+    "mobile:add:ios": "npx cap add ios"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
@@ -46,8 +50,12 @@
     "vitest": "^2.1.3"
   },
   "dependencies": {
+    "@capacitor/cli": "^7.4.2",
+    "@capacitor/core": "^7.4.2",
+    "@capacitor/ios": "^7.4.2",
     "@floating-ui/dom": "^1.7.2",
     "@mlc-ai/web-llm": "^0.2.75",
+    "fs-minipass": "^3.0.3",
     "pdfjs-dist": "^3.11.174"
   },
   "type": "module"

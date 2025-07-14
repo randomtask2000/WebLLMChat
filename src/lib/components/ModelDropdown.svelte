@@ -1,9 +1,26 @@
 <script lang="ts">
   import { currentModel, availableModels, isModelLoaded, modelLoadingProgress } from '$lib/stores/models';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
+  import { isMobile, getMobileOptimizedModels, canHandleLargeModels } from '$lib/utils/mobile';
   import type { ModelInfo } from '$lib/types';
 
   let isDropdownOpen = false;
+  
+  // Filter models for mobile devices
+  $: filteredModels = $availableModels.filter(model => {
+    if (!isMobile()) return true;
+    
+    // On mobile, prioritize smaller models
+    const mobileOptimized = getMobileOptimizedModels();
+    if (mobileOptimized.includes(model.model_id)) return true;
+    
+    // Allow larger models only if device can handle them
+    if (model.vram_required_MB && model.vram_required_MB > 2000) {
+      return canHandleLargeModels();
+    }
+    
+    return true;
+  });
 
   function formatMemory(mb: number): string {
     if (mb >= 1024) {
