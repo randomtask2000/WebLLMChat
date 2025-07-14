@@ -5,6 +5,7 @@
   import { formatResponseTime } from '$lib/utils/timeFormat';
 
   export let message: ChatMessage;
+  export let onRetry: ((content: string) => void) | undefined = undefined;
 
   let messageElement: HTMLElement;
 
@@ -89,9 +90,22 @@
         {/if}
       </div>
       
-      <div class="prose prose-sm max-w-none">
+      <div class="prose prose-sm max-w-none dark:prose-invert">
         {@html formatContent(message.content)}
       </div>
+      
+      {#if message.role === 'user' && onRetry}
+        <div class="mt-2">
+          <button
+            class="btn btn-sm variant-ghost-surface text-xs"
+            on:click={() => onRetry && onRetry(message.content)}
+            title="Retry this prompt"
+          >
+            <i class="fa fa-redo mr-1"></i>
+            Retry
+          </button>
+        </div>
+      {/if}
       
       {#if message.chunks && message.chunks.length > 0}
         <details class="mt-3">
@@ -121,3 +135,30 @@
     </div>
   </div>
 </div>
+
+<style>
+  .prose :global(code) {
+    @apply dark:bg-surface-700 dark:text-surface-100;
+  }
+  
+  .prose :global(pre) {
+    @apply dark:bg-surface-800 dark:text-surface-100;
+  }
+  
+  .prose :global(pre code) {
+    @apply dark:bg-transparent;
+  }
+  
+  /* Ensure text is light in dark mode */
+  :global(.dark) .prose {
+    @apply text-surface-100;
+  }
+  
+  :global(.dark) .prose :global(strong) {
+    @apply text-surface-50;
+  }
+  
+  :global(.dark) .prose :global(em) {
+    @apply text-surface-200;
+  }
+</style>

@@ -140,3 +140,21 @@ export function newChat() {
   currentMessages.set([]);
   currentChatId.set(null);
 }
+
+export function retryLastUserMessage(): string | null {
+  let lastUserMessage: string | null = null;
+  
+  currentMessages.update(messages => {
+    // Find the last user message
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') {
+        lastUserMessage = messages[i].content;
+        // Remove all messages after and including this user message
+        return messages.slice(0, i);
+      }
+    }
+    return messages;
+  });
+  
+  return lastUserMessage;
+}

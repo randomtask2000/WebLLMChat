@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { currentTheme, setTheme } from '$lib/stores/theme';
+  import { currentTheme, setTheme, isDarkMode, setDarkMode } from '$lib/stores/theme';
   import type { Theme } from '$lib/types';
 
   let isDropdownOpen = false;
@@ -18,6 +18,10 @@
   function handleThemeChange(theme: Theme) {
     setTheme(theme);
     isDropdownOpen = false;
+  }
+
+  function handleDarkModeToggle() {
+    setDarkMode(!$isDarkMode);
   }
 
   function toggleDropdown() {
@@ -49,6 +53,11 @@
   >
     <i class="fa fa-palette"></i>
     <span class="hidden sm:inline">Theme {isDropdownOpen ? '🔽' : '▶️'}</span>
+    {#if $isDarkMode}
+      <i class="fa fa-moon text-xs text-yellow-400"></i>
+    {:else}
+      <i class="fa fa-sun text-xs text-yellow-500"></i>
+    {/if}
     <i class="fa fa-chevron-down text-xs {isDropdownOpen ? 'rotate-180' : ''} transition-transform duration-200"></i>
   </button>
 
@@ -84,6 +93,30 @@
             </p>
           </button>
         {/each}
+      </div>
+      
+      <!-- Dark Mode Toggle -->
+      <div class="p-4 border-t border-gray-200 dark:border-gray-600">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-6 h-6 rounded border-2 flex items-center justify-center {$isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-100 border-gray-300'}">
+              <i class="fa {$isDarkMode ? 'fa-moon text-yellow-400' : 'fa-sun text-yellow-500'} text-xs"></i>
+            </div>
+            <div>
+              <span class="font-medium text-sm text-gray-900 dark:text-white">Dark Mode</span>
+              <p class="text-xs text-gray-600 dark:text-gray-300">Toggle between light and dark themes</p>
+            </div>
+          </div>
+          <button
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 {$isDarkMode ? 'bg-primary-600' : 'bg-gray-200'}"
+            on:click={handleDarkModeToggle}
+            role="switch"
+            aria-checked={$isDarkMode}
+          >
+            <span class="sr-only">Toggle dark mode</span>
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {$isDarkMode ? 'translate-x-6' : 'translate-x-1'}"></span>
+          </button>
+        </div>
       </div>
       
       <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">

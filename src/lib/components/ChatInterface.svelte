@@ -2,7 +2,7 @@
   import { onMount, afterUpdate, tick } from 'svelte';
   import { browser } from '$app/environment';
   import { ProgressBar } from '@skeletonlabs/skeleton';
-  import { currentMessages, addMessage, updateLastMessage, startResponseTiming, isTyping, saveChatHistory } from '$lib/stores/chat';
+  import { currentMessages, addMessage, updateLastMessage, startResponseTiming, isTyping, saveChatHistory, retryLastUserMessage } from '$lib/stores/chat';
   import { generateChatResponse, webLLMService } from '$lib/utils/webllm';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
   import { searchDocuments } from '$lib/stores/documents';
@@ -194,6 +194,15 @@
     }
   }
 
+  async function handleRetry(content: string) {
+    if (isSubmitting) return;
+    
+    // Set the message input to the retry content and submit
+    messageInput = content;
+    await tick();
+    handleSubmit();
+  }
+
   $: {
     scrollToBottom();
   }
@@ -231,7 +240,7 @@
       </div>
     {:else}
       {#each $currentMessages as message (message.id)}
-        <ChatMessage {message} />
+        <ChatMessage {message} onRetry={handleRetry} />
       {/each}
       
       {#if $isTyping}
