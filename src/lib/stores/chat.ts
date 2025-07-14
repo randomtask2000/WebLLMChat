@@ -17,6 +17,7 @@ export function addMessage(message: ChatMessage) {
   if (!message.tokenCount) {
     message.tokenCount = estimateTokenCount(message.content);
   }
+  console.log(`Adding message: "${message.content.slice(0, 50)}..." with ${message.tokenCount} tokens`);
   currentMessages.update(messages => [...messages, message]);
 }
 
@@ -24,9 +25,19 @@ export function updateLastMessage(content: string, chunks?: any[]) {
   currentMessages.update(messages => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.role === 'assistant') {
-      lastMessage.content = content;
-      lastMessage.tokenCount = estimateTokenCount(content);
-      if (chunks) lastMessage.chunks = chunks;
+      const tokenCount = estimateTokenCount(content);
+      console.log(`Updating message: "${content.slice(0, 50)}..." with ${tokenCount} tokens`);
+      
+      // Create a new message object to ensure Svelte reactivity
+      const updatedMessage = {
+        ...lastMessage,
+        content,
+        tokenCount,
+        ...(chunks && { chunks })
+      };
+      
+      // Replace the last message with the updated one
+      return [...messages.slice(0, -1), updatedMessage];
     }
     return messages;
   });

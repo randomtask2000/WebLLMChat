@@ -87,6 +87,10 @@
                   <div class="text-xs bg-surface-300-600-token px-2 py-0.5 rounded font-medium">
                     {formatTokenCount(chat.totalTokens)}
                   </div>
+                {:else}
+                  <div class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">
+                    No tokens
+                  </div>
                 {/if}
               </div>
             </div>

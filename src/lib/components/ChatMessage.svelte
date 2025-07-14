@@ -76,6 +76,10 @@
           <span class="text-xs text-surface-600-300-token bg-surface-200-700-token px-2 py-0.5 rounded">
             {formatTokenCount(message.tokenCount)}
           </span>
+        {:else}
+          <span class="text-xs text-red-500 bg-red-100 px-2 py-0.5 rounded">
+            No tokens
+          </span>
         {/if}
       </div>
       
