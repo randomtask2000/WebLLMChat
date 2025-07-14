@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, afterUpdate, tick } from 'svelte';
   import { browser } from '$app/environment';
   import { ProgressBar } from '@skeletonlabs/skeleton';
   import { currentMessages, addMessage, updateLastMessage, isTyping, saveChatHistory } from '$lib/stores/chat';
@@ -14,6 +14,8 @@
   let messageInput = '';
   let isSubmitting = false;
   let mounted = false;
+  let shouldAutoScroll = true;
+  let scrollTimeout: number;
 
   onMount(async () => {
     mounted = true;
@@ -50,12 +52,55 @@
     }
   });
 
-  function scrollToBottom() {
-    setTimeout(() => {
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-    }, 100);
+  // Auto-scroll functions
+  function scrollToBottom(smooth = true) {
+    if (!chatContainer) return;
+    
+    if (smooth) {
+      chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    } else {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  }
+
+  function isNearBottom() {
+    if (!chatContainer) return true;
+    
+    const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+    const threshold = 100; // pixels from bottom
+    return scrollHeight - scrollTop - clientHeight < threshold;
+  }
+
+  function handleScroll() {
+    shouldAutoScroll = isNearBottom();
+  }
+
+  function throttledScrollToBottom() {
+    if (!shouldAutoScroll) return;
+    
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+    
+    scrollTimeout = setTimeout(() => {
+      scrollToBottom();
+    }, 50); // Throttle to every 50ms for smooth streaming
+  }
+
+  // Auto-scroll when messages change
+  afterUpdate(async () => {
+    if (shouldAutoScroll) {
+      await tick();
+      scrollToBottom();
+    }
+  });
+
+  // Reactive auto-scroll for message updates
+  $: if ($currentMessages.length > 0 && shouldAutoScroll) {
+    tick().then(() => scrollToBottom());
   }
 
   async function handleSubmit() {
@@ -87,6 +132,11 @@
     const originalInput = messageInput;
     messageInput = '';
     
+    // Ensure we auto-scroll for new user messages
+    shouldAutoScroll = true;
+    await tick();
+    scrollToBottom();
+    
     try {
       const relevantChunks = await searchDocuments(userMessage.content);
       
@@ -116,10 +166,14 @@
 
       await generateChatResponse(messages, (content) => {
         updateLastMessage(content, relevantChunks);
-        scrollToBottom();
+        throttledScrollToBottom();
       });
 
       saveChatHistory();
+      
+      // Final scroll to ensure we're at the bottom
+      await tick();
+      scrollToBottom();
     } catch (error) {
       console.error('Error generating response:', error);
       updateLastMessage('Sorry, I encountered an error while processing your request. Please try again.');
@@ -142,9 +196,10 @@
   }
 </script>
 
-<div class="flex flex-col h-full">
+<div class="relative h-full overflow-hidden">
+  <!-- Progress bar - positioned absolutely at top -->
   {#if !$isModelLoaded && $modelLoadingProgress < 100}
-    <div class="p-4 bg-surface-100-800-token border-b border-surface-300-600-token">
+    <div class="absolute top-0 left-0 right-0 z-20 p-4 bg-surface-100-800-token border-b border-surface-300-600-token">
       <div class="flex items-center justify-between mb-2">
         <span class="text-sm font-medium">Loading Model: {$currentModel}</span>
         <span class="text-sm text-surface-600-300-token">{$modelLoadingProgress}%</span>
@@ -154,9 +209,13 @@
     </div>
   {/if}
   
+  <!-- Chat messages - positioned absolutely, independent of input -->
   <div 
     bind:this={chatContainer}
-    class="flex-1 overflow-y-auto p-4 space-y-4"
+    class="absolute inset-0 overflow-y-auto p-4 space-y-4 scroll-smooth"
+    class:pt-24={!$isModelLoaded && $modelLoadingProgress < 100}
+    style="padding-bottom: 10rem; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;"
+    on:scroll={handleScroll}
   >
     {#if $currentMessages.length === 0}
       <div class="text-center text-surface-600-300-token mt-8">
@@ -183,7 +242,10 @@
     {/if}
   </div>
 
-  <div class="border-t border-surface-300-600-token p-4">
+  <!-- Gradient fade for smooth scroll under effect -->
+  <div class="absolute bottom-20 left-0 right-0 h-24 bg-gradient-to-t from-surface-100-800-token to-transparent pointer-events-none z-40"></div>
+  
+  <div class="absolute bottom-0 left-0 right-0 bg-surface-100-800-token border-t border-surface-300-600-token p-4 z-50">
     <div class="flex space-x-2">
       <textarea
         bind:value={messageInput}
