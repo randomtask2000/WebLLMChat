@@ -161,7 +161,7 @@
     {#if $currentMessages.length === 0}
       <div class="text-center text-surface-600-300-token mt-8">
         <div class="text-6xl mb-4">💬</div>
-        <h2 class="h3 mb-2">Welcome to Claude WebLLM Chat</h2>
+        <h2 class="h3 mb-2">Welcome to WebLLM Chat</h2>
         <p>Start a conversation by typing a message below.</p>
         {#if !$isModelLoaded}
           <p class="text-sm mt-2">Loading model... Please wait.</p>

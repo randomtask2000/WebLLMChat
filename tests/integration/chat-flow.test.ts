@@ -6,7 +6,7 @@ test.describe('Chat Flow Integration', () => {
   });
 
   test('should display welcome message initially', async ({ page }) => {
-    await expect(page.locator('text=Welcome to Claude WebLLM Chat')).toBeVisible();
+    await expect(page.locator('text=Welcome to WebLLM Chat')).toBeVisible();
   });
 
   test('should show model loading status', async ({ page }) => {

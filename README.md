@@ -1,4 +1,4 @@
-# Claude WebLLM Chat
+# WebLLM Chat
 
 A modern chat application built with SvelteKit and WebLLM that runs entirely in the browser without requiring a backend server. Features include RAG (Retrieval-Augmented Generation) capabilities, multiple theme support, and persistent chat history.
 
