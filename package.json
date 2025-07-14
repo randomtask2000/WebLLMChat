@@ -1,5 +1,5 @@
 {
-  "name": "claude-webllm-app",
+  "name": "webllm-chat",
   "version": "0.0.1",
   "private": true,
   "scripts": {

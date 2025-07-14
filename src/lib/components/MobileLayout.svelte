@@ -34,7 +34,7 @@
       >
         <i class="fa fa-bars"></i>
       </button>
-      <h1 class="text-lg font-bold">Claude WebLLM</h1>
+      <h1 class="text-lg font-bold">WebLLM Chat</h1>
       <div class="w-8"></div> <!-- Spacer for centering -->
     </div>
   {/if}

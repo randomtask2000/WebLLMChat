@@ -1,6 +1,6 @@
 # Mobile iOS App Setup
 
-Your Claude WebLLM app has been successfully converted to a native iOS app using Capacitor!
+Your WebLLM Chat app has been successfully converted to a native iOS app using Capacitor!
 
 ## 📱 What's Been Done
 

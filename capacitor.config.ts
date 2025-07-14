@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.emilionicoli.claudewebllm',
-  appName: 'Claude WebLLM',
+  appName: 'WebLLM Chat',
   webDir: 'build',
   ios: {
     webSecurity: false,

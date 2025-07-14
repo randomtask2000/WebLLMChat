@@ -50,7 +50,7 @@
     <svelte:fragment slot="header">
       <AppBar>
         <svelte:fragment slot="lead">
-          <h1 class="text-xl font-bold">Claude WebLLM Chat</h1>
+          <h1 class="text-xl font-bold">WebLLM Chat</h1>
         </svelte:fragment>
         <svelte:fragment slot="trail">
           <button 
