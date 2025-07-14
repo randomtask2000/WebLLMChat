@@ -53,3 +53,16 @@ html, body { @apply h-full overflow-hidden; }
 .upload-zone.drag-over {
   @apply border-primary-500 bg-primary-50 dark:bg-primary-900/20;
 }
+
+/* DOS-style blinking cursor */
+.dos-cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+  font-weight: bold;
+  color: currentColor;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}

@@ -42,10 +42,18 @@ export function updateLastMessage(content: string, chunks?: any[], isComplete: b
         responseStartTime = null; // Reset for next response
       }
       
+      // Handle cursor positioning - add cursor at the end of current content if streaming
+      let displayContent = content;
+      if (!isComplete && content.length > 0) {
+        // Insert cursor at the end of the current content
+        displayContent = content + '__STREAMING_CURSOR__';
+      }
+      // If complete, just use the content as-is (no cursor)
+      
       // Create a new message object to ensure Svelte reactivity
       const updatedMessage = {
         ...lastMessage,
-        content,
+        content: displayContent,
         tokenCount,
         ...(chunks && { chunks }),
         ...(responseTime !== undefined && { responseTime })

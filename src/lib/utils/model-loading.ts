@@ -33,7 +33,7 @@ export async function loadModelWithChatBubble(
     console.log('✅ switchModel completed successfully');
     
     // Success message
-    updateLastMessage(`🎉 Successfully loaded ${modelId}!\n\nI'm ready to chat with the new model!`, []);
+    updateLastMessage(`🎉 Successfully loaded ${modelId}!\n\nI'm ready to chat with the new model!`, [], true);
     console.log('📝 Added success message to chat');
   } catch (error) {
     console.error('❌ switchModel failed:', error);
@@ -62,7 +62,7 @@ export async function loadModelWithChatBubble(
       troubleshootingMsg = '\n\n💡 **General Troubleshooting:**\n- Try refreshing the page\n- Use a modern browser (Chrome/Edge/Firefox)\n- Check browser console for more details\n- Try a different model';
     }
     
-    updateLastMessage(`❌ Failed to load ${modelId}\n\nError: ${errorMsg}${troubleshootingMsg}\n\n🔄 You can try again or select a different model.`, []);
+    updateLastMessage(`❌ Failed to load ${modelId}\n\nError: ${errorMsg}${troubleshootingMsg}\n\n🔄 You can try again or select a different model.`, [], true);
     console.log('📝 Added error message with troubleshooting to chat');
   }
   

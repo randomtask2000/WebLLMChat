@@ -77,8 +77,17 @@
     // Create unique placeholders for code blocks to protect them from br conversion
     const codeBlockPlaceholders: string[] = [];
     
+    // Check if this is a streaming message (contains cursor)
+    const isStreaming = content.includes('__STREAMING_CURSOR__');
+    let workingContent = content;
+    
+    // If streaming, add cursor placeholder at the exact position BEFORE formatting
+    if (isStreaming) {
+      workingContent = content.replace('__STREAMING_CURSOR__', '<span class="dos-cursor">█</span>');
+    }
+    
     // First, handle regular markdown code blocks
-    let result = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+    let result = workingContent.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
       const language = lang || 'text';
       const placeholder = `__CODE_BLOCK_${codeBlockPlaceholders.length}__`;
       codeBlockPlaceholders.push(`<pre><code class="language-${language}">${code.trim()}</code></pre>`);
