@@ -2,7 +2,7 @@
   import { onMount, afterUpdate, tick } from 'svelte';
   import { browser } from '$app/environment';
   import { ProgressBar } from '@skeletonlabs/skeleton';
-  import { currentMessages, addMessage, updateLastMessage, isTyping, saveChatHistory } from '$lib/stores/chat';
+  import { currentMessages, addMessage, updateLastMessage, startResponseTiming, isTyping, saveChatHistory } from '$lib/stores/chat';
   import { generateChatResponse, webLLMService } from '$lib/utils/webllm';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
   import { searchDocuments } from '$lib/stores/documents';
@@ -158,14 +158,17 @@
       };
 
       addMessage(assistantMessage);
+      
+      // Start timing the response
+      startResponseTiming();
 
       const messages = [
         ...($currentMessages.slice(0, -1).map(m => ({ role: m.role, content: m.content }))),
         { role: 'user', content: contextPrompt }
       ];
 
-      await generateChatResponse(messages, (content) => {
-        updateLastMessage(content, relevantChunks);
+      await generateChatResponse(messages, (content, isComplete = false) => {
+        updateLastMessage(content, relevantChunks, isComplete);
         throttledScrollToBottom();
       });
 
@@ -176,7 +179,7 @@
       scrollToBottom();
     } catch (error) {
       console.error('Error generating response:', error);
-      updateLastMessage('Sorry, I encountered an error while processing your request. Please try again.');
+      updateLastMessage('Sorry, I encountered an error while processing your request. Please try again.', undefined, true);
     } finally {
       isSubmitting = false;
       isTyping.set(false);

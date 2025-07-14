@@ -7,6 +7,9 @@ export const chatHistories = writable<ChatHistory[]>([]);
 export const currentChatId = writable<string | null>(null);
 export const isTyping = writable(false);
 
+// Response timing tracking
+let responseStartTime: number | null = null;
+
 function calculateTotalTokens(messages: ChatMessage[]): number {
   return messages.reduce((total, message) => {
     return total + (message.tokenCount || estimateTokenCount(message.content));
@@ -21,19 +24,31 @@ export function addMessage(message: ChatMessage) {
   currentMessages.update(messages => [...messages, message]);
 }
 
-export function updateLastMessage(content: string, chunks?: any[]) {
+export function startResponseTiming() {
+  responseStartTime = performance.now();
+}
+
+export function updateLastMessage(content: string, chunks?: any[], isComplete: boolean = false) {
   currentMessages.update(messages => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.role === 'assistant') {
       const tokenCount = estimateTokenCount(content);
       console.log(`Updating message: "${content.slice(0, 50)}..." with ${tokenCount} tokens`);
       
+      // Calculate response time if this is the final update
+      let responseTime = lastMessage.responseTime;
+      if (isComplete && responseStartTime !== null) {
+        responseTime = performance.now() - responseStartTime;
+        responseStartTime = null; // Reset for next response
+      }
+      
       // Create a new message object to ensure Svelte reactivity
       const updatedMessage = {
         ...lastMessage,
         content,
         tokenCount,
-        ...(chunks && { chunks })
+        ...(chunks && { chunks }),
+        ...(responseTime !== undefined && { responseTime })
       };
       
       // Replace the last message with the updated one

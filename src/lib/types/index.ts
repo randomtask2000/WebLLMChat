@@ -5,6 +5,7 @@ export interface ChatMessage {
   timestamp: number;
   chunks?: DocumentChunk[];
   tokenCount?: number;
+  responseTime?: number; // Response time in milliseconds for assistant messages
 }
 
 export interface DocumentChunk {

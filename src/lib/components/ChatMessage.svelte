@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { ChatMessage } from '$lib/types';
   import { formatTokenCount } from '$lib/utils/tokenCount';
+  import { formatResponseTime } from '$lib/utils/timeFormat';
 
   export let message: ChatMessage;
 
@@ -79,6 +80,11 @@
         {:else}
           <span class="text-xs text-red-500 bg-red-100 px-2 py-0.5 rounded">
             No tokens
+          </span>
+        {/if}
+        {#if message.role === 'assistant' && message.responseTime}
+          <span class="text-xs text-surface-600-300-token bg-tertiary-200-700-token px-2 py-0.5 rounded">
+            ⏱️ {formatResponseTime(message.responseTime)}
           </span>
         {/if}
       </div>

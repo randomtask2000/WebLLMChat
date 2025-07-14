@@ -332,7 +332,7 @@ class WebLLMService {
 
   async generateResponse(
     messages: Array<{ role: string; content: string }>,
-    onUpdate?: (content: string) => void
+    onUpdate?: (content: string, isComplete?: boolean) => void
   ): Promise<string> {
     if (!this.engine) {
       throw new Error('Engine not initialized');
@@ -372,9 +372,14 @@ class WebLLMService {
           const delta = chunk.choices[0].delta.content || '';
           fullResponse += delta;
           if (onUpdate && typeof onUpdate === 'function') {
-            onUpdate(fullResponse);
+            onUpdate(fullResponse, false); // Not complete yet
           }
         }
+      }
+
+      // Final update to mark completion
+      if (onUpdate && typeof onUpdate === 'function') {
+        onUpdate(fullResponse, true); // Mark as complete
       }
 
       return fullResponse;
@@ -420,7 +425,7 @@ export async function switchModel(modelId: string, progressCallback?: (status: s
 
 export async function generateChatResponse(
   messages: Array<{ role: string; content: string }>,
-  onUpdate?: (content: string) => void
+  onUpdate?: (content: string, isComplete?: boolean) => void
 ): Promise<string> {
   const modelId = get(currentModel);
   const loaded = get(isModelLoaded);
