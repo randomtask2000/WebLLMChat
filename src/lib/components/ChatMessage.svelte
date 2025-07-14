@@ -1,54 +1,127 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, afterUpdate } from 'svelte';
   import type { ChatMessage } from '$lib/types';
   import { formatTokenCount } from '$lib/utils/tokenCount';
   import { formatResponseTime } from '$lib/utils/timeFormat';
+  import hljs from 'highlight.js/lib/core';
+  
+  // Import common languages
+  import javascript from 'highlight.js/lib/languages/javascript';
+  import typescript from 'highlight.js/lib/languages/typescript';
+  import python from 'highlight.js/lib/languages/python';
+  import json from 'highlight.js/lib/languages/json';
+  import css from 'highlight.js/lib/languages/css';
+  import xml from 'highlight.js/lib/languages/xml'; // HTML
+  import bash from 'highlight.js/lib/languages/bash';
+  import sql from 'highlight.js/lib/languages/sql';
+  import markdown from 'highlight.js/lib/languages/markdown';
+  import java from 'highlight.js/lib/languages/java';
+  import cpp from 'highlight.js/lib/languages/cpp';
+  import csharp from 'highlight.js/lib/languages/csharp';
+  import php from 'highlight.js/lib/languages/php';
+  import swift from 'highlight.js/lib/languages/swift';
+  import go from 'highlight.js/lib/languages/go';
+  import rust from 'highlight.js/lib/languages/rust';
+  
+  // Register languages
+  hljs.registerLanguage('javascript', javascript);
+  hljs.registerLanguage('typescript', typescript);
+  hljs.registerLanguage('python', python);
+  hljs.registerLanguage('json', json);
+  hljs.registerLanguage('css', css);
+  hljs.registerLanguage('xml', xml);
+  hljs.registerLanguage('html', xml); // HTML uses XML syntax
+  hljs.registerLanguage('bash', bash);
+  hljs.registerLanguage('shell', bash); // Alias
+  hljs.registerLanguage('sql', sql);
+  hljs.registerLanguage('markdown', markdown);
+  hljs.registerLanguage('java', java);
+  hljs.registerLanguage('cpp', cpp);
+  hljs.registerLanguage('c++', cpp); // Alias
+  hljs.registerLanguage('csharp', csharp);
+  hljs.registerLanguage('cs', csharp); // Alias
+  hljs.registerLanguage('php', php);
+  hljs.registerLanguage('swift', swift);
+  hljs.registerLanguage('go', go);
+  hljs.registerLanguage('rust', rust);
 
   export let message: ChatMessage;
   export let onRetry: ((content: string) => void) | undefined = undefined;
 
   let messageElement: HTMLElement;
 
-  onMount(async () => {
-    if (messageElement) {
-      await highlightCode();
-    }
+  onMount(() => {
+    highlightCode();
+  });
+  
+  afterUpdate(() => {
+    // Re-highlight on updates (for streaming)
+    highlightCode();
   });
 
-  async function highlightCode() {
-    if (typeof window === 'undefined') return;
+  function highlightCode() {
+    if (!messageElement || typeof window === 'undefined') return;
     
     try {
-      // Only load Prism.js on the client side
-      const codeBlocks = messageElement.querySelectorAll('pre code');
+      // Find all code blocks that haven't been highlighted yet
+      const codeBlocks = messageElement.querySelectorAll('pre code:not(.hljs)');
       codeBlocks.forEach((block) => {
-        block.classList.add('hljs');
+        hljs.highlightElement(block as HTMLElement);
       });
     } catch (error) {
-      console.warn('Failed to load syntax highlighting:', error);
+      console.warn('Failed to apply syntax highlighting:', error);
     }
   }
 
   function formatContent(content: string): string {
-    return content
-      .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-        const language = lang || 'text';
-        return `<pre><code class="language-${language}">${code.trim()}</code></pre>`;
-      })
+    // Create unique placeholders for code blocks to protect them from br conversion
+    const codeBlockPlaceholders: string[] = [];
+    
+    // First, handle regular markdown code blocks
+    let result = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+      const language = lang || 'text';
+      const placeholder = `__CODE_BLOCK_${codeBlockPlaceholders.length}__`;
+      codeBlockPlaceholders.push(`<pre><code class="language-${language}">${code.trim()}</code></pre>`);
+      return placeholder;
+    });
+    
+    // Then detect code blocks that look like code (preserve line breaks)
+    result = result.replace(/^((?:def |class |import |from |if |for |while |try |except |return |print\(|function |const |let |var |public |private |protected |#include |using |namespace |int |void |string |bool |char |float |double |SELECT |INSERT |UPDATE |DELETE |CREATE |ALTER |DROP).+(?:\n(?:\s{2,}.*|\s*(?:def |class |import |from |if |for |while |try |except |return |print\(|function |const |let |var |public |private |protected |#include |using |namespace |int |void |string |bool |char |float |double |SELECT |INSERT |UPDATE |DELETE |CREATE |ALTER |DROP|else|elif|except|finally|end|}).*)*)*)/gm, (match) => {
+      // Try to detect language
+      let language = 'text';
+      if (/^(def |class |import |from |if |for |while |try |except |return |print\()/m.test(match)) {
+        language = 'python';
+      } else if (/^(function |const |let |var |console\.log|document\.|window\.|=>)/m.test(match)) {
+        language = 'javascript';
+      } else if (/^(public |private |protected |class |interface |enum |namespace)/m.test(match)) {
+        language = 'typescript';
+      } else if (/^(SELECT |INSERT |UPDATE |DELETE |CREATE |ALTER |DROP)/m.test(match)) {
+        language = 'sql';
+      } else if (/^(#include |using |namespace |int |void |string |bool |char |float |double)/m.test(match)) {
+        language = 'cpp';
+      }
+      const placeholder = `__CODE_BLOCK_${codeBlockPlaceholders.length}__`;
+      codeBlockPlaceholders.push(`<pre><code class="language-${language}">${match.trim()}</code></pre>`);
+      return placeholder;
+    });
+    
+    // Handle other markdown formatting and convert newlines to br for non-code content
+    result = result
       .replace(/`([^`]+)`/g, '<code class="bg-surface-200-700-token px-1 rounded">$1</code>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\n/g, '<br>');
+    
+    // Restore code blocks (they preserve their original newlines)
+    codeBlockPlaceholders.forEach((codeBlock, index) => {
+      result = result.replace(`__CODE_BLOCK_${index}__`, codeBlock);
+    });
+    
+    return result;
   }
 
   function formatTimestamp(timestamp: number): string {
     return new Date(timestamp).toLocaleTimeString();
-  }
-
-  $: {
-    if (messageElement) {
-      highlightCode();
-    }
   }
 </script>
 

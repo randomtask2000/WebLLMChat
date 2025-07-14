@@ -1,11 +1,36 @@
+@import 'highlight.js/styles/github-dark.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html, body { @apply h-full overflow-hidden; }
 
+/* Override highlight.js background for light/dark themes */
 .hljs {
-  @apply !bg-surface-100-800-token p-4 rounded-lg;
+  @apply !bg-surface-800 dark:!bg-surface-900 p-4 rounded-lg overflow-x-auto;
+}
+
+/* Light mode overrides */
+:not(.dark) .hljs {
+  @apply !bg-surface-100 !text-surface-900;
+}
+
+:not(.dark) .hljs-keyword,
+:not(.dark) .hljs-selector-tag,
+:not(.dark) .hljs-title {
+  @apply !text-primary-600;
+}
+
+:not(.dark) .hljs-string,
+:not(.dark) .hljs-number,
+:not(.dark) .hljs-literal {
+  @apply !text-tertiary-600;
+}
+
+:not(.dark) .hljs-comment,
+:not(.dark) .hljs-quote {
+  @apply !text-surface-500;
 }
 
 .chat-message {

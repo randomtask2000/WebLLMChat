@@ -55,7 +55,9 @@
     "@capacitor/ios": "^7.4.2",
     "@floating-ui/dom": "^1.7.2",
     "@mlc-ai/web-llm": "^0.2.75",
+    "@types/highlight.js": "^9.12.4",
     "fs-minipass": "^3.0.3",
+    "highlight.js": "^11.11.1",
     "pdfjs-dist": "^3.11.174"
   },
   "type": "module"

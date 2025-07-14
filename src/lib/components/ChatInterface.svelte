@@ -263,17 +263,17 @@
         bind:value={messageInput}
         on:keydown={handleKeydown}
         placeholder={$isModelLoaded ? "Type your message..." : "Model loading... You can type but wait to send"}
-        disabled={isSubmitting}
+        disabled={isSubmitting || $isTyping}
         class="textarea flex-1 resize-none"
         rows="2"
       ></textarea>
       
       <button
         on:click={handleSubmit}
-        disabled={!messageInput.trim() || isSubmitting}
+        disabled={!messageInput.trim() || isSubmitting || $isTyping}
         class="btn variant-filled-primary self-end"
       >
-        {#if isSubmitting}
+        {#if isSubmitting || $isTyping}
           <i class="fa fa-spinner fa-spin mr-2"></i>
         {:else}
           <i class="fa fa-paper-plane mr-2"></i>
