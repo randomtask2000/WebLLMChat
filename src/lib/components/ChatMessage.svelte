@@ -73,46 +73,146 @@
     }
   }
 
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   function formatContent(content: string): string {
     // Create unique placeholders for code blocks to protect them from br conversion
     const codeBlockPlaceholders: string[] = [];
+    
+    // Language display name mapping
+    const languageNames: Record<string, string> = {
+      javascript: 'JavaScript',
+      typescript: 'TypeScript',
+      python: 'Python',
+      java: 'Java',
+      cpp: 'C++',
+      csharp: 'C#',
+      php: 'PHP',
+      swift: 'Swift',
+      go: 'Go',
+      rust: 'Rust',
+      sql: 'SQL',
+      html: 'HTML',
+      css: 'CSS',
+      json: 'JSON',
+      xml: 'XML',
+      bash: 'Bash',
+      shell: 'Shell',
+      text: 'Plain Text'
+    };
     
     // Check if this is a streaming message (contains cursor)
     const isStreaming = content.includes('__STREAMING_CURSOR__');
     let workingContent = content;
     
-    // If streaming, add cursor placeholder at the exact position BEFORE formatting
+    // If streaming, handle potential partial triple backticks
     if (isStreaming) {
+      // Store cursor position
+      const cursorIndex = workingContent.indexOf('__STREAMING_CURSOR__');
+      
+      // Check if we have partial backticks before the cursor
+      const beforeCursor = workingContent.substring(0, cursorIndex);
+      const afterCursor = workingContent.substring(cursorIndex + '__STREAMING_CURSOR__'.length);
+      
+      // Handle partial opening backticks (e.g., ` or ``)
+      if (beforeCursor.endsWith('`') || beforeCursor.endsWith('``')) {
+        // Don't process markdown yet, wait for complete triple backticks
+        workingContent = content.replace('__STREAMING_CURSOR__', '<span class="dos-cursor">█</span>');
+        return workingContent;
+      }
+      
+      // Replace cursor with visible cursor
       workingContent = content.replace('__STREAMING_CURSOR__', '<span class="dos-cursor">█</span>');
     }
     
-    // First, handle regular markdown code blocks
-    let result = workingContent.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+    // First, handle regular markdown code blocks - use non-greedy matching
+    let result = workingContent.replace(/```(\w*)\s*\n([\s\S]*?)```/g, (match, lang, code) => {
       const language = lang || 'text';
+      const displayLanguage = languageNames[language.toLowerCase()] || language.charAt(0).toUpperCase() + language.slice(1);
       const placeholder = `__CODE_BLOCK_${codeBlockPlaceholders.length}__`;
-      codeBlockPlaceholders.push(`<pre><code class="language-${language}">${code.trim()}</code></pre>`);
+      codeBlockPlaceholders.push(`<div class="code-block-container"><pre><code class="language-${language}">${escapeHtml(code.trim())}</code></pre><div class="code-block-footer-container"><span class="code-block-footer">${escapeHtml(displayLanguage)}</span></div></div>`);
       return placeholder;
     });
     
-    // Then detect code blocks that look like code (preserve line breaks)
-    result = result.replace(/^((?:def |class |import |from |if |for |while |try |except |return |print\(|function |const |let |var |public |private |protected |#include |using |namespace |int |void |string |bool |char |float |double |SELECT |INSERT |UPDATE |DELETE |CREATE |ALTER |DROP).+(?:\n(?:\s{2,}.*|\s*(?:def |class |import |from |if |for |while |try |except |return |print\(|function |const |let |var |public |private |protected |#include |using |namespace |int |void |string |bool |char |float |double |SELECT |INSERT |UPDATE |DELETE |CREATE |ALTER |DROP|else|elif|except|finally|end|}).*)*)*)/gm, (match) => {
-      // Try to detect language
-      let language = 'text';
-      if (/^(def |class |import |from |if |for |while |try |except |return |print\()/m.test(match)) {
-        language = 'python';
-      } else if (/^(function |const |let |var |console\.log|document\.|window\.|=>)/m.test(match)) {
-        language = 'javascript';
-      } else if (/^(public |private |protected |class |interface |enum |namespace)/m.test(match)) {
-        language = 'typescript';
-      } else if (/^(SELECT |INSERT |UPDATE |DELETE |CREATE |ALTER |DROP)/m.test(match)) {
-        language = 'sql';
-      } else if (/^(#include |using |namespace |int |void |string |bool |char |float |double)/m.test(match)) {
-        language = 'cpp';
+    // Auto-detect Python code blocks by looking for consistent code structure
+    // First, let's identify potential code sections
+    const lines = result.split('\n');
+    const codeBlocks: { start: number; end: number; content: string[] }[] = [];
+    let inCodeBlock = false;
+    let currentBlock: { start: number; end: number; content: string[] } | null = null;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmedLine = line.trim();
+      
+      // Check if this line starts a code block
+      if (!inCodeBlock && (
+        /^import\s+\w+/.test(trimmedLine) ||
+        /^from\s+[\w.]+\s+import/.test(trimmedLine) ||
+        /^class\s+\w+.*:/.test(trimmedLine) ||
+        /^def\s+\w+.*:/.test(trimmedLine) ||
+        /^#include\s*[<"]/.test(trimmedLine) ||
+        /^(void|int|double|float|char|bool|string)\s+\w+/.test(trimmedLine) ||
+        /^(public|private|protected):/.test(trimmedLine)
+      )) {
+        inCodeBlock = true;
+        currentBlock = { start: i, end: i, content: [line] };
+      } else if (inCodeBlock && currentBlock) {
+        // Check if we should continue the code block
+        if (
+          trimmedLine === '' || // Empty line within code
+          /^[\s]*#/.test(line) || // Comment
+          /^[\s]+/.test(line) || // Indented line
+          /^(if|elif|else|try|except|finally|with|for|while|return|pass|break|continue|raise|assert|yield|lambda|global|nonlocal|del)\b/.test(trimmedLine) ||
+          /^\w+\s*[=\(\.]/.test(trimmedLine) || // Assignment or function call
+          /^[\w.]+\(/.test(trimmedLine) // Function call
+        ) {
+          currentBlock.content.push(line);
+          currentBlock.end = i;
+        } else if (trimmedLine !== '' && /^[A-Z][a-z]/.test(trimmedLine)) {
+          // This looks like prose text, end the code block
+          if (currentBlock.content.length > 1) {
+            codeBlocks.push(currentBlock);
+          }
+          inCodeBlock = false;
+          currentBlock = null;
+        }
       }
+    }
+    
+    // Add the last block if we're still in one
+    if (inCodeBlock && currentBlock && currentBlock.content.length > 1) {
+      codeBlocks.push(currentBlock);
+    }
+    
+    // Now replace the code blocks in reverse order to maintain positions
+    for (let i = codeBlocks.length - 1; i >= 0; i--) {
+      const block = codeBlocks[i];
+      const codeContent = block.content.join('\n');
+      
+      // Detect language based on content
+      let language = 'text';
+      if (codeContent.includes('#include') || codeContent.includes('std::') || /\b(void|int|double|float|char|bool)\s+\w+/.test(codeContent)) {
+        language = 'cpp';
+      } else if (codeContent.includes('import ') || codeContent.includes('class ') || codeContent.includes('def ')) {
+        language = 'python';
+      } else if (codeContent.includes('function ') || codeContent.includes('const ') || codeContent.includes('let ')) {
+        language = 'javascript';
+      }
+      
+      const displayLanguage = languageNames[language.toLowerCase()] || language.charAt(0).toUpperCase() + language.slice(1);
       const placeholder = `__CODE_BLOCK_${codeBlockPlaceholders.length}__`;
-      codeBlockPlaceholders.push(`<pre><code class="language-${language}">${match.trim()}</code></pre>`);
-      return placeholder;
-    });
+      codeBlockPlaceholders.push(`<div class="code-block-container"><pre><code class="language-${language}">${escapeHtml(codeContent)}</code></pre><div class="code-block-footer-container"><span class="code-block-footer">${escapeHtml(displayLanguage)}</span></div></div>`);
+      
+      // Replace the lines with the placeholder
+      lines.splice(block.start, block.end - block.start + 1, placeholder);
+    }
+    
+    result = lines.join('\n');
     
     // Handle other markdown formatting and convert newlines to br for non-code content
     result = result

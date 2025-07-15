@@ -66,3 +66,20 @@ html, body { @apply h-full overflow-hidden; }
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
 }
+
+/* Code block container and footer */
+.code-block-container {
+  @apply relative mb-4;
+}
+
+.code-block-container pre {
+  @apply mb-0;
+}
+
+.code-block-footer-container {
+  @apply flex justify-end mt-1;
+}
+
+.code-block-footer {
+  @apply inline-block text-xs text-surface-600-300-token bg-surface-200-700-token px-2 py-0.5 rounded;
+}

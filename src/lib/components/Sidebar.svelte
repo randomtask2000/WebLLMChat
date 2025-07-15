@@ -9,6 +9,10 @@
     newChat();
   }
 
+  function handleClearChat() {
+    newChat(); // This effectively clears the current chat
+  }
+
   function handleLoadChat(chatId: string) {
     loadChatHistory(chatId);
   }
@@ -95,13 +99,22 @@
   <div class="absolute inset-0 flex flex-col">
     <!-- Header section -->
     <div class="p-4 pb-0">
-      <button 
-        class="btn variant-filled-primary mb-4 w-full"
-        on:click={handleNewChat}
-      >
-        <i class="fa fa-plus mr-2"></i>
-        New Chat
-      </button>
+      <div class="flex space-x-2 mb-4">
+        <button 
+          class="btn variant-filled-primary flex-1"
+          on:click={handleNewChat}
+        >
+          <i class="fa fa-plus mr-2"></i>
+          New Chat
+        </button>
+        <button 
+          class="btn variant-outline-primary"
+          on:click={handleClearChat}
+          title="Clear current chat"
+        >
+          <i class="fa fa-broom"></i>
+        </button>
+      </div>
 
       <div class="mb-4 p-3 bg-surface-200-700-token rounded-lg" data-testid="model-status">
         <div class="text-sm text-surface-600-300-token mb-1">Current Model:</div>
@@ -137,19 +150,17 @@
         <div class="space-y-2">
           {#each $chatHistories as chat (chat.id)}
             <div 
-              class="p-3 rounded-lg cursor-pointer transition-colors {
+              class="p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between {
                 $currentChatId === chat.id 
                   ? 'bg-primary-500 text-white' 
                   : 'bg-surface-200-700-token hover:bg-surface-300-600-token'
               }"
+              on:click={() => handleLoadChat(chat.id)}
+              role="button"
+              tabindex="0"
+              on:keydown={(e) => e.key === 'Enter' && handleLoadChat(chat.id)}
             >
-              <div 
-                class="flex-1"
-                on:click={() => handleLoadChat(chat.id)}
-                role="button"
-                tabindex="0"
-                on:keydown={(e) => e.key === 'Enter' && handleLoadChat(chat.id)}
-              >
+              <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium truncate mb-1">
                   {chat.title}
                 </div>
@@ -169,7 +180,7 @@
                 </div>
               </div>
               <button 
-                class="btn btn-sm variant-ghost-surface ml-2 opacity-75 hover:opacity-100"
+                class="btn btn-sm variant-ghost-surface ml-2 opacity-75 hover:opacity-100 flex-shrink-0"
                 on:click|stopPropagation={() => handleDeleteChat(chat.id)}
                 aria-label="Delete chat"
               >

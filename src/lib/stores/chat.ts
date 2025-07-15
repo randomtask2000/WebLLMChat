@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import type { ChatMessage, ChatHistory } from '../types';
 import { estimateTokenCount } from '../utils/tokenCount';
 
@@ -94,13 +94,17 @@ export function saveChatHistory() {
 }
 
 export function loadChatHistory(chatId: string) {
-  chatHistories.subscribe(histories => {
-    const chat = histories.find(h => h.id === chatId);
-    if (chat) {
-      currentMessages.set(chat.messages);
-      currentChatId.set(chatId);
-    }
-  })();
+  // First clear current chat
+  currentMessages.set([]);
+  currentChatId.set(null);
+  
+  // Then load the selected chat
+  const histories = get(chatHistories);
+  const chat = histories.find(h => h.id === chatId);
+  if (chat) {
+    currentMessages.set(chat.messages);
+    currentChatId.set(chatId);
+  }
 }
 
 export function loadChatHistories() {
