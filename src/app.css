@@ -4,33 +4,115 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body { @apply h-full overflow-hidden; }
+html, body { 
+  @apply h-full overflow-hidden; 
+}
+
+/* Let Skeleton UI manage all theme backgrounds */
 
 /* Override highlight.js background for light/dark themes */
 .hljs {
-  @apply !bg-surface-800 dark:!bg-surface-900 p-4 rounded-lg overflow-x-auto;
+  @apply !bg-surface-200-700-token p-4 rounded-lg overflow-x-auto;
 }
 
-/* Light mode overrides */
-:not(.dark) .hljs {
-  @apply !bg-surface-100 !text-surface-900;
+/* Code block styling */
+.code-block-container {
+  @apply relative mb-4 rounded-lg overflow-hidden;
 }
 
-:not(.dark) .hljs-keyword,
-:not(.dark) .hljs-selector-tag,
-:not(.dark) .hljs-title {
-  @apply !text-primary-600;
+.code-block-container pre {
+  @apply mb-0 bg-surface-200-700-token;
 }
 
-:not(.dark) .hljs-string,
-:not(.dark) .hljs-number,
-:not(.dark) .hljs-literal {
-  @apply !text-tertiary-600;
+.code-block-container pre code {
+  @apply block p-6 overflow-x-auto text-sm;
 }
 
-:not(.dark) .hljs-comment,
-:not(.dark) .hljs-quote {
-  @apply !text-surface-500;
+/* Inline code styling */
+.prose code:not(.hljs) {
+  @apply bg-surface-200-700-token text-surface-700-200-token px-1.5 py-0.5 rounded text-sm;
+}
+
+/* Code block footer styling */
+.code-block-footer-container {
+  @apply flex items-center  ;
+}
+
+
+.code-block-copy-btn {
+  @apply h-6 text-xs rounded-sm bg-surface-300-600-token leading-tight;
+}
+
+.code-block-footer,
+.code-block-copy-btn-v2 {
+  @apply text-xs 
+  text-surface-700-200-token opacity-80 
+  bg-surface-200-700-token px-2 py-0.5 rounded;
+}
+
+/* Simple pill button class */
+.btn-pill {
+  @apply text-xs text-surface-600-300-token 
+  bg-surface-300-600-token 
+  px-3 py-1 rounded-full 
+  hover:bg-surface-400-500-token hover:text-surface-700-200-token 
+  transition-colors cursor-pointer
+  border-none outline-none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Syntax highlighting colors - using Skeleton UI tokens */
+.hljs {
+  @apply text-surface-700-200-token;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-title,
+.hljs-section,
+.hljs-doctag,
+.hljs-name,
+.hljs-strong {
+  @apply text-error-500;
+  font-weight: normal;
+}
+
+.hljs-string,
+.hljs-number,
+.hljs-quote,
+.hljs-literal,
+.hljs-bullet,
+.hljs-regexp {
+  @apply text-success-500;
+}
+
+.hljs-comment,
+.hljs-formula {
+  @apply text-surface-500 italic;
+}
+
+.hljs-variable,
+.hljs-attr,
+.hljs-attribute,
+.hljs-params {
+  @apply text-warning-500;
+}
+
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-addition,
+.hljs-tag {
+  @apply text-secondary-500;
+}
+
+.hljs-function,
+.hljs-class,
+.hljs-type {
+  @apply text-primary-500;
 }
 
 .chat-message {
@@ -81,5 +163,16 @@ html, body { @apply h-full overflow-hidden; }
 }
 
 .code-block-footer {
-  @apply inline-block text-xs text-surface-600-300-token bg-surface-200-700-token px-2 py-0.5 rounded;
+  @apply inline-block text-xs px-2 py-0.5 rounded;
+  color: #111827 !important; /* Dark text in light mode */
+  background: rgba(0, 0, 0, 0.1) !important;
 }
+
+.dark .code-block-footer {
+  color: white !important; /* White text in dark mode */
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Let Skeleton UI manage all text colors */
+
+/* Let Skeleton UI manage all styling */

@@ -94,7 +94,7 @@
   $: currentModelInfo = $availableModels.find(m => m.model_id === $currentModel);
 </script>
 
-<div class="h-full w-80 bg-surface-100-800-token relative">
+<div class="h-full w-80 relative theme-text">
   <!-- Main content area with scrollable history -->
   <div class="absolute inset-0 flex flex-col">
     <!-- Header section -->
@@ -111,6 +111,7 @@
           class="btn variant-outline-primary"
           on:click={handleClearChat}
           title="Clear current chat"
+          aria-label="Clear current chat"
         >
           <i class="fa fa-broom"></i>
         </button>
@@ -194,7 +195,7 @@
   </div>
 
   <!-- Fixed button bar at bottom -->
-  <div class="absolute bottom-0 left-0 right-0 bg-surface-100-800-token border-t border-surface-300-600-token p-3 z-50">
+  <div class="absolute bottom-0 left-0 right-0 theme-glass border-t border-white/20 p-3 z-50">
     <div class="flex space-x-2">
       <button
         class="btn variant-outline-surface flex-1 text-sm"

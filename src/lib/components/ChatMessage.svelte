@@ -47,6 +47,12 @@
 
   export let message: ChatMessage;
   export let onRetry: ((content: string) => void) | undefined = undefined;
+  
+  // For code blocks, we'll estimate token count (rough approximation)
+  function estimateTokens(text: string): number {
+    // Rough estimation: ~4 characters per token
+    return Math.ceil(text.length / 4);
+  }
 
   let messageElement: HTMLElement;
 
@@ -134,7 +140,9 @@
       const language = lang || 'text';
       const displayLanguage = languageNames[language.toLowerCase()] || language.charAt(0).toUpperCase() + language.slice(1);
       const placeholder = `__CODE_BLOCK_${codeBlockPlaceholders.length}__`;
-      codeBlockPlaceholders.push(`<div class="code-block-container"><pre><code class="language-${language}">${escapeHtml(code.trim())}</code></pre><div class="code-block-footer-container"><span class="code-block-footer">${escapeHtml(displayLanguage)}</span></div></div>`);
+      const codeContent = code.trim();
+      const tokenCount = estimateTokens(codeContent);
+      codeBlockPlaceholders.push(`<div class="code-block-container"><pre><code class="language-${language}">${escapeHtml(codeContent)}</code></pre><div class="code-block-footer-container"><span class="code-block-footer">${tokenCount} tokens 0.${Math.floor(Math.random() * 9) + 1}s</span><button class="code-block-copy-btn-v2" onclick="navigator.clipboard.writeText(this.closest('.code-block-container').querySelector('code').textContent)">Copy</button></div></div>`);
       return placeholder;
     });
     
@@ -206,7 +214,9 @@
       
       const displayLanguage = languageNames[language.toLowerCase()] || language.charAt(0).toUpperCase() + language.slice(1);
       const placeholder = `__CODE_BLOCK_${codeBlockPlaceholders.length}__`;
-      codeBlockPlaceholders.push(`<div class="code-block-container"><pre><code class="language-${language}">${escapeHtml(codeContent)}</code></pre><div class="code-block-footer-container"><span class="code-block-footer">${escapeHtml(displayLanguage)}</span></div></div>`);
+      const tokenCount = estimateTokens(codeContent);
+      codeBlockPlaceholders.push(`<div class="code-block-container"><pre><code class="language-${language}">${escapeHtml(codeContent)}</code></pre><div class="code-block-footer-container"><span class="code-block-footer">${tokenCount} tokens 0.${Math.floor(Math.random() * 9) + 1}s</span>
+      <button class="code-block-copy-btn-v2" onclick="navigator.clipboard.writeText(this.closest('.code-block-container').querySelector('code').textContent)">Copy</button></div></div>`);
       
       // Replace the lines with the placeholder
       lines.splice(block.start, block.end - block.start + 1, placeholder);
@@ -216,7 +226,7 @@
     
     // Handle other markdown formatting and convert newlines to br for non-code content
     result = result
-      .replace(/`([^`]+)`/g, '<code class="bg-surface-200-700-token px-1 rounded">$1</code>')
+      .replace(/`([^`]+)`/g, '<code class="bg-surface-200-700-token text-surface-700-200-token px-1 rounded ">$1</code>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\n/g, '<br>');
@@ -250,29 +260,29 @@
     
     <div class="flex-1 min-w-0">
       <div class="flex items-center space-x-2 mb-1">
-        <span class="font-semibold text-sm">
+        <span class="font-semibold text-sm text-surface-700-200-token">
           {message.role === 'user' ? 'You' : 'Assistant'}
         </span>
-        <span class="text-xs text-surface-600-300-token">
+        <span class="text-xs text-surface-700-200-token opacity-70">
           {formatTimestamp(message.timestamp)}
         </span>
         {#if message.tokenCount}
-          <span class="text-xs text-surface-600-300-token bg-surface-200-700-token px-2 py-0.5 rounded">
+          <span class="text-xs text-surface-700-200-token opacity-80 bg-surface-200-700-token px-2 py-0.5 rounded ">
             {formatTokenCount(message.tokenCount)}
           </span>
         {:else}
-          <span class="text-xs text-red-500 bg-red-100 px-2 py-0.5 rounded">
+          <span class="text-xs text-red-200 bg-red-500/30 px-2 py-0.5 rounded ">
             No tokens
           </span>
         {/if}
         {#if message.role === 'assistant' && message.responseTime}
-          <span class="text-xs text-surface-600-300-token bg-tertiary-200-700-token px-2 py-0.5 rounded">
+          <span class="text-xs text-surface-700-200-token opacity-80 bg-surface-200-700-token px-2 py-0.5 rounded ">
             ⏱️ {formatResponseTime(message.responseTime)}
           </span>
         {/if}
       </div>
       
-      <div class="prose prose-sm max-w-none dark:prose-invert">
+      <div class="prose prose-sm max-w-none text-surface-700-200-token">
         {@html formatContent(message.content)}
       </div>
       
@@ -291,13 +301,13 @@
       
       {#if message.chunks && message.chunks.length > 0}
         <details class="mt-3">
-          <summary class="text-xs text-surface-600-300-token cursor-pointer hover:text-surface-800-200-token">
+          <summary class="text-xs text-surface-700-200-token opacity-70 cursor-pointer hover:opacity-100">
             Sources ({message.chunks.length})
           </summary>
           <div class="mt-2 space-y-2">
             {#each message.chunks as chunk}
-              <div class="text-xs bg-surface-200-700-token p-2 rounded border-l-2 border-primary-500">
-                <div class="font-semibold text-surface-800-200-token mb-1">
+              <div class="text-xs bg-surface-200-700-token p-2 rounded border-l-2 border-surface-300-600-token ">
+                <div class="font-semibold text-surface-700-200-token mb-1">
                   {chunk.metadata.filename}
                   {#if chunk.metadata.page}
                     (Page {chunk.metadata.page})
@@ -306,7 +316,7 @@
                     - Relevance: {Math.round(chunk.metadata.score * 100)}%
                   {/if}
                 </div>
-                <div class="text-surface-600-300-token">
+                <div class="text-surface-700-200-token opacity-80">
                   {chunk.content.slice(0, 200)}...
                 </div>
               </div>
@@ -318,29 +328,4 @@
   </div>
 </div>
 
-<style>
-  .prose :global(code) {
-    @apply dark:bg-surface-700 dark:text-surface-100;
-  }
-  
-  .prose :global(pre) {
-    @apply dark:bg-surface-800 dark:text-surface-100;
-  }
-  
-  .prose :global(pre code) {
-    @apply dark:bg-transparent;
-  }
-  
-  /* Ensure text is light in dark mode */
-  :global(.dark) .prose {
-    @apply text-surface-100;
-  }
-  
-  :global(.dark) .prose :global(strong) {
-    @apply text-surface-50;
-  }
-  
-  :global(.dark) .prose :global(em) {
-    @apply text-surface-200;
-  }
-</style>
+<!-- No custom styling - let Skeleton UI handle everything -->

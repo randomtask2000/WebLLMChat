@@ -5,14 +5,14 @@
   let isDropdownOpen = false;
 
   const themes: { name: Theme; label: string; description: string; preview: string }[] = [
-    { name: 'skeleton', label: 'Skeleton', description: 'Clean and minimal default theme', preview: 'bg-slate-100 border-slate-300' },
-    { name: 'wintry', label: 'Wintry', description: 'Cool blue winter theme', preview: 'bg-blue-100 border-blue-300' },
-    { name: 'modern', label: 'Modern', description: 'Sleek contemporary design', preview: 'bg-gray-100 border-gray-300' },
-    { name: 'crimson', label: 'Crimson', description: 'Bold red accented theme', preview: 'bg-red-100 border-red-300' },
-    { name: 'rocket', label: 'Rocket', description: 'Dark space-inspired theme', preview: 'bg-purple-900 border-purple-600' },
-    { name: 'sahara', label: 'Sahara', description: 'Warm desert sand colors', preview: 'bg-orange-100 border-orange-300' },
-    { name: 'hamlindigo', label: 'Hamlindigo', description: 'Professional indigo theme', preview: 'bg-indigo-100 border-indigo-300' },
-    { name: 'gold-nouveau', label: 'Gold Nouveau', description: 'Elegant art nouveau style', preview: 'bg-yellow-100 border-yellow-300' }
+    { name: 'skeleton', label: 'Skeleton', description: 'Clean and minimal gradient theme', preview: 'bg-gradient-to-r from-emerald-500 to-indigo-600' },
+    { name: 'wintry', label: 'Wintry', description: 'Cool blue winter gradient', preview: 'bg-gradient-to-r from-blue-500 to-sky-500' },
+    { name: 'modern', label: 'Modern', description: 'Sleek pink to cyan gradient', preview: 'bg-gradient-to-r from-pink-500 to-cyan-500' },
+    { name: 'crimson', label: 'Crimson', description: 'Bold red to blue gradient', preview: 'bg-gradient-to-r from-rose-600 to-blue-600' },
+    { name: 'rocket', label: 'Rocket', description: 'Dark cyan to purple gradient', preview: 'bg-gradient-to-r from-cyan-500 to-purple-500' },
+    { name: 'sahara', label: 'Sahara', description: 'Warm orange to teal gradient', preview: 'bg-gradient-to-r from-orange-400 to-teal-400' },
+    { name: 'hamlindigo', label: 'Hamlindigo', description: 'Professional blue to amber gradient', preview: 'bg-gradient-to-r from-blue-400 to-amber-600' },
+    { name: 'gold-nouveau', label: 'Gold Nouveau', description: 'Elegant purple to blue gradient', preview: 'bg-gradient-to-r from-purple-600 to-blue-600' }
   ];
 
   function handleThemeChange(theme: Theme) {
@@ -62,18 +62,17 @@
   </button>
 
   {#if isDropdownOpen}
-    <div class="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto">
-      <div class="p-4 border-b border-gray-200 dark:border-gray-600">
-        <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Choose Theme</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-300">Select a theme to customize the appearance</p>
+    <div class="absolute top-full right-0 mt-2 w-80 bg-surface-100-800-token border border-surface-300-600-token rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto">
+      <div class="p-4 border-b border-surface-300-600-token">
+        <h3 class="font-semibold text-lg text-surface-700-200-token">Choose Theme</h3>
+        <p class="text-sm text-surface-700-200-token opacity-80">Select a theme to customize the appearance</p>
       </div>
       
       <div class="p-2">
         {#each themes as theme (theme.name)}
           <button
-            class="w-full p-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group text-gray-900 dark:text-white"
+            class="w-full p-3 text-left hover:bg-surface-200-700-token rounded-lg transition-colors group text-surface-700-200-token"
             class:bg-primary-500={$currentTheme === theme.name}
-            class:text-white={$currentTheme === theme.name}
             on:click={() => handleThemeChange(theme.name)}
           >
             <div class="flex items-center justify-between mb-2">
@@ -82,13 +81,13 @@
                 <div>
                   <span class="font-medium text-sm">{theme.label}</span>
                   {#if $currentTheme === theme.name}
-                    <i class="fa fa-check ml-2 text-success-500"></i>
+                    <i class="fa fa-check ml-2 text-green-400"></i>
                   {/if}
                 </div>
               </div>
             </div>
             
-            <p class="text-xs text-gray-600 dark:text-gray-300 group-hover:text-gray-700 dark:group-hover:text-gray-200 ml-9">
+            <p class="text-xs text-surface-700-200-token opacity-70 group-hover:opacity-90 ml-9">
               {theme.description}
             </p>
           </button>
@@ -96,19 +95,19 @@
       </div>
       
       <!-- Dark Mode Toggle -->
-      <div class="p-4 border-t border-gray-200 dark:border-gray-600">
+      <div class="p-4 border-t border-surface-300-600-token">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <div class="w-6 h-6 rounded border-2 flex items-center justify-center {$isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-100 border-gray-300'}">
+            <div class="w-6 h-6 rounded border-2 flex items-center justify-center bg-white/10 border-surface-300-600-token">
               <i class="fa {$isDarkMode ? 'fa-moon text-yellow-400' : 'fa-sun text-yellow-500'} text-xs"></i>
             </div>
             <div>
-              <span class="font-medium text-sm text-gray-900 dark:text-white">Dark Mode</span>
-              <p class="text-xs text-gray-600 dark:text-gray-300">Toggle between light and dark themes</p>
+              <span class="font-medium text-sm text-surface-700-200-token">Dark Mode</span>
+              <p class="text-xs text-surface-700-200-token opacity-70">Toggle between light and dark themes</p>
             </div>
           </div>
           <button
-            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 {$isDarkMode ? 'bg-primary-600' : 'bg-gray-200'}"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 {$isDarkMode ? 'bg-white/30' : 'bg-white/20'}"
             on:click={handleDarkModeToggle}
             role="switch"
             aria-checked={$isDarkMode}
@@ -119,8 +118,8 @@
         </div>
       </div>
       
-      <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-        <p class="text-xs text-gray-600 dark:text-gray-300">
+      <div class="p-4 border-t border-surface-300-600-token bg-surface-200-700-token">
+        <p class="text-xs text-surface-700-200-token opacity-70">
           🎨 Themes change colors, fonts, and overall appearance instantly
         </p>
       </div>

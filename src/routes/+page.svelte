@@ -48,13 +48,13 @@
 {:else}
   <AppShell>
     <svelte:fragment slot="header">
-      <AppBar>
+      <AppBar class="app-bar-glass">
         <svelte:fragment slot="lead">
-          <h1 class="text-xl font-bold">WebLLM Chat</h1>
+          <h1 class="text-xl font-bold theme-text">WebLLM Chat</h1>
         </svelte:fragment>
         <svelte:fragment slot="trail">
           <button 
-            class="btn btn-sm variant-ghost-surface"
+            class="btn btn-sm variant-ghost-surface theme-glass theme-text hover:bg-white/20"
             on:click={() => showDocumentManager = !showDocumentManager}
           >
             <i class="fa fa-file-text"></i>
@@ -67,7 +67,9 @@
     </svelte:fragment>
     
     <svelte:fragment slot="sidebarLeft">
-      <Sidebar />
+      <div class="sidebar-glass h-full">
+        <Sidebar />
+      </div>
     </svelte:fragment>
     
     <ChatInterface />

@@ -30,6 +30,22 @@ const config = {
           {
             name: 'crimson',
             enhancements: true,
+          },
+          {
+            name: 'rocket',
+            enhancements: true,
+          },
+          {
+            name: 'sahara',
+            enhancements: true,
+          },
+          {
+            name: 'hamlindigo',
+            enhancements: true,
+          },
+          {
+            name: 'gold-nouveau',
+            enhancements: true,
           }
         ],
       },

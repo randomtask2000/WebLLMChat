@@ -80,27 +80,26 @@
   </button>
 
   {#if isDropdownOpen}
-    <div class="absolute top-full right-0 mt-2 w-[28rem] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl z-[9999] max-h-[32rem] overflow-y-auto">
-      <div class="p-4 border-b border-gray-200 dark:border-gray-600">
-        <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Select LLM Model</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-300">Choose from {$availableModels.length} available models</p>
+    <div class="absolute top-full right-0 mt-2 w-[28rem] bg-surface-100-800-token border border-surface-300-600-token rounded-lg shadow-xl z-[9999] max-h-[32rem] overflow-y-auto">
+      <div class="p-4 border-b border-surface-300-600-token">
+        <h3 class="font-semibold text-lg text-surface-700-200-token">Select LLM Model</h3>
+        <p class="text-sm text-surface-700-200-token opacity-80">Choose from {$availableModels.length} available models</p>
       </div>
       
       <!-- Fast/Lightweight Models -->
-      <div class="border-b border-gray-200 dark:border-gray-600">
-        <div class="p-3 bg-gray-50 dark:bg-gray-700">
-          <h4 class="font-medium text-sm text-gray-800 dark:text-gray-200 flex items-center">
-            <i class="fa fa-bolt text-yellow-500 mr-2"></i>
+      <div class="border-b border-surface-300-600-token">
+        <div class="p-3 bg-surface-200-700-token">
+          <h4 class="font-medium text-sm text-surface-700-200-token flex items-center">
+            <i class="fa fa-bolt text-yellow-400 mr-2"></i>
             ⚡ Fast & Lightweight Models
           </h4>
-          <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">Quick loading, minimal resource usage</p>
+          <p class="text-xs text-surface-700-200-token opacity-80 mt-1">Quick loading, minimal resource usage</p>
         </div>
         <div class="p-2 space-y-1">
           {#each $availableModels.filter(m => m.low_resource_required) as model (model.model_id)}
             <button
-              class="w-full p-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group text-gray-900 dark:text-white"
+              class="w-full p-3 text-left hover:bg-surface-200-700-token rounded-lg transition-colors group text-surface-700-200-token"
               class:bg-primary-500={$currentModel === model.model_id}
-              class:text-white={$currentModel === model.model_id}
               on:click={() => selectModel(model.model_id)}
             >
               <div class="flex items-center justify-between mb-2">
@@ -111,28 +110,28 @@
                   {#if $currentModel === model.model_id}
                     <div class="flex items-center space-x-1 flex-shrink-0">
                       {#if $isModelLoaded}
-                        <i class="fa fa-check-circle text-success-500"></i>
-                        <span class="text-xs text-success-500">Active</span>
+                        <i class="fa fa-check-circle text-green-400"></i>
+                        <span class="text-xs text-green-400">Active</span>
                       {:else}
-                        <i class="fa fa-spinner fa-spin text-warning-500"></i>
-                        <span class="text-xs text-warning-500">{$modelLoadingProgress}%</span>
+                        <i class="fa fa-spinner fa-spin text-yellow-400"></i>
+                        <span class="text-xs text-yellow-400">{$modelLoadingProgress}%</span>
                       {/if}
                     </div>
                   {/if}
                 </div>
                 
                 <div class="flex items-center space-x-1 text-xs opacity-75 flex-shrink-0">
-                  <span class="bg-success-500 text-white px-2 py-1 rounded text-xs">Fast</span>
-                  <span class="bg-gray-300 dark:bg-gray-600 px-2 py-1 rounded text-xs">
+                  <span class="bg-green-500/80 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">Fast</span>
+                  <span class="bg-surface-200-700-token text-surface-700-200-token px-2 py-1 rounded text-xs backdrop-blur-sm">
                     {formatMemory(model.vram_required_MB)}
                   </span>
-                  <span class="bg-gray-300 dark:bg-gray-600 px-2 py-1 rounded text-xs">
+                  <span class="bg-surface-200-700-token text-surface-700-200-token px-2 py-1 rounded text-xs backdrop-blur-sm">
                     {formatContext(model.context_length)}ctx
                   </span>
                 </div>
               </div>
               
-              <p class="text-xs text-gray-600 dark:text-gray-300 group-hover:text-gray-700 dark:group-hover:text-gray-200 mb-2 leading-relaxed">
+              <p class="text-xs text-surface-700-200-token opacity-70 group-hover:opacity-90 mb-2 leading-relaxed">
                 {model.description || 'No description available'}
               </p>
             </button>
@@ -141,20 +140,19 @@
       </div>
 
       <!-- General Purpose Models -->
-      <div class="border-b border-gray-200 dark:border-gray-600">
-        <div class="p-3 bg-gray-50 dark:bg-gray-700">
-          <h4 class="font-medium text-sm text-gray-800 dark:text-gray-200 flex items-center">
-            <i class="fa fa-comments text-blue-500 mr-2"></i>
+      <div class="border-b border-surface-300-600-token">
+        <div class="p-3 bg-surface-200-700-token">
+          <h4 class="font-medium text-sm text-surface-700-200-token flex items-center">
+            <i class="fa fa-comments text-blue-400 mr-2"></i>
             💬 General Purpose Models
           </h4>
-          <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">Best for conversations and general tasks</p>
+          <p class="text-xs text-surface-700-200-token opacity-80 mt-1">Best for conversations and general tasks</p>
         </div>
         <div class="p-2 space-y-1">
           {#each $availableModels.filter(m => !m.low_resource_required && !m.model_id.includes('Code') && !m.model_id.includes('Math') && !m.model_id.includes('Abel')) as model (model.model_id)}
             <button
-              class="w-full p-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group text-gray-900 dark:text-white"
+              class="w-full p-3 text-left hover:bg-surface-200-700-token rounded-lg transition-colors group text-surface-700-200-token"
               class:bg-primary-500={$currentModel === model.model_id}
-              class:text-white={$currentModel === model.model_id}
               on:click={() => selectModel(model.model_id)}
             >
               <div class="flex items-center justify-between mb-2">
@@ -165,11 +163,11 @@
                   {#if $currentModel === model.model_id}
                     <div class="flex items-center space-x-1 flex-shrink-0">
                       {#if $isModelLoaded}
-                        <i class="fa fa-check-circle text-success-500"></i>
-                        <span class="text-xs text-success-500">Active</span>
+                        <i class="fa fa-check-circle text-green-400"></i>
+                        <span class="text-xs text-green-400">Active</span>
                       {:else}
-                        <i class="fa fa-spinner fa-spin text-warning-500"></i>
-                        <span class="text-xs text-warning-500">{$modelLoadingProgress}%</span>
+                        <i class="fa fa-spinner fa-spin text-yellow-400"></i>
+                        <span class="text-xs text-yellow-400">{$modelLoadingProgress}%</span>
                       {/if}
                     </div>
                   {/if}
@@ -177,20 +175,20 @@
                 
                 <div class="flex items-center space-x-1 text-xs opacity-75 flex-shrink-0">
                   {#if model.context_length > 500000}
-                    <span class="bg-purple-500 text-white px-2 py-1 rounded text-xs">1M Context</span>
+                    <span class="bg-purple-500/80 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">1M Context</span>
                   {:else if model.context_length > 100000}
-                    <span class="bg-secondary-500 text-white px-2 py-1 rounded text-xs">Extended</span>
+                    <span class="bg-blue-500/80 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">Extended</span>
                   {/if}
-                  <span class="bg-gray-300 dark:bg-gray-600 px-2 py-1 rounded text-xs">
+                  <span class="bg-surface-200-700-token text-surface-700-200-token px-2 py-1 rounded text-xs backdrop-blur-sm">
                     {formatMemory(model.vram_required_MB)}
                   </span>
-                  <span class="bg-gray-300 dark:bg-gray-600 px-2 py-1 rounded text-xs">
+                  <span class="bg-surface-200-700-token text-surface-700-200-token px-2 py-1 rounded text-xs backdrop-blur-sm">
                     {formatContext(model.context_length)}ctx
                   </span>
                 </div>
               </div>
               
-              <p class="text-xs text-gray-600 dark:text-gray-300 group-hover:text-gray-700 dark:group-hover:text-gray-200 mb-2 leading-relaxed">
+              <p class="text-xs text-surface-700-200-token opacity-70 group-hover:opacity-90 mb-2 leading-relaxed">
                 {model.description || 'No description available'}
               </p>
             </button>
@@ -199,20 +197,19 @@
       </div>
 
       <!-- Specialized Models -->
-      <div class="border-b border-gray-200 dark:border-gray-600">
-        <div class="p-3 bg-gray-50 dark:bg-gray-700">
-          <h4 class="font-medium text-sm text-gray-800 dark:text-gray-200 flex items-center">
-            <i class="fa fa-code text-green-500 mr-2"></i>
+      <div class="border-b border-surface-300-600-token">
+        <div class="p-3 bg-surface-200-700-token">
+          <h4 class="font-medium text-sm text-surface-700-200-token flex items-center">
+            <i class="fa fa-code text-green-400 mr-2"></i>
             🛠️ Specialized Models
           </h4>
-          <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">Code generation, math, and specialized tasks</p>
+          <p class="text-xs text-surface-700-200-token opacity-80 mt-1">Code generation, math, and specialized tasks</p>
         </div>
         <div class="p-2 space-y-1">
           {#each $availableModels.filter(m => m.model_id.includes('Code') || m.model_id.includes('Math') || m.model_id.includes('Abel')) as model (model.model_id)}
           <button
-            class="w-full p-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group text-gray-900 dark:text-white"
+            class="w-full p-3 text-left hover:bg-surface-200-700-token rounded-lg transition-colors group text-surface-700-200-token"
             class:bg-primary-500={$currentModel === model.model_id}
-            class:text-white={$currentModel === model.model_id}
             on:click={() => selectModel(model.model_id)}
           >
             <div class="flex items-center justify-between mb-2">
@@ -250,23 +247,23 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-1 text-xs">
                 {#if model.low_resource_required}
-                  <span class="bg-success-500 text-white px-2 py-0.5 rounded text-xs">Fast</span>
+                  <span class="bg-green-500/80 text-white px-2 py-0.5 rounded text-xs backdrop-blur-sm">Fast</span>
                 {/if}
                 {#if model.context_length > 500000}
-                  <span class="bg-purple-500 text-white px-2 py-0.5 rounded text-xs">1M Context</span>
+                  <span class="bg-purple-500/80 text-white px-2 py-0.5 rounded text-xs backdrop-blur-sm">1M Context</span>
                 {:else if model.context_length > 100000}
-                  <span class="bg-secondary-500 text-white px-2 py-0.5 rounded text-xs">Extended</span>
+                  <span class="bg-blue-500/80 text-white px-2 py-0.5 rounded text-xs backdrop-blur-sm">Extended</span>
                 {/if}
                 {#if model.model_id.includes('Code')}
-                  <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">Code</span>
+                  <span class="bg-cyan-500/80 text-white px-2 py-0.5 rounded text-xs backdrop-blur-sm">Code</span>
                 {/if}
                 {#if model.model_id.includes('Math') || model.model_id.includes('Abel')}
-                  <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">Math</span>
+                  <span class="bg-emerald-500/80 text-white px-2 py-0.5 rounded text-xs backdrop-blur-sm">Math</span>
                 {/if}
               </div>
               
               {#if $currentModel === model.model_id && !$isModelLoaded}
-                <div class="text-xs text-warning-500 flex items-center space-x-1">
+                <div class="text-xs text-yellow-400 flex items-center space-x-1">
                   <i class="fa fa-download"></i>
                   <span>{$modelLoadingProgress}%</span>
                 </div>
@@ -277,8 +274,8 @@
         </div>
       </div>
       
-      <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-        <p class="text-xs text-gray-600 dark:text-gray-300">
+      <div class="p-4 border-t border-surface-300-600-token bg-surface-200-700-token">
+        <p class="text-xs text-surface-700-200-token opacity-70">
           💡 Tip: Smaller models load faster. Extended context models support longer conversations.
         </p>
       </div>

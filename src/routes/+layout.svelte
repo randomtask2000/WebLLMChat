@@ -16,6 +16,6 @@
   });
 </script>
 
-<div class="h-full bg-surface-50-900-token">
+<div class="h-full">
   <slot />
 </div>

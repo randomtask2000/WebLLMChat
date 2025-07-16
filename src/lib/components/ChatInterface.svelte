@@ -213,11 +213,11 @@
   {#if !$isModelLoaded && $modelLoadingProgress < 100}
     <div class="absolute top-0 left-0 right-0 z-20 p-4 bg-surface-100-800-token border-b border-surface-300-600-token">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-sm font-medium">Loading Model: {$currentModel}</span>
-        <span class="text-sm text-surface-600-300-token">{$modelLoadingProgress}%</span>
+        <span class="text-sm font-medium text-surface-700-200-token">Loading Model: {$currentModel}</span>
+        <span class="text-sm text-surface-700-200-token opacity-70">{$modelLoadingProgress}%</span>
       </div>
       <ProgressBar value={$modelLoadingProgress} max={100} class="mb-2" />
-      <p class="text-xs text-surface-600-300-token">{$modelLoadingStatus}</p>
+      <p class="text-xs text-surface-700-200-token opacity-70">{$modelLoadingStatus}</p>
     </div>
   {/if}
   
@@ -230,9 +230,9 @@
     on:scroll={handleScroll}
   >
     {#if $currentMessages.length === 0}
-      <div class="text-center text-surface-600-300-token mt-8">
+      <div class="text-center text-surface-700-200-token opacity-80 mt-8">
         <div class="text-6xl mb-4">💬</div>
-        <h2 class="h3 mb-2">Welcome to WebLLM Chat</h2>
+        <h2 class="h3 mb-2 text-surface-700-200-token">Welcome to WebLLM Chat</h2>
         <p>Start a conversation by typing a message below.</p>
         {#if !$isModelLoaded}
           <p class="text-sm mt-2">Loading model... Please wait.</p>
@@ -245,7 +245,7 @@
       
       {#if $isTyping}
         <div class="chat-message assistant">
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 text-surface-700-200-token">
             <div class="animate-pulse">💭</div>
             <span>Thinking...</span>
           </div>
@@ -255,35 +255,39 @@
   </div>
 
   <!-- Gradient fade for smooth scroll under effect -->
-  <div class="absolute bottom-20 left-0 right-0 h-24 bg-gradient-to-t from-surface-100-800-token to-transparent pointer-events-none z-40"></div>
+  <div class="absolute bottom-20 left-0 right-0 h-24 bg-gradient-to-t from-surface-100/50 dark:from-surface-800/50 to-transparent pointer-events-none z-40"></div>
   
   <div class="absolute bottom-0 left-0 right-0 bg-surface-100-800-token border-t border-surface-300-600-token p-4 z-50">
-    <div class="flex space-x-2">
-      <textarea
-        bind:value={messageInput}
-        on:keydown={handleKeydown}
-        placeholder={$isModelLoaded ? "Type your message..." : "Model loading... You can type but wait to send"}
-        disabled={isSubmitting || $isTyping}
-        class="textarea flex-1 resize-none"
-        rows="2"
-      ></textarea>
-      
-      <button
-        on:click={handleSubmit}
-        disabled={!messageInput.trim() || isSubmitting || $isTyping}
-        class="btn variant-filled-primary self-end"
-      >
-        {#if isSubmitting || $isTyping}
-          <i class="fa fa-spinner fa-spin mr-2"></i>
-        {:else}
-          <i class="fa fa-paper-plane mr-2"></i>
-        {/if}
-        Send
-      </button>
+    <div class="relative max-w-4xl mx-auto">
+      <div class="flex items-end gap-2 p-2 bg-surface-200-700-token rounded-full ring-2 ring-surface-300-600-token hover:ring-primary-500 focus-within:ring-primary-500 transition-all duration-200 shadow-sm">
+        <button class="btn-icon btn-icon-sm variant-soft-surface ml-1" disabled>
+          <i class="fa fa-plus"></i>
+        </button>
+        <textarea
+          bind:value={messageInput}
+          on:keydown={handleKeydown}
+          placeholder={$isModelLoaded ? "Write a message..." : "Model loading... You can type but wait to send"}
+          disabled={isSubmitting || $isTyping}
+          class="flex-1 bg-transparent border-0 ring-0 resize-none px-2 py-1.5 leading-normal min-h-[2.5rem] max-h-32"
+          rows="1"
+          style="field-sizing: content;"
+        ></textarea>
+        <button
+          on:click={handleSubmit}
+          disabled={!messageInput.trim() || isSubmitting || $isTyping}
+          class="btn-icon btn-icon-sm variant-filled-primary mr-1"
+        >
+          {#if isSubmitting || $isTyping}
+            <i class="fa fa-spinner fa-spin"></i>
+          {:else}
+            <i class="fa fa-arrow-up"></i>
+          {/if}
+        </button>
+      </div>
     </div>
     
     {#if !$isModelLoaded && $modelLoadingProgress < 100}
-      <div class="text-xs text-surface-600-300-token mt-2">
+      <div class="text-xs text-surface-700-200-token opacity-70 mt-2">
         Model is loading ({$modelLoadingProgress}%)... Messages will queue until ready.
       </div>
     {/if}
