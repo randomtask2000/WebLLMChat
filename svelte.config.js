@@ -14,6 +14,9 @@ const config = {
     }),
     paths: {
       base: process.env.BASE_PATH || ''
+    },
+    prerender: {
+      handleHttpError: 'warn' // Don't fail on 404s during prerendering
     }
   }
 };
