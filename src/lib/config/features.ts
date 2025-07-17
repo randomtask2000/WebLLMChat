@@ -84,7 +84,7 @@ export interface RAGSettings {
 
 export const DEFAULT_RAG_SETTINGS: RAGSettings = {
   chunkSize: 300,
-  overlapSize: 50,
+  overlapSize: 20, // Reduced from 50 to minimize repetition
   searchAccuracy: 50 // 0-100 scale, 50 is balanced
 };
 

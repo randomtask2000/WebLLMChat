@@ -163,10 +163,20 @@
         content:
           `**Available Commands:**\n\n` +
           `• \`/debug rag\` or \`/rag-debug\` - Show RAG system information\n` +
+          `• \`/find [term]\` - Find exact sentences containing a term\n` +
           `• \`/help\` or \`/?\` - Show this help message\n\n` +
           `**Quick Actions:**\n` +
           `• [Click here to run: /debug rag](cmd:/debug%20rag)\n` +
+          `• [Click here to run: /find](cmd:/find%20)\n` +
           `• [Click here to run: /help](cmd:/help)\n\n` +
+          `**Finding Exact Sentences:**\n` +
+          `• **Command**: \`/find Mormon\` - finds all sentences with "Mormon"\n` +
+          `• **Natural Language**: Ask naturally using phrases like:\n` +
+          `  - "Find sentences containing Mormon"\n` +
+          `  - "Show me the exact sentence with Nephi"\n` +
+          `  - "Quote the sentence about Jacob"\n` +
+          `  - "Find where it says about Lehi"\n` +
+          `• Results show exact sentences with terms **highlighted**\n\n` +
           `**RAG Features:**\n` +
           `• Drag & drop files into chat area\n` +
           `• Use + button to upload documents\n` +
@@ -182,6 +192,14 @@
     if (trimmedInput === '/rag-debug' || trimmedInput === '/debug rag') {
       messageInput = '';
       await showRAGDebugInfo();
+      return;
+    }
+
+    // Find command to search for exact sentences
+    if (trimmedInput.startsWith('/find ')) {
+      const searchTerm = messageInput.trim().substring(6); // Remove '/find '
+      messageInput = '';
+      await findExactSentences(searchTerm);
       return;
     }
 
@@ -263,13 +281,24 @@
               ragResult.results.map((r) => r.document.fileName)
             );
 
-            // Limit context to prevent exceeding token limits
+            // Limit context to prevent exceeding token limits and deduplicate similar content
             const MAX_CONTEXT_CHARS = 2000; // Roughly 500 tokens
             let contextLength = 0;
             const contextChunks = [];
+            const addedContent = new Set(); // Track content to avoid near-duplicates
 
             for (const result of ragResult.results) {
               const chunkContent = result.chunk.content;
+
+              // Create a normalized version for duplicate detection (first 100 chars, lowercased)
+              const contentKey = chunkContent.substring(0, 100).toLowerCase().replace(/\s+/g, ' ');
+
+              // Skip if we've already added very similar content
+              if (addedContent.has(contentKey)) {
+                console.log('🔍 RAG: Skipping similar chunk to avoid repetition');
+                continue;
+              }
+
               if (contextLength + chunkContent.length > MAX_CONTEXT_CHARS) {
                 // Add truncated chunk if we have room
                 const remainingChars = MAX_CONTEXT_CHARS - contextLength;
@@ -277,14 +306,16 @@
                   contextChunks.push(
                     `[${result.document.fileName}] ${chunkContent.substring(0, remainingChars)}...`
                   );
+                  addedContent.add(contentKey);
                 }
                 break;
               }
               contextChunks.push(`[${result.document.fileName}] ${chunkContent}`);
               contextLength += chunkContent.length;
+              addedContent.add(contentKey);
             }
 
-            const context = contextChunks.join('\n\n');
+            const context = contextChunks.join('\n---\n'); // Use separator to make chunks distinct
             contextPrompt = `Context from documents:\n${context}\n\nUser question: ${userMessage.content}`;
 
             // Convert RAG results to format expected by ChatMessage component
@@ -296,8 +327,34 @@
               }
             }));
 
-            // Add RAG usage indicator to the final prompt
-            contextPrompt = `IMPORTANT: You MUST answer based ONLY on the following document context. If the answer is not in the context, say "I couldn't find that information in the uploaded documents."\n\n${contextPrompt}\n\nAt the end of your response, add a note mentioning which documents were referenced (e.g., "📚 Sources: ${ragResult.results.map((r) => r.document.fileName).join(', ')}")`;
+            // Check if user is asking for exact sentences
+            const exactSentencePatterns = [
+              /find.*sentence.*containing/i,
+              /show.*exact.*sentence/i,
+              /quote.*sentence.*with/i,
+              /find.*where.*says/i,
+              /exact.*quote.*about/i
+            ];
+
+            const isAskingForExactSentence = exactSentencePatterns.some((pattern) =>
+              pattern.test(userMessage.content)
+            );
+
+            if (isAskingForExactSentence) {
+              // Extract the search term from various patterns
+              let searchTerm = '';
+              const termMatch = userMessage.content.match(
+                /(?:containing|with|about|where.*says about|quote.*about)\s+["']?([^"']+)["']?/i
+              );
+              if (termMatch) {
+                searchTerm = termMatch[1].trim();
+              }
+
+              contextPrompt = `You have access to the following document content. The user is asking for EXACT sentences containing specific terms.\n\n${context}\n\n---\n\nUser question: ${userMessage.content}\n\nIMPORTANT: Find and quote the EXACT sentences from the document that contain "${searchTerm}". Quote them verbatim with quotation marks. If multiple sentences contain the term, list them all.\n\nAt the end of your response, add: "📚 Source: ${ragResult.results.map((r) => r.document.fileName).join(', ')}"`;
+            } else {
+              // Regular RAG response
+              contextPrompt = `You have access to the following document content. Answer the user's question based ONLY on this information:\n\n${context}\n\n---\n\nUser question: ${userMessage.content}\n\nIMPORTANT: \n1. Answer directly based on the document content above\n2. Do NOT repeat the same information multiple times\n3. Do NOT quote the entire context back - only reference relevant parts\n4. Provide a concise, focused answer\n\nAt the end of your response, add: "📚 Source: ${ragResult.results.map((r) => r.document.fileName).join(', ')}"`;
+            }
           } else {
             console.log('🔍 RAG: No relevant documents found');
             // When no RAG results, add a note to check if documents are uploaded
@@ -374,7 +431,8 @@
         role: 'assistant',
         content: '',
         timestamp: Date.now(),
-        chunks: relevantChunks
+        chunks: relevantChunks,
+        tokenCount: relevantChunks.length > 0 && lastRAGQuery ? lastRAGQuery.tokensUsed : undefined
       };
 
       addMessage(assistantMessage);
@@ -598,6 +656,112 @@
 
   function toggleRAGPanel() {
     showRAGPanel = !showRAGPanel;
+  }
+
+  async function findExactSentences(searchTerm: string) {
+    if (!searchTerm) {
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: '🔍 Please provide a search term. Usage: `/find [term]`',
+        timestamp: Date.now()
+      });
+      return;
+    }
+
+    try {
+      if (!ragService.isReady()) {
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '🔍 RAG service is not initialized. Upload a document first.',
+          timestamp: Date.now()
+        });
+        return;
+      }
+
+      const documents = await ragService.getDocuments();
+      if (documents.length === 0) {
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '🔍 No documents found. Please upload documents first.',
+          timestamp: Date.now()
+        });
+        return;
+      }
+
+      console.log(`🔍 Searching for "${searchTerm}" in ${documents.length} documents`);
+
+      // Search through all documents for sentences containing the term
+      let foundSentences: { sentence: string; document: string; chunkIndex: number }[] = [];
+
+      documents.forEach((doc) => {
+        console.log(`🔍 Searching in document: ${doc.fileName} with ${doc.chunks.length} chunks`);
+        doc.chunks.forEach((chunk, chunkIndex) => {
+          // First check if the search term exists in the chunk
+          if (!chunk.content.toLowerCase().includes(searchTerm.toLowerCase())) {
+            return; // Skip this chunk
+          }
+          console.log(`🔍 Found "${searchTerm}" in chunk ${chunkIndex}`);
+
+          // Split by both sentence endings and line breaks to catch verse-formatted text
+          // This handles biblical text that may be formatted with verse numbers
+          const lines = chunk.content.split(/\n/);
+          const sentences = chunk.content.match(/[^.!?]+[.!?]+/g) || [];
+
+          // Combine both approaches and deduplicate
+          const allSentences = [...new Set([...lines, ...sentences])]
+            .filter((s) => s.trim().length > 0)
+            .filter((s) => s.toLowerCase().includes(searchTerm.toLowerCase()));
+
+          allSentences.forEach((sentence) => {
+            foundSentences.push({
+              sentence: sentence.trim(),
+              document: doc.fileName,
+              chunkIndex: chunkIndex
+            });
+          });
+        });
+      });
+
+      if (foundSentences.length === 0) {
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: `🔍 No sentences found containing "${searchTerm}".`,
+          timestamp: Date.now()
+        });
+        return;
+      }
+
+      // Build response
+      let response = `🔍 **Found ${foundSentences.length} sentence(s) containing "${searchTerm}":**\n\n`;
+
+      foundSentences.forEach((result, index) => {
+        response += `**${index + 1}. From ${result.document} (chunk ${result.chunkIndex + 1}):**\n`;
+        // Highlight the search term
+        const highlightedSentence = result.sentence.replace(
+          new RegExp(`(${searchTerm})`, 'gi'),
+          '**$1**'
+        );
+        response += `> ${highlightedSentence}\n\n`;
+      });
+
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: response,
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: `❌ Error searching for sentences: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: Date.now()
+      });
+    }
   }
 
   async function showRAGDebugInfo() {
