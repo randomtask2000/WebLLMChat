@@ -8,10 +8,13 @@ const config = {
     adapter: adapter({
       pages: 'build',
       assets: 'build',
-      fallback: undefined,
+      fallback: 'index.html', // For client-side routing
       precompress: false,
       strict: true
-    })
+    }),
+    paths: {
+      base: process.env.BASE_PATH || ''
+    }
   }
 };
 
