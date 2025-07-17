@@ -105,10 +105,10 @@ tests/
 The app includes a powerful client-side RAG system that enhances AI responses with your uploaded documents. 
 
 ### Supported Document Formats
-- 📄 PDF files
-- 📝 Text files (.txt)
-- 📋 Markdown files (.md)
-- 📊 Word documents (.docx)
+- 📕 **PDF files** - Full text extraction with metadata (title, author, page count)
+- 📘 **Word documents (.docx)** - Preserves document structure (headings, lists, paragraphs)
+- 📝 **Text files (.txt)** - Plain text processing
+- 📋 **Markdown files (.md)** - Markdown content processing
 
 ### How to Use RAG
 
@@ -156,6 +156,14 @@ Or use natural language:
 - **Token Badge**: Shows when RAG context is used in responses
 - **Source Citations**: Responses end with "📚 Source: [filename]"
 - **Search Status**: "🔍 Searching through X documents..." appears during search
+- **Processing Status**: Shows file type icons (📕 PDF, 📘 DOCX, 📄 Text) during upload
+
+### Advanced Features
+
+- **Smart Chunking**: Documents are intelligently split preserving structure (headings, paragraphs)
+- **Metadata Extraction**: PDFs extract title, author, page count automatically
+- **Structure Preservation**: DOCX files maintain heading hierarchy and lists
+- **Page Tracking**: PDF chunks remember their source page numbers
 
 For more detailed RAG usage instructions, see [RAG_USAGE_GUIDE.md](RAG_USAGE_GUIDE.md)
 

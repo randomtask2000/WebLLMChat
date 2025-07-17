@@ -58,6 +58,7 @@
     "@types/highlight.js": "^9.12.4",
     "fs-minipass": "^3.0.3",
     "highlight.js": "^11.11.1",
+    "mammoth": "^1.9.1",
     "pdfjs-dist": "^3.11.174"
   },
   "type": "module"

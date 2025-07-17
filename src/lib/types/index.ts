@@ -16,6 +16,13 @@ export interface DocumentChunk {
     page?: number;
     score?: number;
     similarity?: number;
+    chunkIndex?: number;
+    documentType?: 'pdf' | 'docx' | 'text';
+    heading?: string;
+    headingLevel?: number;
+    totalChunks?: number;
+    documentTitle?: string;
+    documentAuthor?: string;
   };
 }
 
@@ -26,6 +33,13 @@ export interface Document {
   chunks: DocumentChunk[];
   uploadedAt: number;
   size: number;
+  metadata?: {
+    title?: string;
+    author?: string;
+    createdAt?: Date;
+    pageCount?: number;
+    documentType: 'pdf' | 'docx' | 'text';
+  };
 }
 
 export interface ModelInfo {

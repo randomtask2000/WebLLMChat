@@ -526,14 +526,28 @@
       const processedFiles = [];
 
       for (const file of Array.from(files)) {
+        // Show processing status for each file
+        const processingMessage: ChatMessageType = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: `📄 Processing ${file.name}... ${file.type === 'application/pdf' ? '(PDF)' : file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? '(DOCX)' : ''}`,
+          timestamp: Date.now()
+        };
+        addMessage(processingMessage);
+        
         const result = await handleFileUpload(file);
+        
+        // Remove processing message
+        updateLastMessage('', undefined, true);
+        
         if (result) {
           totalChunks += result.chunks;
           totalVectors += result.vectors;
           processedFiles.push({
             name: file.name,
             chunks: result.chunks,
-            examples: result.examples
+            examples: result.examples,
+            documentType: result.documentType
           });
         }
       }
@@ -542,7 +556,8 @@
       let successContent = `📄 Successfully processed ${files.length} document(s):\n\n`;
 
       processedFiles.forEach((file) => {
-        successContent += `**${file.name}** (${file.chunks} chunks)\n`;
+        const typeIcon = file.documentType === 'pdf' ? '📕' : file.documentType === 'docx' ? '📘' : '📄';
+        successContent += `${typeIcon} **${file.name}** (${file.chunks} chunks)\n`;
         if (file.examples && file.examples.length > 0) {
           successContent += `Try asking:\n`;
           file.examples.forEach((example) => {
@@ -586,6 +601,7 @@
     chunks: number;
     vectors: number;
     examples: string[];
+    documentType?: string;
   } | null> {
     if (featureManager.isEnabled('clientSideRAG')) {
       // Ensure RAG service is initialized
@@ -615,7 +631,8 @@
           return {
             chunks: latestDoc.metadata.totalChunks,
             vectors: latestDoc.chunks.filter((chunk) => chunk.embedding).length,
-            examples
+            examples,
+            documentType: latestDoc.metadata.documentType || 'unknown'
           };
         }
       }
@@ -884,14 +901,28 @@
         const processedFiles = [];
 
         for (const file of fileList) {
+          // Show processing status for each file
+          const processingMessage: ChatMessageType = {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: `📄 Processing ${file.name}... ${file.type === 'application/pdf' ? '(PDF)' : file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? '(DOCX)' : ''}`,
+            timestamp: Date.now()
+          };
+          addMessage(processingMessage);
+          
           const result = await handleFileUpload(file);
+          
+          // Remove processing message
+          updateLastMessage('', undefined, true);
+          
           if (result) {
             totalChunks += result.chunks;
             totalVectors += result.vectors;
             processedFiles.push({
               name: file.name,
               chunks: result.chunks,
-              examples: result.examples
+              examples: result.examples,
+              documentType: result.documentType
             });
           }
         }
@@ -900,7 +931,8 @@
         let successContent = `📄 Successfully processed ${files.length} document(s):\n\n`;
 
         processedFiles.forEach((file) => {
-          successContent += `**${file.name}** (${file.chunks} chunks)\n`;
+          const typeIcon = file.documentType === 'pdf' ? '📕' : file.documentType === 'docx' ? '📘' : '📄';
+          successContent += `${typeIcon} **${file.name}** (${file.chunks} chunks)\n`;
           if (file.examples && file.examples.length > 0) {
             successContent += `Try asking:\n`;
             file.examples.forEach((example) => {
