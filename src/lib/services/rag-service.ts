@@ -46,27 +46,47 @@ export class ClientRAGService implements RAGService {
       // Process the file
       const processedDoc = await processDocument(file);
 
+      // Transform processedDoc chunks to RAG chunks
+      const ragChunks: RAGChunk[] = processedDoc.chunks.map((chunk, index) => ({
+        id: chunk.id,
+        documentId: processedDoc.id,
+        content: chunk.content,
+        embedding: undefined,
+        metadata: {
+          fileName: file.name,
+          chunkIndex: index,
+          tokenCount: Math.ceil(chunk.content.length / 4),
+          ...chunk.metadata // Include all metadata from document processor
+        },
+        createdAt: new Date()
+      }));
+
       // Create document with chunks
       const document: RAGDocument = {
-        id: crypto.randomUUID(),
+        id: processedDoc.id,
         fileName: file.name,
         content: processedDoc.content,
-        chunks: [],
+        chunks: ragChunks,
         metadata: {
           fileSize: file.size,
           fileType: file.type,
           processingStatus: 'completed',
           embeddingStatus: 'pending',
-          totalChunks: 0,
-          totalTokens: Math.ceil(processedDoc.content.length / 4) // rough token estimate
+          totalChunks: ragChunks.length,
+          totalTokens: Math.ceil(processedDoc.content.length / 4), // rough token estimate
+          documentType: processedDoc.metadata?.documentType,
+          documentTitle: processedDoc.metadata?.title,
+          documentAuthor: processedDoc.metadata?.author,
+          pageCount: processedDoc.metadata?.pageCount
         },
         createdAt: new Date(),
         updatedAt: new Date()
       };
 
-      // Chunk the document
-      document.chunks = await this.chunkDocument(document);
-      document.metadata.totalChunks = document.chunks.length;
+      // Validate we have chunks
+      if (document.chunks.length === 0) {
+        throw new Error(`Document processing failed: No chunks created for ${file.name}. The document may be empty or in an unsupported format.`);
+      }
 
       // Calculate average chunk size
       if (document.chunks.length > 0) {

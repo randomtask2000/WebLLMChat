@@ -535,25 +535,49 @@
         };
         addMessage(processingMessage);
         
-        const result = await handleFileUpload(file);
-        
-        // Remove processing message
-        updateLastMessage('', undefined, true);
-        
-        if (result) {
-          totalChunks += result.chunks;
-          totalVectors += result.vectors;
-          processedFiles.push({
-            name: file.name,
-            chunks: result.chunks,
-            examples: result.examples,
-            documentType: result.documentType
-          });
+        try {
+          const result = await handleFileUpload(file);
+          
+          // Remove processing message
+          updateLastMessage('', undefined, true);
+          
+          if (result && result.chunks > 0) {
+            totalChunks += result.chunks;
+            totalVectors += result.vectors;
+            processedFiles.push({
+              name: file.name,
+              chunks: result.chunks,
+              examples: result.examples,
+              documentType: result.documentType
+            });
+          } else {
+            // Show error for files with no chunks
+            const errorMessage: ChatMessageType = {
+              id: crypto.randomUUID(),
+              role: 'assistant',
+              content: `❌ Failed to process ${file.name}: No content could be extracted. The file may be empty, password-protected, or contain only images/non-text content.`,
+              timestamp: Date.now()
+            };
+            addMessage(errorMessage);
+          }
+        } catch (fileError) {
+          // Remove processing message
+          updateLastMessage('', undefined, true);
+          
+          // Show specific error message
+          const errorMessage: ChatMessageType = {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: `❌ ${fileError instanceof Error ? fileError.message : `Failed to process ${file.name}`}`,
+            timestamp: Date.now()
+          };
+          addMessage(errorMessage);
         }
       }
 
-      // Show detailed success message with examples
-      let successContent = `📄 Successfully processed ${files.length} document(s):\n\n`;
+      // Show detailed success message with examples only if we have processed files
+      if (processedFiles.length > 0) {
+        let successContent = `📄 Successfully processed ${processedFiles.length} document(s):\n\n`;
 
       processedFiles.forEach((file) => {
         const typeIcon = file.documentType === 'pdf' ? '📕' : file.documentType === 'docx' ? '📘' : '📄';
@@ -572,13 +596,14 @@
         successContent += `💡 **How to use**: Ask questions about your documents - the AI will automatically search and use relevant content to answer!`;
       }
 
-      const successMessage: ChatMessageType = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: successContent,
-        timestamp: Date.now()
-      };
-      addMessage(successMessage);
+        const successMessage: ChatMessageType = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: successContent,
+          timestamp: Date.now()
+        };
+        addMessage(successMessage);
+      }
 
       // Trigger RAG context refresh
       ragRefreshCounter++;
@@ -617,23 +642,32 @@
       }
 
       if (ragService.isReady()) {
-        // Use RAG service
-        await ragService.addDocument(file);
+        try {
+          // Use RAG service
+          await ragService.addDocument(file);
 
-        // Get the processed document to extract information
-        const documents = await ragService.getDocuments();
-        const latestDoc = documents[documents.length - 1];
+          // Get the processed document to extract information
+          const documents = await ragService.getDocuments();
+          const latestDoc = documents[documents.length - 1];
 
-        if (latestDoc) {
-          // Generate example questions based on document content
-          const examples = generateExampleQuestions(latestDoc);
+          if (latestDoc) {
+            // Generate example questions based on document content
+            const examples = generateExampleQuestions(latestDoc);
 
-          return {
-            chunks: latestDoc.metadata.totalChunks,
-            vectors: latestDoc.chunks.filter((chunk) => chunk.embedding).length,
-            examples,
-            documentType: latestDoc.metadata.documentType || 'unknown'
-          };
+            return {
+              chunks: latestDoc.metadata.totalChunks,
+              vectors: latestDoc.chunks.filter((chunk) => chunk.embedding).length,
+              examples,
+              documentType: latestDoc.metadata.documentType || 'unknown'
+            };
+          }
+        } catch (error) {
+          console.error('Error processing document:', error);
+          // Re-throw with a user-friendly message
+          throw new Error(
+            error instanceof Error ? error.message : 
+            `Failed to process ${file.name}. The document may be empty, corrupted, or in an unsupported format.`
+          );
         }
       }
     }
@@ -910,25 +944,49 @@
           };
           addMessage(processingMessage);
           
-          const result = await handleFileUpload(file);
-          
-          // Remove processing message
-          updateLastMessage('', undefined, true);
-          
-          if (result) {
-            totalChunks += result.chunks;
-            totalVectors += result.vectors;
-            processedFiles.push({
-              name: file.name,
-              chunks: result.chunks,
-              examples: result.examples,
-              documentType: result.documentType
-            });
+          try {
+            const result = await handleFileUpload(file);
+            
+            // Remove processing message
+            updateLastMessage('', undefined, true);
+            
+            if (result && result.chunks > 0) {
+              totalChunks += result.chunks;
+              totalVectors += result.vectors;
+              processedFiles.push({
+                name: file.name,
+                chunks: result.chunks,
+                examples: result.examples,
+                documentType: result.documentType
+              });
+            } else {
+              // Show error for files with no chunks
+              const errorMessage: ChatMessageType = {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: `❌ Failed to process ${file.name}: No content could be extracted. The file may be empty, password-protected, or contain only images/non-text content.`,
+                timestamp: Date.now()
+              };
+              addMessage(errorMessage);
+            }
+          } catch (fileError) {
+            // Remove processing message
+            updateLastMessage('', undefined, true);
+            
+            // Show specific error message
+            const errorMessage: ChatMessageType = {
+              id: crypto.randomUUID(),
+              role: 'assistant',
+              content: `❌ ${fileError instanceof Error ? fileError.message : `Failed to process ${file.name}`}`,
+              timestamp: Date.now()
+            };
+            addMessage(errorMessage);
           }
         }
 
-        // Show detailed success message with examples
-        let successContent = `📄 Successfully processed ${files.length} document(s):\n\n`;
+        // Show detailed success message with examples only if we have processed files
+        if (processedFiles.length > 0) {
+          let successContent = `📄 Successfully processed ${processedFiles.length} document(s):\n\n`;
 
         processedFiles.forEach((file) => {
           const typeIcon = file.documentType === 'pdf' ? '📕' : file.documentType === 'docx' ? '📘' : '📄';
@@ -942,18 +1000,19 @@
           successContent += '\n';
         });
 
-        if (totalChunks > 0) {
-          successContent += `📊 **RAG Stats**: ${totalChunks} chunks created, ${totalVectors} vectors generated\n\n`;
-          successContent += `💡 **How to use**: Ask questions about your documents - the AI will automatically search and use relevant content to answer!`;
-        }
+          if (totalChunks > 0) {
+            successContent += `📊 **RAG Stats**: ${totalChunks} chunks created, ${totalVectors} vectors generated\n\n`;
+            successContent += `💡 **How to use**: Ask questions about your documents - the AI will automatically search and use relevant content to answer!`;
+          }
 
-        const successMessage: ChatMessageType = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: successContent,
-          timestamp: Date.now()
-        };
-        addMessage(successMessage);
+          const successMessage: ChatMessageType = {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: successContent,
+            timestamp: Date.now()
+          };
+          addMessage(successMessage);
+        }
 
         // Trigger RAG context refresh
         ragRefreshCounter++;
