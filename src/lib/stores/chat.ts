@@ -34,6 +34,11 @@ export function updateLastMessage(content: string, chunks?: any[], isComplete: b
   currentMessages.update((messages) => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.role === 'assistant') {
+      // If content is empty and we're marking it complete, remove the message instead
+      if (content === '' && isComplete) {
+        return messages.slice(0, -1);
+      }
+      
       const tokenCount = estimateTokenCount(content);
       console.log(`Updating message: "${content.slice(0, 50)}..." with ${tokenCount} tokens`);
 
@@ -63,6 +68,16 @@ export function updateLastMessage(content: string, chunks?: any[], isComplete: b
 
       // Replace the last message with the updated one
       return [...messages.slice(0, -1), updatedMessage];
+    }
+    return messages;
+  });
+}
+
+export function removeLastMessage() {
+  currentMessages.update((messages) => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.role === 'assistant') {
+      return messages.slice(0, -1);
     }
     return messages;
   });

@@ -6,6 +6,7 @@
     currentMessages,
     addMessage,
     updateLastMessage,
+    removeLastMessage,
     startResponseTiming,
     isTyping,
     saveChatHistory,
@@ -301,7 +302,7 @@
           console.log(`🔍 RAG: Found ${ragResult.results.length} relevant chunks`);
 
           // Remove the searching message
-          updateLastMessage('', undefined, true);
+          removeLastMessage();
 
           if (ragResult.results.length > 0) {
             console.log(
@@ -539,7 +540,7 @@
           const result = await handleFileUpload(file);
           
           // Remove processing message
-          updateLastMessage('', undefined, true);
+          removeLastMessage();
           
           if (result && result.chunks > 0) {
             totalChunks += result.chunks;
@@ -562,7 +563,7 @@
           }
         } catch (fileError) {
           // Remove processing message
-          updateLastMessage('', undefined, true);
+          removeLastMessage();
           
           // Show specific error message
           const errorMessage: ChatMessageType = {
@@ -948,7 +949,7 @@
             const result = await handleFileUpload(file);
             
             // Remove processing message
-            updateLastMessage('', undefined, true);
+            removeLastMessage();
             
             if (result && result.chunks > 0) {
               totalChunks += result.chunks;
@@ -971,7 +972,7 @@
             }
           } catch (fileError) {
             // Remove processing message
-            updateLastMessage('', undefined, true);
+            removeLastMessage();
             
             // Show specific error message
             const errorMessage: ChatMessageType = {
@@ -1077,7 +1078,7 @@
             {/if}
           </div>
         {:else}
-          {#each $currentMessages as message (message.id)}
+          {#each $currentMessages.filter(m => m.content && m.content.trim().length > 0) as message (message.id)}
             <ChatMessage {message} onRetry={handleRetry} />
           {/each}
 

@@ -354,9 +354,11 @@
         {/if}
       </div>
 
-      <div class="prose prose-sm max-w-none text-surface-700-200-token">
-        {@html formatContent(message.content)}
-      </div>
+      {#if message.content && message.content.trim().length > 0}
+        <div class="prose prose-sm max-w-none text-surface-700-200-token">
+          {@html formatContent(message.content)}
+        </div>
+      {/if}
 
       {#if message.role === 'user' && onRetry}
         <div class="mt-2">
