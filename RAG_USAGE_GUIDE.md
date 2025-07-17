@@ -16,7 +16,7 @@ The system provides several visual cues when RAG is active:
 Open browser DevTools (F12) to see detailed RAG activity:
 
 ```
-🔍 RAG: Starting document search for query: who is mormon
+🔍 RAG: Starting document search for query: who is [term]
 🔍 RAG: Query embedding generated, dimensions: 512
 🔍 RAG: Searching vector store with topK: 3 threshold: 0.5
 🔍 RAG: Vector store returned 2 results
@@ -35,14 +35,14 @@ Type `/debug rag` in chat to see:
 
 #### ❌ Poor Queries (May Use LLM Knowledge)
 
-- "Who is Nephi?"
+- "Who is [term]?"
 - "What is JavaScript?"
 - "Explain machine learning"
 
 #### ✅ Good Queries (Forces Document Usage)
 
-- "According to the document, who is Nephi?"
-- "What does the uploaded file say about Mormon?"
+- "According to the document, who is [term]?"
+- "What does the uploaded file say about [term]?"
 - "Find information about Widger in the text"
 - "Quote the section about [specific topic] from the document"
 

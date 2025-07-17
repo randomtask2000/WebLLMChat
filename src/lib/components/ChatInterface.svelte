@@ -156,6 +156,15 @@
 
     // Help command
     if (trimmedInput === '/help' || trimmedInput === '/?') {
+      // Add user message to chat history before clearing input
+      const userMessage: ChatMessageType = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: messageInput.trim(),
+        timestamp: Date.now()
+      };
+      addMessage(userMessage);
+      
       messageInput = '';
       const helpMessage: ChatMessageType = {
         id: crypto.randomUUID(),
@@ -170,10 +179,10 @@
           `• [Click here to run: /find](cmd:/find%20)\n` +
           `• [Click here to run: /help](cmd:/help)\n\n` +
           `**Finding Exact Sentences:**\n` +
-          `• **Command**: \`/find Mormon\` - finds all sentences with "Mormon"\n` +
+          `• **Command**: \`/find [term]\` - finds all sentences with "[term]"\n` +
           `• **Natural Language**: Ask naturally using phrases like:\n` +
-          `  - "Find sentences containing Mormon"\n` +
-          `  - "Show me the exact sentence with Nephi"\n` +
+          `  - "Find sentences containing [term]"\n` +
+          `  - "Show me the exact sentence with [term]"\n` +
           `  - "Quote the sentence about Jacob"\n` +
           `  - "Find where it says about Lehi"\n` +
           `• Results show exact sentences with terms **highlighted**\n\n` +
@@ -190,6 +199,15 @@
 
     // Debug command to show RAG contents
     if (trimmedInput === '/rag-debug' || trimmedInput === '/debug rag') {
+      // Add user message to chat history before clearing input
+      const userMessage: ChatMessageType = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: messageInput.trim(),
+        timestamp: Date.now()
+      };
+      addMessage(userMessage);
+      
       messageInput = '';
       await showRAGDebugInfo();
       return;
@@ -198,6 +216,16 @@
     // Find command to search for exact sentences
     if (trimmedInput.startsWith('/find ')) {
       const searchTerm = messageInput.trim().substring(6); // Remove '/find '
+      
+      // Add user message to chat history before clearing input
+      const userMessage: ChatMessageType = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: messageInput.trim(),
+        timestamp: Date.now()
+      };
+      addMessage(userMessage);
+      
       messageInput = '';
       await findExactSentences(searchTerm);
       return;

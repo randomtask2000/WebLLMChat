@@ -141,13 +141,13 @@ Use the `/find` command to search for exact sentences:
 
 ```
 /find tree
-/find Mormon
+/find [term]
 /find any term
 ```
 
 Or use natural language:
-- "Find sentences containing Mormon"
-- "Show me the exact sentence with Nephi"
+- "Find sentences containing [term]"
+- "Show me the exact sentence with [term]"
 - "Quote the sentence about Jacob"
 - "Find where it says about Lehi"
 

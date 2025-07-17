@@ -57,7 +57,7 @@
         <svelte:fragment slot="trail">
           <button
             class="btn btn-sm variant-ghost-surface theme-glass theme-text hover:bg-white/20"
-            on:click={() => (showDocumentManager = !showDocumentManager)}
+            on:click={() => window.open('https://github.com/randomtask2000/WebLLMChat', '_blank')}
           >
             <i class="fa fa-file-text"></i>
             <span class="hidden sm:inline">Documents</span>
