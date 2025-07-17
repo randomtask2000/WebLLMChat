@@ -7,7 +7,7 @@ A modern chat application built with SvelteKit and WebLLM that runs entirely in 
 ## Features
 
 - 🤖 **WebLLM Integration**: Run large language models directly in the browser
-- 📄 **RAG Support**: Upload and search through documents (PDF, TXT, MD, CSV)
+- 📄 **RAG Support**: Upload and search through documents (DOCX, PDF, TXT, MD, CSV)
 - 🎨 **Multiple Themes**: Switch between Skeleton, Wintry, Modern, and Crimson themes
 - 💬 **Chat History**: Persistent chat sessions stored in browser localStorage
 - 🔄 **Model Management**: Download and switch between different LLM models
@@ -98,39 +98,30 @@ A modern chat application built with SvelteKit and WebLLM that runs entirely in 
 
 ### Setup
 
-\`\`\`bash
-
-# Install dependencies
-
+```bash
+#Install dependencies
 npm install
 
-# Start development server
-
+#Start development server
 npm run dev
 
-# Run tests
-
+#Run tests
 npm run test
 
-# Run integration tests
-
+#Run integration tests
 npm run test:integration
 
-# Type checking
-
+#Type checking
 npm run check
 
-# Build for production
-
+#Build for production
 npm run build
 
-# Preview production build
-
+#Preview production build
 npm run preview
-\`\`\`
+```
 
 ### Project Structure
-
 ```
 src/
 ├── lib/
