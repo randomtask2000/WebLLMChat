@@ -7,11 +7,13 @@
   import ModelDropdown from '$lib/components/ModelDropdown.svelte';
   import DocumentManager from '$lib/components/DocumentManager.svelte';
   import MobileLayout from '$lib/components/MobileLayout.svelte';
+  import WelcomeGuide from '$lib/components/WelcomeGuide.svelte';
   import { isMobile } from '$lib/utils/mobile';
 
   let showDocumentManager = false;
   let showSidebar = false;
   let isMobileDevice = false;
+  let showWelcomeGuide = false;
 
   onMount(() => {
     isMobileDevice = isMobile();
@@ -30,6 +32,13 @@
         <div
           class="p-2 bg-surface-100-800-token border-b border-surface-300-600-token flex items-center justify-between"
         >
+          <button
+            class="btn btn-sm variant-ghost-surface"
+            on:click={() => (showWelcomeGuide = true)}
+            aria-label="Show help"
+          >
+            <i class="fa fa-question-circle"></i>
+          </button>
           <button
             class="btn btn-sm variant-ghost-surface"
             on:click={() => (showDocumentManager = !showDocumentManager)}
@@ -57,10 +66,18 @@
         <svelte:fragment slot="trail">
           <button
             class="btn btn-sm variant-ghost-surface theme-glass theme-text hover:bg-white/20"
+            on:click={() => (showWelcomeGuide = true)}
+            title="Show welcome guide"
+          >
+            <i class="fa fa-question-circle"></i>
+            <span class="hidden sm:inline">Help</span>
+          </button>
+          <button
+            class="btn btn-sm variant-ghost-surface theme-glass theme-text hover:bg-white/20"
             on:click={() => window.open('https://github.com/randomtask2000/WebLLMChat', '_blank')}
           >
-            <i class="fa fa-file-text"></i>
-            <span class="hidden sm:inline">Documents</span>
+            <i class="fa fa-github"></i>
+            <span class="hidden sm:inline">GitHub</span>
           </button>
           <ModelDropdown />
           <ThemeSwitcher />
@@ -81,3 +98,6 @@
 {#if showDocumentManager}
   <DocumentManager bind:show={showDocumentManager} />
 {/if}
+
+<!-- Welcome Guide -->
+<WelcomeGuide bind:isVisible={showWelcomeGuide} />
