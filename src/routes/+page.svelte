@@ -8,7 +8,7 @@
   import DocumentManager from '$lib/components/DocumentManager.svelte';
   import MobileLayout from '$lib/components/MobileLayout.svelte';
   import { isMobile } from '$lib/utils/mobile';
-  
+
   let showDocumentManager = false;
   let showSidebar = false;
   let isMobileDevice = false;
@@ -23,14 +23,16 @@
     <svelte:fragment slot="sidebar">
       <Sidebar />
     </svelte:fragment>
-    
+
     <svelte:fragment slot="main">
       <div class="flex flex-col h-full">
         <!-- Mobile toolbar -->
-        <div class="p-2 bg-surface-100-800-token border-b border-surface-300-600-token flex items-center justify-between">
-          <button 
+        <div
+          class="p-2 bg-surface-100-800-token border-b border-surface-300-600-token flex items-center justify-between"
+        >
+          <button
             class="btn btn-sm variant-ghost-surface"
-            on:click={() => showDocumentManager = !showDocumentManager}
+            on:click={() => (showDocumentManager = !showDocumentManager)}
             aria-label="Toggle document manager"
           >
             <i class="fa fa-file-text"></i>
@@ -38,7 +40,7 @@
           <ModelDropdown />
           <ThemeSwitcher />
         </div>
-        
+
         <div class="flex-1 overflow-hidden">
           <ChatInterface />
         </div>
@@ -53,9 +55,9 @@
           <h1 class="text-xl font-bold theme-text">WebLLM Chat</h1>
         </svelte:fragment>
         <svelte:fragment slot="trail">
-          <button 
+          <button
             class="btn btn-sm variant-ghost-surface theme-glass theme-text hover:bg-white/20"
-            on:click={() => showDocumentManager = !showDocumentManager}
+            on:click={() => (showDocumentManager = !showDocumentManager)}
           >
             <i class="fa fa-file-text"></i>
             <span class="hidden sm:inline">Documents</span>
@@ -65,13 +67,13 @@
         </svelte:fragment>
       </AppBar>
     </svelte:fragment>
-    
+
     <svelte:fragment slot="sidebarLeft">
       <div class="sidebar-glass h-full">
         <Sidebar />
       </div>
     </svelte:fragment>
-    
+
     <ChatInterface />
   </AppShell>
 {/if}

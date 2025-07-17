@@ -20,8 +20,10 @@ export function addMessage(message: ChatMessage) {
   if (!message.tokenCount) {
     message.tokenCount = estimateTokenCount(message.content);
   }
-  console.log(`Adding message: "${message.content.slice(0, 50)}..." with ${message.tokenCount} tokens`);
-  currentMessages.update(messages => [...messages, message]);
+  console.log(
+    `Adding message: "${message.content.slice(0, 50)}..." with ${message.tokenCount} tokens`
+  );
+  currentMessages.update((messages) => [...messages, message]);
 }
 
 export function startResponseTiming() {
@@ -29,19 +31,19 @@ export function startResponseTiming() {
 }
 
 export function updateLastMessage(content: string, chunks?: any[], isComplete: boolean = false) {
-  currentMessages.update(messages => {
+  currentMessages.update((messages) => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.role === 'assistant') {
       const tokenCount = estimateTokenCount(content);
       console.log(`Updating message: "${content.slice(0, 50)}..." with ${tokenCount} tokens`);
-      
+
       // Calculate response time if this is the final update
       let responseTime = lastMessage.responseTime;
       if (isComplete && responseStartTime !== null) {
         responseTime = performance.now() - responseStartTime;
         responseStartTime = null; // Reset for next response
       }
-      
+
       // Handle cursor positioning - add cursor at the end of current content if streaming
       let displayContent = content;
       if (!isComplete && content.length > 0) {
@@ -49,7 +51,7 @@ export function updateLastMessage(content: string, chunks?: any[], isComplete: b
         displayContent = content + '__STREAMING_CURSOR__';
       }
       // If complete, just use the content as-is (no cursor)
-      
+
       // Create a new message object to ensure Svelte reactivity
       const updatedMessage = {
         ...lastMessage,
@@ -58,7 +60,7 @@ export function updateLastMessage(content: string, chunks?: any[], isComplete: b
         ...(chunks && { chunks }),
         ...(responseTime !== undefined && { responseTime })
       };
-      
+
       // Replace the last message with the updated one
       return [...messages.slice(0, -1), updatedMessage];
     }
@@ -69,10 +71,10 @@ export function updateLastMessage(content: string, chunks?: any[], isComplete: b
 export function saveChatHistory() {
   const chatId = crypto.randomUUID();
   const timestamp = Date.now();
-  
-  currentMessages.subscribe(messages => {
+
+  currentMessages.subscribe((messages) => {
     if (messages.length === 0) return;
-    
+
     const title = messages[0]?.content.slice(0, 50) + '...' || 'New Chat';
     const chatHistory: ChatHistory = {
       id: chatId,
@@ -82,13 +84,13 @@ export function saveChatHistory() {
       updatedAt: timestamp,
       totalTokens: calculateTotalTokens(messages)
     };
-    
-    chatHistories.update(histories => {
+
+    chatHistories.update((histories) => {
       const updated = [chatHistory, ...histories];
       localStorage.setItem('chat-histories', JSON.stringify(updated));
       return updated;
     });
-    
+
     currentChatId.set(chatId);
   })();
 }
@@ -97,10 +99,10 @@ export function loadChatHistory(chatId: string) {
   // First clear current chat
   currentMessages.set([]);
   currentChatId.set(null);
-  
+
   // Then load the selected chat
   const histories = get(chatHistories);
-  const chat = histories.find(h => h.id === chatId);
+  const chat = histories.find((h) => h.id === chatId);
   if (chat) {
     currentMessages.set(chat.messages);
     currentChatId.set(chatId);
@@ -111,36 +113,36 @@ export function loadChatHistories() {
   const stored = localStorage.getItem('chat-histories');
   if (stored) {
     const histories: ChatHistory[] = JSON.parse(stored);
-    
+
     // Ensure all messages have token counts and all histories have total tokens
-    const updatedHistories = histories.map(history => {
-      const messagesWithTokens = history.messages.map(message => ({
+    const updatedHistories = histories.map((history) => {
+      const messagesWithTokens = history.messages.map((message) => ({
         ...message,
         tokenCount: message.tokenCount || estimateTokenCount(message.content)
       }));
-      
+
       return {
         ...history,
         messages: messagesWithTokens,
         totalTokens: history.totalTokens || calculateTotalTokens(messagesWithTokens)
       };
     });
-    
+
     chatHistories.set(updatedHistories);
-    
+
     // Save updated data back to localStorage
     localStorage.setItem('chat-histories', JSON.stringify(updatedHistories));
   }
 }
 
 export function deleteChatHistory(chatId: string) {
-  chatHistories.update(histories => {
-    const updated = histories.filter(h => h.id !== chatId);
+  chatHistories.update((histories) => {
+    const updated = histories.filter((h) => h.id !== chatId);
     localStorage.setItem('chat-histories', JSON.stringify(updated));
     return updated;
   });
-  
-  currentChatId.subscribe(currentId => {
+
+  currentChatId.subscribe((currentId) => {
     if (currentId === chatId) {
       currentMessages.set([]);
       currentChatId.set(null);
@@ -155,8 +157,8 @@ export function newChat() {
 
 export function retryLastUserMessage(): string | null {
   let lastUserMessage: string | null = null;
-  
-  currentMessages.update(messages => {
+
+  currentMessages.update((messages) => {
     // Find the last user message
     for (let i = messages.length - 1; i >= 0; i--) {
       if (messages[i].role === 'user') {
@@ -167,6 +169,6 @@ export function retryLastUserMessage(): string | null {
     }
     return messages;
   });
-  
+
   return lastUserMessage;
 }

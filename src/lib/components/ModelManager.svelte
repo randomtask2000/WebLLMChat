@@ -1,16 +1,21 @@
 <script lang="ts">
   import { Modal, ProgressBar } from '@skeletonlabs/skeleton';
-  import { availableModels, downloadProgress, currentModel, isModelLoaded } from '$lib/stores/models';
+  import {
+    availableModels,
+    downloadProgress,
+    currentModel,
+    isModelLoaded
+  } from '$lib/stores/models';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
 
   export let show = false;
 
   async function handleModelSwitch(modelId: string) {
     if ($currentModel === modelId) return;
-    
+
     // Close the modal first so user can see the chat bubbles
     show = false;
-    
+
     // Load model with chat bubble feedback
     await loadModelWithChatBubble(modelId);
   }
@@ -31,12 +36,12 @@
   <Modal bind:show>
     <div class="p-6">
       <h2 class="h3 mb-4">Model Manager</h2>
-      
+
       <div class="space-y-4">
         {#each $availableModels as model}
           {@const progress = getModelProgress(model.model_id)}
           {@const isCurrentModel = $currentModel === model.model_id}
-          
+
           <div class="card p-4 {isCurrentModel ? 'ring-2 ring-primary-500' : ''}">
             <div class="flex items-center justify-between mb-2">
               <div class="flex-1">
@@ -56,21 +61,21 @@
                   {/if}
                 </div>
               </div>
-              
+
               <div class="flex items-center space-x-2">
                 {#if isCurrentModel && $isModelLoaded}
                   <span class="badge variant-filled-success">Active</span>
                 {:else if progress.downloading}
                   <span class="badge variant-filled-warning">Downloading</span>
                 {:else if progress.downloaded}
-                  <button 
+                  <button
                     class="btn btn-sm variant-filled-primary"
                     on:click={() => handleModelSwitch(model.model_id)}
                   >
                     Load
                   </button>
                 {:else}
-                  <button 
+                  <button
                     class="btn btn-sm variant-filled-secondary"
                     on:click={() => handleModelSwitch(model.model_id)}
                   >
@@ -79,18 +84,14 @@
                 {/if}
               </div>
             </div>
-            
+
             {#if progress.downloading || (progress.progress > 0 && progress.progress < 100)}
-              <ProgressBar 
-                value={progress.progress} 
-                max={100} 
-                class="mb-2"
-              />
+              <ProgressBar value={progress.progress} max={100} class="mb-2" />
               <p class="text-sm text-surface-600-300-token">
                 {progress.progress.toFixed(1)}% complete
               </p>
             {/if}
-            
+
             {#if progress.error}
               <p class="text-sm text-error-500 mt-2">
                 Error: {progress.error}
@@ -99,11 +100,9 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="flex justify-end mt-6">
-        <button class="btn variant-ghost-surface" on:click={() => show = false}>
-          Close
-        </button>
+        <button class="btn variant-ghost-surface" on:click={() => (show = false)}> Close </button>
       </div>
     </div>
   </Modal>

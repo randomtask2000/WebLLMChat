@@ -5,6 +5,7 @@
 WebLLM is a high-performance in-browser LLM inference engine that brings language model inference directly onto web browsers with hardware acceleration. Everything runs inside the browser with no server support and is accelerated with WebGPU.
 
 **Key Features:**
+
 - **In-Browser Inference**: WebGPU hardware acceleration for powerful LLM operations directly within web browsers
 - **Full OpenAI API Compatibility**: Seamless integration using OpenAI API with streaming, JSON-mode, function-calling, etc.
 - **Structured JSON Generation**: State-of-the-art JSON mode generation implemented in WebAssembly
@@ -16,6 +17,7 @@ WebLLM is a high-performance in-browser LLM inference engine that brings languag
 ## Installation
 
 ### NPM Installation
+
 ```bash
 # npm
 npm install @mlc-ai/web-llm
@@ -28,12 +30,13 @@ pnpm install @mlc-ai/web-llm
 ```
 
 ### CDN Import
+
 ```javascript
 // Import everything
-import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+import * as webllm from 'https://esm.run/@mlc-ai/web-llm';
 
 // Dynamic import
-const webllm = await import("https://esm.run/@mlc-ai/web-llm");
+const webllm = await import('https://esm.run/@mlc-ai/web-llm');
 ```
 
 ## Core API Reference
@@ -45,6 +48,7 @@ The MLCEngine class is the core interface of WebLLM enabling model loading, chat
 #### Configuration Interfaces
 
 **MLCEngineConfig** - Optional configurations for `CreateMLCEngine()` and `CreateWebWorkerMLCEngine()`:
+
 ```typescript
 interface MLCEngineConfig {
   appConfig?: AppConfig;
@@ -54,12 +58,13 @@ interface MLCEngineConfig {
 ```
 
 **GenerationConfig** - Configurations for generation tasks:
+
 ```typescript
 interface GenerationConfig {
   // MLC-specific fields
   repetition_penalty?: number;
   ignore_eos?: boolean;
-  
+
   // Shared with OpenAI APIs
   top_p?: number | null;
   temperature?: number | null;
@@ -79,19 +84,20 @@ interface GenerationConfig {
 ### Creating an MLCEngine
 
 **Method 1: Factory Function**
+
 ```javascript
-import { CreateMLCEngine } from "@mlc-ai/web-llm";
+import { CreateMLCEngine } from '@mlc-ai/web-llm';
 
 const initProgressCallback = (initProgress) => {
   console.log(initProgress);
-}
+};
 
-const selectedModel = "Llama-3.1-8B-Instruct-q4f32_1-MLC";
+const selectedModel = 'Llama-3.1-8B-Instruct-q4f32_1-MLC';
 const engine = await CreateMLCEngine(
   selectedModel,
   { initProgressCallback: initProgressCallback },
   {
-    context_window_size: 2048,
+    context_window_size: 2048
     // sliding_window_size: 1024,
     // attention_sink_size: 4,
   }
@@ -99,8 +105,9 @@ const engine = await CreateMLCEngine(
 ```
 
 **Method 2: Direct Instantiation**
+
 ```javascript
-import { MLCEngine } from "@mlc-ai/web-llm";
+import { MLCEngine } from '@mlc-ai/web-llm';
 
 // Synchronous call
 const engine = new MLCEngine({
@@ -114,14 +121,15 @@ await engine.reload(selectedModel);
 ### Chat Completions
 
 **Basic Chat Completion**
+
 ```javascript
 const messages = [
-  { role: "system", content: "You are a helpful AI assistant." },
-  { role: "user", content: "Hello!" },
+  { role: 'system', content: 'You are a helpful AI assistant.' },
+  { role: 'user', content: 'Hello!' }
 ];
 
 const reply = await engine.chat.completions.create({
-  messages,
+  messages
 });
 
 console.log(reply.choices[0].message);
@@ -129,10 +137,11 @@ console.log(reply.usage);
 ```
 
 **Streaming Chat Completion**
+
 ```javascript
 const messages = [
-  { role: "system", content: "You are a helpful AI assistant." },
-  { role: "user", content: "Hello!" },
+  { role: 'system', content: 'You are a helpful AI assistant.' },
+  { role: 'user', content: 'Hello!' }
 ];
 
 // Enable streaming
@@ -140,12 +149,12 @@ const chunks = await engine.chat.completions.create({
   messages,
   temperature: 1,
   stream: true,
-  stream_options: { include_usage: true },
+  stream_options: { include_usage: true }
 });
 
-let reply = "";
+let reply = '';
 for await (const chunk of chunks) {
-  reply += chunk.choices[0]?.delta.content || "";
+  reply += chunk.choices[0]?.delta.content || '';
   console.log(reply);
   if (chunk.usage) {
     console.log(chunk.usage); // only last chunk has usage
@@ -159,6 +168,7 @@ console.log(fullReply);
 ### Model Configuration
 
 **ChatConfig Interface**
+
 ```typescript
 interface ChatConfig {
   tokenizer_files: Array<string>;
@@ -166,12 +176,12 @@ interface ChatConfig {
   vocab_size: number;
   conv_config?: Partial<ConvTemplateConfig>;
   conv_template: ConvTemplateConfig;
-  
+
   // KVCache settings
   context_window_size: number;
   sliding_window_size: number;
   attention_sink_size: number;
-  
+
   // Generation parameters
   repetition_penalty: number;
   frequency_penalty: number;
@@ -183,6 +193,7 @@ interface ChatConfig {
 ```
 
 **ModelRecord Interface**
+
 ```typescript
 interface ModelRecord {
   model: string;
@@ -215,15 +226,16 @@ interface ConvTemplateConfig {
 }
 
 enum Role {
-  user = "user",
-  assistant = "assistant",
-  tool = "tool",
+  user = 'user',
+  assistant = 'assistant',
+  tool = 'tool'
 }
 ```
 
 ## Web Worker Integration
 
 ### Web Worker Handler
+
 ```javascript
 // worker.ts
 import { WebWorkerMLCEngineHandler } from "@mlc-ai/web-llm";
@@ -235,20 +247,18 @@ self.onmessage = (msg: MessageEvent) => {
 ```
 
 ### Main Thread Implementation
+
 ```javascript
 // main.ts
-import { CreateWebWorkerMLCEngine } from "@mlc-ai/web-llm";
+import { CreateWebWorkerMLCEngine } from '@mlc-ai/web-llm';
 
 async function main() {
   const engine = await CreateWebWorkerMLCEngine(
-    new Worker(
-      new URL("./worker.ts", import.meta.url),
-      { type: "module" }
-    ),
+    new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' }),
     selectedModel,
     { initProgressCallback }
   );
-  
+
   // Same API as MLCEngine
 }
 ```
@@ -256,6 +266,7 @@ async function main() {
 ## Service Worker Integration
 
 ### Service Worker Handler
+
 ```javascript
 // sw.ts
 import { ServiceWorkerMLCEngineHandler } from "@mlc-ai/web-llm";
@@ -269,6 +280,7 @@ self.addEventListener("activate", function (event) {
 ```
 
 ### Main Thread Registration
+
 ```javascript
 // main.ts
 import { MLCEngineInterface, CreateServiceWorkerMLCEngine } from "@mlc-ai/web-llm";
@@ -291,6 +303,7 @@ const engine: MLCEngineInterface = await CreateServiceWorkerMLCEngine(
 ### JSON Mode and Schema
 
 **Basic JSON Schema**
+
 ```javascript
 const schema1 = `{
   "properties": {
@@ -306,21 +319,23 @@ const request = {
   stream: false,
   messages: [
     {
-      role: "user",
-      content: "Generate a json containing three fields: an integer field named size, a boolean field named is_accepted, and a float field named num.",
-    },
+      role: 'user',
+      content:
+        'Generate a json containing three fields: an integer field named size, a boolean field named is_accepted, and a float field named num.'
+    }
   ],
   max_tokens: 128,
   response_format: {
-    type: "json_object",
-    schema: schema1,
-  },
+    type: 'json_object',
+    schema: schema1
+  }
 };
 
 const reply = await engine.chat.completions.create(request);
 ```
 
 **TypeBox Schema Integration**
+
 ```javascript
 import { Type, Static } from "@sinclair/typebox";
 
@@ -335,6 +350,7 @@ const schema2 = JSON.stringify(T);
 ```
 
 ### EBNF Grammar Support
+
 ```javascript
 const jsonGrammarStr = String.raw`
 root ::= basic_array | basic_object
@@ -347,40 +363,37 @@ basic_string ::= (([\"] basic_string_1 [\"]))
 const request = {
   messages: [
     {
-      role: "user",
-      content: "Generate a JSON object with a name and age field.",
-    },
+      role: 'user',
+      content: 'Generate a JSON object with a name and age field.'
+    }
   ],
   response_format: {
-    type: "grammar",
-    grammar: jsonGrammarStr,
-  },
+    type: 'grammar',
+    grammar: jsonGrammarStr
+  }
 };
 ```
 
 ### Custom Model Integration
 
 **Adding Custom Models**
+
 ```javascript
 const appConfig = {
-  "model_list": [
+  model_list: [
     {
-      "model": "/url/to/my/llama",
-      "model_id": "MyLlama-3b-v1-q4f32_0",
-      "model_lib": "/url/to/myllama3b.wasm",
+      model: '/url/to/my/llama',
+      model_id: 'MyLlama-3b-v1-q4f32_0',
+      model_lib: '/url/to/myllama3b.wasm'
     }
-  ],
+  ]
 };
 
 const chatOpts = {
-  "repetition_penalty": 1.01
+  repetition_penalty: 1.01
 };
 
-const engine = await CreateMLCEngine(
-  "MyLlama-3b-v1-q4f32_0",
-  { appConfig },
-  chatOpts,
-);
+const engine = await CreateMLCEngine('MyLlama-3b-v1-q4f32_0', { appConfig }, chatOpts);
 ```
 
 ## Built-in Models
@@ -388,6 +401,7 @@ const engine = await CreateMLCEngine(
 WebLLM supports a wide range of pre-built models:
 
 ### Model Families
+
 - **Llama**: Llama 3, Llama 2, Hermes-2-Pro-Llama-3
 - **Phi**: Phi 3, Phi 2, Phi 1.5
 - **Gemma**: Gemma-2B
@@ -395,18 +409,20 @@ WebLLM supports a wide range of pre-built models:
 - **Qwen**: Qwen2 0.5B, 1.5B, 7B
 
 ### Model Access
+
 ```javascript
 // Access available models
 const modelList = webllm.prebuiltAppConfig.model_list;
 
 // Use predefined model
-const selectedModel = "Llama-3.1-8B-Instruct-q4f32_1-MLC";
+const selectedModel = 'Llama-3.1-8B-Instruct-q4f32_1-MLC';
 const engine = await CreateMLCEngine(selectedModel);
 ```
 
 ## Utility Methods
 
 ### GPU Information
+
 ```javascript
 // Get GPU vendor
 const gpuVendor = await engine.getGPUVendor();
@@ -418,6 +434,7 @@ console.log(`Max Storage Buffer Binding Size: ${maxBufferSize}`);
 ```
 
 ### Chat Management
+
 ```javascript
 // Get current message
 const currentMessage = await engine.getMessage();
@@ -427,12 +444,10 @@ await engine.resetChat(true); // keepStats = true
 ```
 
 ### Model Management
+
 ```javascript
 // Load multiple models
-await engine.reload(["Llama-3.1-8B", "Gemma-2B"], [
-  { temperature: 0.7 },
-  { top_p: 0.9 },
-]);
+await engine.reload(['Llama-3.1-8B', 'Gemma-2B'], [{ temperature: 0.7 }, { top_p: 0.9 }]);
 
 // Unload all models
 await engine.unload();
@@ -441,6 +456,7 @@ await engine.unload();
 ## Example Projects
 
 ### Get Started Example
+
 ```javascript
 import * as webllm from "@mlc-ai/web-llm";
 
@@ -456,7 +472,7 @@ async function main() {
   const initProgressCallback = (report: webllm.InitProgressReport) => {
     setLabel("init-label", report.text);
   };
-  
+
   const selectedModel = "Llama-3.1-8B-Instruct-q4f32_1-MLC";
   const engine: webllm.MLCEngineInterface = await webllm.CreateMLCEngine(
     selectedModel,
@@ -475,7 +491,7 @@ async function main() {
       content: "You are a helpful AI assistant.",
     },
     {
-      role: "user", 
+      role: "user",
       content: "What is the meaning of life?"
     },
   ];
@@ -492,24 +508,31 @@ main();
 ```
 
 ### Multi-Model Example
+
 ```javascript
 const appConfig = {
   model_list: [
     {
-      model: "https://huggingface.co/mlc-ai/Llama-3-8B-Instruct-q4f32_1-MLC",
-      model_id: "Llama-3-8B-Instruct-q4f32_1-MLC",
-      model_lib: webllm.modelLibURLPrefix + webllm.modelVersion + "/Llama-3-8B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm",
+      model: 'https://huggingface.co/mlc-ai/Llama-3-8B-Instruct-q4f32_1-MLC',
+      model_id: 'Llama-3-8B-Instruct-q4f32_1-MLC',
+      model_lib:
+        webllm.modelLibURLPrefix +
+        webllm.modelVersion +
+        '/Llama-3-8B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm'
     },
     {
-      model: "https://huggingface.co/mlc-ai/Phi-3-mini-4k-instruct-q4f16_1-MLC",
-      model_id: "Phi-3-mini-4k-instruct-q4f16_1-MLC", 
-      model_lib: webllm.modelLibURLPrefix + webllm.modelVersion + "/Phi-3-mini-4k-instruct-q4f16_1-ctx4k_cs1k-webgpu.wasm",
+      model: 'https://huggingface.co/mlc-ai/Phi-3-mini-4k-instruct-q4f16_1-MLC',
+      model_id: 'Phi-3-mini-4k-instruct-q4f16_1-MLC',
+      model_lib:
+        webllm.modelLibURLPrefix +
+        webllm.modelVersion +
+        '/Phi-3-mini-4k-instruct-q4f16_1-ctx4k_cs1k-webgpu.wasm'
     }
-  ],
+  ]
 };
 
 const engine = await CreateMLCEngine(
-  ["Llama-3-8B-Instruct-q4f32_1-MLC", "Phi-3-mini-4k-instruct-q4f16_1-MLC"],
+  ['Llama-3-8B-Instruct-q4f32_1-MLC', 'Phi-3-mini-4k-instruct-q4f16_1-MLC'],
   { appConfig }
 );
 ```
@@ -519,40 +542,43 @@ const engine = await CreateMLCEngine(
 ### Common Issues
 
 **WebGPU Compatibility**
+
 ```javascript
 // Check WebGPU support
 if (!navigator.gpu) {
-  console.error("WebGPU is not supported in this browser");
+  console.error('WebGPU is not supported in this browser');
 }
 
 // GPU limits
 try {
   const adapter = await navigator.gpu.requestAdapter();
   const device = await adapter.requestDevice();
-  console.log("WebGPU device created successfully");
+  console.log('WebGPU device created successfully');
 } catch (error) {
-  console.error("Failed to create WebGPU device:", error);
+  console.error('Failed to create WebGPU device:', error);
 }
 ```
 
 **Memory Limitations**
+
 ```javascript
 // Check storage buffer limits
 const maxBufferSize = await engine.getMaxStorageBufferBindingSize();
 if (maxBufferSize < 32768) {
-  console.warn("GPU may have limited storage buffer size");
+  console.warn('GPU may have limited storage buffer size');
 }
 ```
 
 **Model Loading Errors**
+
 ```javascript
 try {
   await engine.reload(modelId);
 } catch (error) {
-  if (error.message.includes("maxComputeWorkgroupStorageSize")) {
-    console.error("GPU compute limits exceeded. Try a smaller model.");
-  } else if (error.message.includes("network")) {
-    console.error("Network error loading model. Check connection.");
+  if (error.message.includes('maxComputeWorkgroupStorageSize')) {
+    console.error('GPU compute limits exceeded. Try a smaller model.');
+  } else if (error.message.includes('network')) {
+    console.error('Network error loading model. Check connection.');
   }
 }
 ```
@@ -560,6 +586,7 @@ try {
 ## Build Configuration
 
 ### Package.json Dependencies
+
 ```json
 {
   "name": "@mlc-ai/web-llm",
@@ -581,6 +608,7 @@ try {
 ```
 
 ### TypeScript Configuration
+
 ```json
 {
   "compilerOptions": {
@@ -602,6 +630,7 @@ try {
 ### Building from Source
 
 **Prerequisites**
+
 ```bash
 # Install emscripten
 ./emsdk install 3.1.56
@@ -616,6 +645,7 @@ npm run build
 ```
 
 **Development Setup**
+
 ```bash
 # Link local development version
 cd examples/get-started
@@ -627,60 +657,65 @@ npm start
 ## Performance Optimization
 
 ### Context Window Configuration
+
 ```javascript
 const engine = await CreateMLCEngine(
   selectedModel,
   { initProgressCallback },
   {
-    context_window_size: 2048,      // Reduce for memory savings
-    sliding_window_size: 1024,      // Use sliding window
-    attention_sink_size: 4,         // Attention sink tokens
+    context_window_size: 2048, // Reduce for memory savings
+    sliding_window_size: 1024, // Use sliding window
+    attention_sink_size: 4 // Attention sink tokens
   }
 );
 ```
 
 ### Worker Thread Usage
+
 ```javascript
 // Offload to web worker for better UI performance
 const engine = await CreateWebWorkerMLCEngine(
-  new Worker("./worker.js", { type: "module" }),
+  new Worker('./worker.js', { type: 'module' }),
   selectedModel,
   { initProgressCallback }
 );
 ```
 
 ### Caching Strategy
+
 ```javascript
 const appConfig = {
   use_web_worker: true,
-  useIndexedDBCache: true,  // Cache models in IndexedDB
+  useIndexedDBCache: true // Cache models in IndexedDB
 };
 ```
 
 ## OpenAI API Compatibility
 
 ### Supported Features
+
 - **Streaming**: Real-time token generation
-- **JSON Mode**: Structured output generation  
+- **JSON Mode**: Structured output generation
 - **Function Calling**: Tool integration (WIP)
 - **Logit Bias**: Token probability control
 - **Seed Control**: Reproducible outputs
 - **Temperature/Top-p**: Generation control
 
 ### API Mapping
+
 ```javascript
 // OpenAI-style usage
 const response = await engine.chat.completions.create({
-  model: "gpt-3.5-turbo", // Ignored - model set at engine level
+  model: 'gpt-3.5-turbo', // Ignored - model set at engine level
   messages: [
-    { role: "system", content: "You are a helpful assistant." },
-    { role: "user", content: "Hello!" }
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'Hello!' }
   ],
   temperature: 0.7,
   max_tokens: 100,
   stream: false,
   seed: 42,
-  logit_bias: { "1234": -100 }, // Suppress specific tokens
+  logit_bias: { 1234: -100 } // Suppress specific tokens
 });
 ```
 
@@ -689,6 +724,7 @@ const response = await engine.chat.completions.create({
 This project is licensed under the Apache License 2.0. WebLLM is built on the Apache TVM stack and relies on the broader open-source ML ecosystem.
 
 ### Citation
+
 ```bibtex
 @misc{ruan2024webllmhighperformanceinbrowserllm,
   title={WebLLM: A High-Performance In-Browser LLM Inference Engine},
@@ -709,4 +745,4 @@ This project is licensed under the Apache License 2.0. WebLLM is built on the Ap
 
 ---
 
-*This documentation covers WebLLM version 0.2.79 and provides a comprehensive reference for building AI-powered web applications with in-browser LLM inference.*
+_This documentation covers WebLLM version 0.2.79 and provides a comprehensive reference for building AI-powered web applications with in-browser LLM inference._

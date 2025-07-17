@@ -2,7 +2,7 @@ export function formatResponseTime(milliseconds: number): string {
   if (milliseconds < 1000) {
     return `${Math.round(milliseconds)}ms`;
   }
-  
+
   const seconds = milliseconds / 1000;
   if (seconds < 60) {
     // Show seconds with up to 2 decimal places, and milliseconds if under 10 seconds
@@ -12,10 +12,10 @@ export function formatResponseTime(milliseconds: number): string {
       return `${seconds.toFixed(1)}s`;
     }
   }
-  
+
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  
+
   if (minutes < 60) {
     if (remainingSeconds === 0) {
       return `${minutes}m`;
@@ -23,10 +23,10 @@ export function formatResponseTime(milliseconds: number): string {
       return `${minutes}m ${remainingSeconds.toFixed(0)}s`;
     }
   }
-  
+
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
-  
+
   if (remainingMinutes === 0) {
     return `${hours}h`;
   } else {

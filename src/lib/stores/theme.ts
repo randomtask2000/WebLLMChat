@@ -30,7 +30,7 @@ export function loadTheme() {
     if (stored) {
       setTheme(stored);
     }
-    
+
     const darkStored = localStorage.getItem('dark-mode');
     if (darkStored !== null) {
       setDarkMode(darkStored === 'true');

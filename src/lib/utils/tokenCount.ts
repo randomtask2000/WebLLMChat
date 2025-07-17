@@ -5,7 +5,7 @@
 
 export function estimateTokenCount(text: string): number {
   if (!text || text.length === 0) return 0;
-  
+
   // Basic tokenization approximation
   // This is a rough estimate - real tokenizers are more complex
   const avgCharsPerToken = 4;

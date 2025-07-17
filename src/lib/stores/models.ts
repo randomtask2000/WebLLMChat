@@ -31,7 +31,7 @@ export const MODELS: ModelInfo[] = [
     description: '⚡ Microsoft Phi 3.5 Mini - Efficient and capable',
     context_length: 131072
   },
-  
+
   // Mid-Range Models
   {
     model_id: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
@@ -54,7 +54,7 @@ export const MODELS: ModelInfo[] = [
     description: '🧠 Qwen 2.5 3B - Excellent reasoning and coding',
     context_length: 131072
   },
-  
+
   // Large Models
   {
     model_id: 'Qwen2.5-7B-Instruct-q4f16_1-MLC',
@@ -77,7 +77,7 @@ export const MODELS: ModelInfo[] = [
     description: '🌪️ Mistral 7B - Strong multilingual capabilities',
     context_length: 32768
   },
-  
+
   // Code-Specialized Models
   {
     model_id: 'CodeLlama-7b-Instruct-hf-q4f16_1-MLC',
@@ -93,7 +93,7 @@ export const MODELS: ModelInfo[] = [
     description: '💻 CodeQwen 7B - Advanced code generation',
     context_length: 65536
   },
-  
+
   // Math & Reasoning Models
   {
     model_id: 'Hermes-2-Pro-Mistral-7B-q4f16_1-MLC',
@@ -109,7 +109,7 @@ export const MODELS: ModelInfo[] = [
     description: '🌟 Hermes 3 - Advanced reasoning with Llama 3.1',
     context_length: 131072
   },
-  
+
   // Conversational Models
   {
     model_id: 'Hermes-3-Llama-3.2-3B-q4f16_1-MLC',
@@ -129,8 +129,12 @@ export const MODELS: ModelInfo[] = [
 
 availableModels.set(MODELS);
 
-export function setModelDownloadProgress(modelId: string, progress: number, downloading: boolean = true) {
-  downloadProgress.update(state => ({
+export function setModelDownloadProgress(
+  modelId: string,
+  progress: number,
+  downloading: boolean = true
+) {
+  downloadProgress.update((state) => ({
     ...state,
     [modelId]: {
       modelId,
@@ -143,7 +147,7 @@ export function setModelDownloadProgress(modelId: string, progress: number, down
 }
 
 export function setModelDownloadError(modelId: string, error: string) {
-  downloadProgress.update(state => ({
+  downloadProgress.update((state) => ({
     ...state,
     [modelId]: {
       modelId,
@@ -156,7 +160,7 @@ export function setModelDownloadError(modelId: string, error: string) {
 }
 
 export function setModelDownloaded(modelId: string) {
-  downloadProgress.update(state => ({
+  downloadProgress.update((state) => ({
     ...state,
     [modelId]: {
       modelId,

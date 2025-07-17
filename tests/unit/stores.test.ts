@@ -20,7 +20,7 @@ describe('Chat Store', () => {
 
     addMessage(message);
     const messages = get(currentMessages);
-    
+
     expect(messages).toHaveLength(1);
     expect(messages[0]).toEqual(message);
   });
@@ -42,9 +42,9 @@ describe('Chat Store', () => {
 
     addMessage(userMessage);
     addMessage(assistantMessage);
-    
+
     updateLastMessage('Hello there!');
-    
+
     const messages = get(currentMessages);
     expect(messages[1].content).toBe('Hello there!');
   });
@@ -74,7 +74,7 @@ describe('Documents Store', () => {
 
     addDocument(doc);
     const docs = get(documents);
-    
+
     expect(docs).toHaveLength(1);
     expect(docs[0]).toEqual(doc);
   });
@@ -91,7 +91,7 @@ describe('Documents Store', () => {
 
     addDocument(doc);
     removeDocument('1');
-    
+
     const docs = get(documents);
     expect(docs).toHaveLength(0);
   });

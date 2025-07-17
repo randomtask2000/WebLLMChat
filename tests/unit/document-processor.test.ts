@@ -5,7 +5,7 @@ describe('Document Processor Utils', () => {
   it('should validate file types correctly', () => {
     const validFile = new File(['content'], 'test.txt', { type: 'text/plain' });
     const invalidFile = new File(['content'], 'test.exe', { type: 'application/exe' });
-    
+
     expect(isValidFileType(validFile)).toBe(true);
     expect(isValidFileType(invalidFile)).toBe(false);
   });

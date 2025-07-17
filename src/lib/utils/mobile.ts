@@ -32,14 +32,14 @@ export function getMobileOptimizedModels() {
     'Phi-3.5-mini-instruct-q4f16_1-MLC',
     'Qwen2.5-0.5B-Instruct-q4f16_1-MLC'
   ];
-  
+
   return mobileModels;
 }
 
 // Check if device can handle larger models (rough estimation)
 export function canHandleLargeModels(): boolean {
   if (!isMobile()) return true;
-  
+
   // Conservative estimation for mobile devices
   const memory = (navigator as any).deviceMemory;
   return memory && memory >= 4; // 4GB+ RAM
@@ -63,14 +63,16 @@ export function getStoragePrefix(): string {
 // Network awareness for mobile
 export function shouldDelayModelDownload(): boolean {
   if (!isMobile()) return false;
-  
+
   // Check for cellular connection (if available)
   const connection = (navigator as any).connection;
   if (connection) {
-    return connection.effectiveType === 'slow-2g' || 
-           connection.effectiveType === '2g' ||
-           connection.saveData;
+    return (
+      connection.effectiveType === 'slow-2g' ||
+      connection.effectiveType === '2g' ||
+      connection.saveData
+    );
   }
-  
+
   return false;
 }

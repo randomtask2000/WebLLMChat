@@ -1,21 +1,21 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  
+
   export let disabled = false;
-  
+
   const dispatch = createEventDispatcher<{
     upload: FileList;
   }>();
-  
+
   let fileInput: HTMLInputElement;
   let dragOver = false;
 
   function handleDrop(event: DragEvent) {
     event.preventDefault();
     dragOver = false;
-    
+
     if (disabled || !event.dataTransfer?.files) return;
-    
+
     dispatch('upload', event.dataTransfer.files);
   }
 
@@ -39,7 +39,9 @@
 </script>
 
 <div
-  class="upload-zone {dragOver ? 'drag-over' : ''} {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
+  class="upload-zone {dragOver ? 'drag-over' : ''} {disabled
+    ? 'opacity-50 cursor-not-allowed'
+    : 'cursor-pointer'}"
   on:drop={handleDrop}
   on:dragover={handleDragOver}
   on:dragleave={handleDragLeave}
@@ -57,15 +59,13 @@
     on:change={handleFileSelect}
     {disabled}
   />
-  
+
   <div class="text-center">
     <div class="text-4xl mb-2">📁</div>
     <h3 class="text-lg font-semibold mb-2">Upload Documents</h3>
     <p class="text-sm text-surface-600-300-token mb-4">
       Drag and drop files here, or click to browse
     </p>
-    <p class="text-xs text-surface-600-300-token">
-      Supported formats: PDF, TXT, MD, CSV
-    </p>
+    <p class="text-xs text-surface-600-300-token">Supported formats: PDF, TXT, MD, CSV</p>
   </div>
 </div>

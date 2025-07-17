@@ -15,6 +15,7 @@ export interface DocumentChunk {
     filename: string;
     page?: number;
     score?: number;
+    similarity?: number;
   };
 }
 
@@ -53,4 +54,12 @@ export interface ChatHistory {
   totalTokens?: number;
 }
 
-export type Theme = 'skeleton' | 'wintry' | 'modern' | 'crimson' | 'rocket' | 'sahara' | 'hamlindigo' | 'gold-nouveau';
+export type Theme =
+  | 'skeleton'
+  | 'wintry'
+  | 'modern'
+  | 'crimson'
+  | 'rocket'
+  | 'sahara'
+  | 'hamlindigo'
+  | 'gold-nouveau';

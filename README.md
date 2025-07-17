@@ -36,31 +36,39 @@ A modern chat application built with SvelteKit and WebLLM that runs entirely in 
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - Modern browser with WebGPU support (Chrome 113+, Edge 113+)
 
 ### Setup
 
 \`\`\`bash
+
 # Install dependencies
+
 npm install
 
 # Start development server
+
 npm run dev
 
 # Run tests
+
 npm run test
 
 # Run integration tests
+
 npm run test:integration
 
 # Type checking
+
 npm run check
 
 # Build for production
+
 npm run build
 
 # Preview production build
+
 npm run preview
 \`\`\`
 
@@ -69,16 +77,16 @@ npm run preview
 \`\`\`
 src/
 ├── lib/
-│   ├── components/     # Svelte components
-│   ├── stores/         # Svelte stores for state management
-│   ├── types/          # TypeScript type definitions
-│   └── utils/          # Utility functions
-├── routes/             # SvelteKit routes
-└── app.html           # Main HTML template
+│ ├── components/ # Svelte components
+│ ├── stores/ # Svelte stores for state management
+│ ├── types/ # TypeScript type definitions
+│ └── utils/ # Utility functions
+├── routes/ # SvelteKit routes
+└── app.html # Main HTML template
 
 tests/
-├── unit/              # Unit tests
-└── integration/       # Playwright integration tests
+├── unit/ # Unit tests
+└── integration/ # Playwright integration tests
 \`\`\`
 
 ## Usage
@@ -102,6 +110,7 @@ The app includes a built-in RAG system that:
 ## Browser Compatibility
 
 Requires a modern browser with WebGPU support:
+
 - Chrome/Chromium 113+
 - Edge 113+
 - Safari 16.4+ (experimental)

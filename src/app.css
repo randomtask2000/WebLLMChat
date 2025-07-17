@@ -4,8 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body { 
-  @apply h-full overflow-hidden; 
+html,
+body {
+  @apply h-full overflow-hidden;
 }
 
 /* Let Skeleton UI manage all theme backgrounds */
@@ -35,9 +36,8 @@ html, body {
 
 /* Code block footer styling */
 .code-block-footer-container {
-  @apply flex items-center  ;
+  @apply flex items-center;
 }
-
 
 .code-block-copy-btn {
   @apply h-6 text-xs rounded-sm bg-surface-300-600-token leading-tight;
@@ -45,7 +45,7 @@ html, body {
 
 .code-block-footer,
 .code-block-copy-btn-v2 {
-  @apply text-xs 
+  @apply text-xs ml-2
   text-surface-700-200-token opacity-80 
   bg-surface-200-700-token px-2 py-0.5 rounded;
 }
@@ -145,8 +145,14 @@ html, body {
 }
 
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 /* Code block container and footer */

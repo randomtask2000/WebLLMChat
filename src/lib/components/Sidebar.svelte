@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { chatHistories, currentChatId, newChat, loadChatHistory, deleteChatHistory } from '$lib/stores/chat';
+  import {
+    chatHistories,
+    currentChatId,
+    newChat,
+    loadChatHistory,
+    deleteChatHistory
+  } from '$lib/stores/chat';
   import { isModelLoaded, currentModel, availableModels } from '$lib/stores/models';
   import { formatTokenCount } from '$lib/utils/tokenCount';
 
@@ -24,7 +30,7 @@
   function formatDate(timestamp: number): string {
     return new Date(timestamp).toLocaleDateString();
   }
-  
+
   function handleExportChat() {
     try {
       const exportData = {
@@ -32,11 +38,11 @@
         exportedAt: new Date().toISOString(),
         version: '1.0'
       };
-      
+
       const dataStr = JSON.stringify(exportData, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `webllm-chat-history-${new Date().toISOString().split('T')[0]}.json`;
@@ -49,49 +55,49 @@
       alert('Failed to export chat history. Please try again.');
     }
   }
-  
+
   function handleImportClick() {
     fileInput.click();
   }
-  
+
   function handleImportChat(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    
+
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const jsonString = e.target?.result as string;
         const importData = JSON.parse(jsonString);
-        
+
         if (!importData.chatHistories || !Array.isArray(importData.chatHistories)) {
           throw new Error('Invalid chat history file format');
         }
-        
+
         // Import the chat histories
         importData.chatHistories.forEach((chat: any) => {
           // Add imported chat to store if it doesn't already exist
-          const existingChat = $chatHistories.find(h => h.id === chat.id);
+          const existingChat = $chatHistories.find((h) => h.id === chat.id);
           if (!existingChat) {
-            chatHistories.update(histories => [...histories, chat]);
+            chatHistories.update((histories) => [...histories, chat]);
           }
         });
-        
+
         alert(`Successfully imported ${importData.chatHistories.length} chat histories!`);
       } catch (error) {
         console.error('Error importing chat history:', error);
         alert('Failed to import chat history. Please check the file format and try again.');
       }
     };
-    
+
     reader.readAsText(file);
     // Reset the input so the same file can be selected again
     target.value = '';
   }
-  
-  $: currentModelInfo = $availableModels.find(m => m.model_id === $currentModel);
+
+  $: currentModelInfo = $availableModels.find((m) => m.model_id === $currentModel);
 </script>
 
 <div class="h-full w-80 relative theme-text">
@@ -100,14 +106,11 @@
     <!-- Header section -->
     <div class="p-4 pb-0">
       <div class="flex space-x-2 mb-4">
-        <button 
-          class="btn variant-filled-primary flex-1"
-          on:click={handleNewChat}
-        >
+        <button class="btn variant-filled-primary flex-1" on:click={handleNewChat}>
           <i class="fa fa-plus mr-2"></i>
           New Chat
         </button>
-        <button 
+        <button
           class="btn variant-outline-primary"
           on:click={handleClearChat}
           title="Clear current chat"
@@ -125,8 +128,10 @@
         {/if}
         <div class="flex items-center justify-between mt-2">
           <div class="flex items-center">
-            <div 
-              class="w-2 h-2 rounded-full mr-2 {$isModelLoaded ? 'bg-success-500' : 'bg-warning-500'}"
+            <div
+              class="w-2 h-2 rounded-full mr-2 {$isModelLoaded
+                ? 'bg-success-500'
+                : 'bg-warning-500'}"
             ></div>
             <span class="text-xs text-surface-600-300-token">
               {$isModelLoaded ? 'Ready' : 'Loading...'}
@@ -144,18 +149,17 @@
     <!-- Scrollable chat history -->
     <div class="flex-1 overflow-y-auto px-4" style="padding-bottom: 4rem;">
       <h3 class="h6 mb-3">Chat History</h3>
-      
+
       {#if $chatHistories.length === 0}
         <p class="text-sm text-surface-600-300-token">No chat history yet</p>
       {:else}
         <div class="space-y-2">
           {#each $chatHistories as chat (chat.id)}
-            <div 
-              class="p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between {
-                $currentChatId === chat.id 
-                  ? 'bg-primary-500 text-white' 
-                  : 'bg-surface-200-700-token hover:bg-surface-300-600-token'
-              }"
+            <div
+              class="p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between {$currentChatId ===
+              chat.id
+                ? 'bg-primary-500 text-white'
+                : 'bg-surface-200-700-token hover:bg-surface-300-600-token'}"
               on:click={() => handleLoadChat(chat.id)}
               role="button"
               tabindex="0"
@@ -174,13 +178,11 @@
                       {formatTokenCount(chat.totalTokens)}
                     </div>
                   {:else}
-                    <div class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">
-                      No tokens
-                    </div>
+                    <div class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">No tokens</div>
                   {/if}
                 </div>
               </div>
-              <button 
+              <button
                 class="btn btn-sm variant-ghost-surface ml-2 opacity-75 hover:opacity-100 flex-shrink-0"
                 on:click|stopPropagation={() => handleDeleteChat(chat.id)}
                 aria-label="Delete chat"
@@ -205,11 +207,8 @@
         <i class="fa fa-download mr-2"></i>
         Export
       </button>
-      
-      <button
-        class="btn variant-outline-surface flex-1 text-sm"
-        on:click={handleImportClick}
-      >
+
+      <button class="btn variant-outline-surface flex-1 text-sm" on:click={handleImportClick}>
         <i class="fa fa-upload mr-2"></i>
         Import
       </button>

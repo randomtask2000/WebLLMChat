@@ -5,11 +5,13 @@ Your WebLLM Chat app has been successfully converted to a native iOS app using C
 ## 📱 What's Been Done
 
 ### ✅ Capacitor Setup
+
 - Added Capacitor core and iOS platform
 - Configured for WebLLM compatibility
 - Created iOS project structure
 
 ### ✅ Mobile-Optimized Features
+
 - **Mobile-first UI**: Responsive layout with collapsible sidebar
 - **Touch-optimized**: Better touch targets and mobile interactions
 - **Model filtering**: Prioritizes smaller, mobile-friendly models
@@ -17,6 +19,7 @@ Your WebLLM Chat app has been successfully converted to a native iOS app using C
 - **PWA support**: Can be installed as web app
 
 ### ✅ iOS-Specific Optimizations
+
 - Safe area handling for notched devices
 - Proper viewport configuration
 - Native app styling and behavior
@@ -25,6 +28,7 @@ Your WebLLM Chat app has been successfully converted to a native iOS app using C
 ## 🛠️ Next Steps to Complete iOS Setup
 
 ### 1. Install Xcode
+
 ```bash
 # Install Xcode from Mac App Store
 # Then install Xcode command line tools
@@ -32,11 +36,13 @@ xcode-select --install
 ```
 
 ### 2. Install CocoaPods
+
 ```bash
 sudo gem install cocoapods
 ```
 
 ### 3. Complete iOS Setup
+
 ```bash
 # Navigate to your project
 cd /Users/emilionicoli/my/claude-webllm/claude-webllm-app
@@ -51,6 +57,7 @@ npm run mobile:ios
 ```
 
 ### 4. Configure iOS App in Xcode
+
 1. Open the project in Xcode
 2. Select your development team
 3. Update bundle identifier if needed
@@ -58,6 +65,7 @@ npm run mobile:ios
 5. Set deployment target (iOS 14.0+)
 
 ### 5. Build and Test
+
 ```bash
 # Build for iOS simulator
 npm run mobile:run:ios
@@ -68,19 +76,23 @@ npm run mobile:run:ios
 ## 📱 Mobile Features
 
 ### Mobile-Optimized UI
+
 - **Collapsible sidebar**: Swipe or tap to access chat history
 - **Mobile toolbar**: Compact controls for mobile screens
 - **Touch-friendly**: Larger touch targets, better spacing
 - **Keyboard handling**: Proper viewport adjustment
 
 ### Model Recommendations
+
 Mobile-optimized models (smaller, faster):
+
 - `TinyLlama-1.1B-Chat-v0.4-q4f16_1-MLC-1k`
 - `Llama-3.2-1B-Instruct-q4f16_1-MLC`
 - `Phi-3.5-mini-instruct-q4f16_1-MLC`
 - `Qwen2.5-0.5B-Instruct-q4f16_1-MLC`
 
 ### Performance Optimizations
+
 - **Connection awareness**: Warns on cellular for large downloads
 - **Memory management**: Filters models based on device capacity
 - **Battery optimization**: Reduces GPU usage when possible
@@ -104,12 +116,14 @@ npm run mobile:add:ios
 ## 📋 Requirements
 
 ### iOS Development
+
 - **macOS**: Required for iOS development
 - **Xcode 14.0+**: For iOS app compilation
 - **iOS 14.0+**: Minimum deployment target
 - **CocoaPods**: For native dependencies
 
 ### Device Requirements
+
 - **RAM**: 4GB+ recommended for larger models
 - **Storage**: 2-10GB for model files
 - **Network**: Wi-Fi recommended for model downloads
@@ -117,6 +131,7 @@ npm run mobile:add:ios
 ## 🚀 App Store Deployment
 
 ### Prepare for App Store
+
 1. **App Icons**: Add proper iOS app icons
 2. **Screenshots**: Create App Store screenshots
 3. **Metadata**: Update app description and keywords
@@ -124,6 +139,7 @@ npm run mobile:add:ios
 5. **Compliance**: Ensure WebLLM usage complies with App Store guidelines
 
 ### Build for Production
+
 ```bash
 # Build production web app
 npm run build
@@ -138,12 +154,14 @@ npx cap sync ios
 ## 💡 Tips
 
 ### WebLLM on iOS
+
 - Works best on iOS 15+ with WebGPU support
 - Fallback to WebGL2 on older devices
 - Test model loading on actual devices
 - Monitor memory usage and battery impact
 
 ### Development
+
 - Use iOS Simulator for UI testing
 - Test on real devices for performance
 - Monitor Console for WebLLM debugging
@@ -152,12 +170,14 @@ npx cap sync ios
 ## 🔍 Troubleshooting
 
 ### Common Issues
+
 1. **WebGPU not available**: iOS Safari has limited WebGPU support
 2. **Memory limits**: Large models may crash on older devices
 3. **Network errors**: Check CORS and network policies
 4. **Build errors**: Ensure Xcode and CocoaPods are properly installed
 
 ### Debug Commands
+
 ```bash
 # Check iOS setup
 npx cap doctor ios
