@@ -34,6 +34,61 @@ A modern chat application built with SvelteKit and WebLLM that runs entirely in 
 - **Testing**: Vitest for unit tests, Playwright for integration tests
 - **Build**: Vite for fast development and optimized production builds
 
+## NPM Packages
+
+### Core Dependencies
+- **[@mlc-ai/web-llm](https://www.npmjs.com/package/@mlc-ai/web-llm)** `^0.2.75` - WebLLM library for running LLMs in browser
+- **[highlight.js](https://www.npmjs.com/package/highlight.js)** `^11.11.1` - Syntax highlighting for code blocks
+- **[mammoth](https://www.npmjs.com/package/mammoth)** `^1.9.1` - DOCX to HTML conversion
+- **[pdfjs-dist](https://www.npmjs.com/package/pdfjs-dist)** `^3.11.174` - PDF text extraction and rendering
+- **[@floating-ui/dom](https://www.npmjs.com/package/@floating-ui/dom)** `^1.7.2` - Floating UI positioning engine
+
+### Mobile Support
+- **[@capacitor/core](https://www.npmjs.com/package/@capacitor/core)** `^7.4.2` - Cross-platform native runtime
+- **[@capacitor/cli](https://www.npmjs.com/package/@capacitor/cli)** `^7.4.2` - Capacitor command-line interface
+- **[@capacitor/ios](https://www.npmjs.com/package/@capacitor/ios)** `^7.4.2` - iOS platform support
+
+### Framework & Build Tools
+- **[svelte](https://www.npmjs.com/package/svelte)** `^5.1.9` - Reactive UI framework
+- **[@sveltejs/kit](https://www.npmjs.com/package/@sveltejs/kit)** `^2.8.0` - Full-stack framework
+- **[@sveltejs/adapter-static](https://www.npmjs.com/package/@sveltejs/adapter-static)** `^3.0.5` - Static site adapter
+- **[@sveltejs/vite-plugin-svelte](https://www.npmjs.com/package/@sveltejs/vite-plugin-svelte)** `^4.0.0` - Vite plugin for Svelte
+- **[vite](https://www.npmjs.com/package/vite)** `^5.4.8` - Fast build tool and dev server
+
+### UI & Styling
+- **[@skeletonlabs/skeleton](https://www.npmjs.com/package/@skeletonlabs/skeleton)** `^2.10.2` - Svelte UI toolkit
+- **[@skeletonlabs/tw-plugin](https://www.npmjs.com/package/@skeletonlabs/tw-plugin)** `^0.4.0` - Tailwind plugin for Skeleton
+- **[tailwindcss](https://www.npmjs.com/package/tailwindcss)** `^3.4.14` - Utility-first CSS framework
+- **[@tailwindcss/forms](https://www.npmjs.com/package/@tailwindcss/forms)** `^0.5.9` - Form styling plugin
+- **[@tailwindcss/typography](https://www.npmjs.com/package/@tailwindcss/typography)** `^0.5.15` - Typography plugin
+- **[prismjs](https://www.npmjs.com/package/prismjs)** `^1.29.0` - Syntax highlighting library
+- **[prism-themes](https://www.npmjs.com/package/prism-themes)** `^1.9.0` - Additional Prism themes
+- **[postcss](https://www.npmjs.com/package/postcss)** `^8.4.47` - CSS post-processor
+- **[autoprefixer](https://www.npmjs.com/package/autoprefixer)** `^10.4.20` - CSS vendor prefixing
+
+### Testing
+- **[vitest](https://www.npmjs.com/package/vitest)** `^2.1.3` - Unit testing framework
+- **[@vitest/ui](https://www.npmjs.com/package/@vitest/ui)** `^2.1.3` - Vitest UI interface
+- **[@playwright/test](https://www.npmjs.com/package/@playwright/test)** `^1.48.0` - End-to-end testing
+- **[jsdom](https://www.npmjs.com/package/jsdom)** `^25.0.1` - DOM implementation for testing
+
+### Development Tools
+- **[typescript](https://www.npmjs.com/package/typescript)** `^5.6.3` - TypeScript compiler
+- **[svelte-check](https://www.npmjs.com/package/svelte-check)** `^4.0.4` - Svelte type checker
+- **[eslint](https://www.npmjs.com/package/eslint)** `^9.14.0` - JavaScript linter
+- **[@typescript-eslint/eslint-plugin](https://www.npmjs.com/package/@typescript-eslint/eslint-plugin)** `^8.13.0` - TypeScript ESLint plugin
+- **[@typescript-eslint/parser](https://www.npmjs.com/package/@typescript-eslint/parser)** `^8.13.0` - TypeScript ESLint parser
+- **[eslint-plugin-svelte](https://www.npmjs.com/package/eslint-plugin-svelte)** `^2.44.1` - Svelte ESLint plugin
+- **[eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier)** `^9.1.0` - Prettier ESLint config
+- **[prettier](https://www.npmjs.com/package/prettier)** `^3.3.3` - Code formatter
+- **[prettier-plugin-svelte](https://www.npmjs.com/package/prettier-plugin-svelte)** `^3.2.7` - Svelte Prettier plugin
+
+### TypeScript Support
+- **[tslib](https://www.npmjs.com/package/tslib)** `^2.8.1` - TypeScript runtime helpers
+- **[@types/node](https://www.npmjs.com/package/@types/node)** `^22.9.0` - Node.js type definitions
+- **[@types/prismjs](https://www.npmjs.com/package/@types/prismjs)** `^1.26.4` - Prism.js type definitions
+- **[@types/highlight.js](https://www.npmjs.com/package/@types/highlight.js)** `^9.12.4` - Highlight.js type definitions
+
 ## Development
 
 ### Prerequisites
@@ -76,20 +131,64 @@ npm run preview
 
 ### Project Structure
 
-\`\`\`
+```
 src/
 ├── lib/
-│ ├── components/ # Svelte components
-│ ├── stores/ # Svelte stores for state management
-│ ├── types/ # TypeScript type definitions
-│ └── utils/ # Utility functions
-├── routes/ # SvelteKit routes
-└── app.html # Main HTML template
+│   ├── components/          # Svelte components
+│   │   ├── ChatInterface.svelte
+│   │   ├── ChatMessage.svelte
+│   │   ├── DocumentManager.svelte
+│   │   ├── DragDropZone.svelte
+│   │   ├── FeatureToggle.svelte
+│   │   ├── FileUpload.svelte
+│   │   ├── MobileLayout.svelte
+│   │   ├── ModelDropdown.svelte
+│   │   ├── ModelManager.svelte
+│   │   ├── RAGContext.svelte
+│   │   ├── Sidebar.svelte
+│   │   ├── ThemeSwitcher.svelte
+│   │   └── WelcomeGuide.svelte
+│   ├── config/              # Configuration files
+│   │   └── features.ts
+│   ├── services/            # Service layer
+│   │   ├── embedding-service.ts
+│   │   ├── rag-service.ts
+│   │   └── vector-store.ts
+│   ├── stores/              # Svelte stores for state management
+│   │   ├── chat.ts
+│   │   ├── documents.ts
+│   │   ├── models.ts
+│   │   └── theme.ts
+│   ├── types/               # TypeScript type definitions
+│   │   ├── index.ts
+│   │   └── rag.ts
+│   └── utils/               # Utility functions
+│       ├── document-processor.ts
+│       ├── mobile.ts
+│       ├── model-loading.ts
+│       ├── timeFormat.ts
+│       ├── tokenCount.ts
+│       └── webllm.ts
+├── routes/                  # SvelteKit routes
+│   ├── +layout.svelte
+│   ├── +layout.ts
+│   └── +page.svelte
+├── app.css                  # Global styles
+└── app.html                 # Main HTML template
 
 tests/
-├── unit/ # Unit tests
-└── integration/ # Playwright integration tests
-\`\`\`
+├── unit/                    # Unit tests
+│   ├── document-processor-advanced.test.ts
+│   ├── document-processor.test.ts
+│   └── stores.test.ts
+└── integration/             # Playwright integration tests
+    └── chat-flow.test.ts
+
+static/                      # Static assets
+├── _headers
+├── favicon.ico
+└── manifest.json
+```
 
 ## Usage
 
@@ -175,6 +274,128 @@ Requires a modern browser with WebGPU support:
 - Edge 113+
 - Safari 16.4+ (experimental)
 - Firefox (behind flags)
+
+## Technical Stack
+
+### Core Framework
+- **[SvelteKit](https://kit.svelte.dev/)** - Full-stack framework for building web applications
+- **[Svelte 5](https://svelte.dev/)** - Reactive UI framework with compile-time optimizations
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript for better developer experience
+
+### AI & Machine Learning
+- **[WebLLM](https://webllm.mlc.ai/)** - In-browser LLM inference engine powered by WebGPU
+- **WebGPU** - Next-generation web graphics API for GPU acceleration
+
+### UI & Styling
+- **[Skeleton UI](https://www.skeleton.dev/)** - Adaptive UI toolkit for Svelte
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Highlight.js](https://highlightjs.org/)** - Syntax highlighting for code blocks
+
+### Document Processing
+- **[PDF.js](https://mozilla.github.io/pdf.js/)** - PDF rendering and text extraction
+- **[Mammoth.js](https://github.com/mwilliamson/mammoth.js/)** - DOCX to HTML conversion
+
+### RAG System
+- **Custom TF-IDF Implementation** - Lightweight text embeddings
+- **IndexedDB** - Browser-based vector storage
+- **Web Workers** - Background processing for embeddings
+
+### Build Tools
+- **[Vite](https://vitejs.dev/)** - Fast build tool and dev server
+- **[PostCSS](https://postcss.org/)** - CSS processing
+- **[ESLint](https://eslint.org/)** & **[Prettier](https://prettier.io/)** - Code quality tools
+
+### Testing
+- **[Vitest](https://vitest.dev/)** - Unit testing framework
+- **[Playwright](https://playwright.dev/)** - End-to-end testing
+
+### Mobile Support
+- **[Capacitor](https://capacitorjs.com/)** - Native mobile app deployment
+
+## Architecture Overview
+
+The application follows a client-side architecture where all processing happens in the browser:
+
+1. **LLM Inference**: WebLLM loads and runs language models directly in the browser using WebGPU
+2. **Document Processing**: Files are processed client-side for privacy
+3. **RAG Pipeline**: Documents → Chunking → Embeddings → Vector Store → Semantic Search
+4. **State Management**: Svelte stores for reactive state management
+5. **Persistent Storage**: IndexedDB for documents, embeddings, and chat history
+
+### System Architecture Diagram
+
+```mermaid
+graph TB
+    User([User]) --> UI[Chat Interface]
+    UI --> ChatStore[Chat Store]
+    UI --> DocStore[Document Store]
+    UI --> ModelStore[Model Store]
+    
+    subgraph "Frontend Layer"
+        UI
+        ChatStore
+        DocStore
+        ModelStore
+        ThemeStore[Theme Store]
+    end
+    
+    subgraph "Service Layer"
+        ModelManager[Model Manager]
+        RAGService[RAG Service]
+        EmbeddingService[Embedding Service]
+        VectorStore[Vector Store]
+        DocProcessor[Document Processor]
+    end
+    
+    subgraph "WebLLM Engine"
+        WebLLMCore[WebLLM Core]
+        WebGPU[WebGPU Runtime]
+        ModelCache[Model Cache]
+    end
+    
+    subgraph "Storage Layer"
+        IndexedDB[(IndexedDB)]
+        LocalStorage[(Local Storage)]
+        BrowserCache[(Browser Cache)]
+    end
+    
+    subgraph "Document Processing"
+        PDFParser[PDF.js Parser]
+        DOCXParser[Mammoth.js Parser]
+        TextParser[Text Parser]
+        MDParser[Markdown Parser]
+    end
+    
+    ChatStore --> ModelManager
+    DocStore --> RAGService
+    ModelStore --> ModelManager
+    
+    ModelManager --> WebLLMCore
+    RAGService --> EmbeddingService
+    RAGService --> VectorStore
+    RAGService --> DocProcessor
+    
+    DocProcessor --> PDFParser
+    DocProcessor --> DOCXParser
+    DocProcessor --> TextParser
+    DocProcessor --> MDParser
+    
+    WebLLMCore --> WebGPU
+    WebLLMCore --> ModelCache
+    
+    ModelManager --> IndexedDB
+    VectorStore --> IndexedDB
+    RAGService --> IndexedDB
+    ChatStore --> LocalStorage
+    ThemeStore --> LocalStorage
+    ModelCache --> BrowserCache
+    
+    style User fill:#e1f5fe
+    style WebGPU fill:#fff3e0
+    style IndexedDB fill:#f3e5f5
+    style LocalStorage fill:#f3e5f5
+    style BrowserCache fill:#f3e5f5
+```
 
 ## Performance Notes
 

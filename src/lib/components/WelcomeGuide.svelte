@@ -191,6 +191,88 @@
           </ol>
         </section>
 
+        <!-- Technology Stack -->
+        <section>
+          <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+            <span class="text-2xl">⚡</span>
+            Built With Modern Technology
+          </h3>
+          <div class="grid md:grid-cols-2 gap-3 text-sm mb-4">
+            <div class="bg-surface-200-700-token rounded-lg p-3">
+              <h4 class="font-semibold text-primary-500 mb-1">Core Framework</h4>
+              <p class="text-surface-600-300-token">
+                <strong>SvelteKit + Svelte 5</strong> - Lightning-fast reactive UI with compile-time optimizations and full-stack capabilities
+              </p>
+            </div>
+            <div class="bg-surface-200-700-token rounded-lg p-3">
+              <h4 class="font-semibold text-primary-500 mb-1">AI & Machine Learning</h4>
+              <p class="text-surface-600-300-token">
+                <strong>WebLLM + WebGPU</strong> - Run large language models directly in your browser with GPU acceleration
+              </p>
+            </div>
+            <div class="bg-surface-200-700-token rounded-lg p-3">
+              <h4 class="font-semibold text-primary-500 mb-1">Document Processing</h4>
+              <p class="text-surface-600-300-token">
+                <strong>PDF.js + Mammoth.js</strong> - Client-side PDF and DOCX text extraction with metadata support
+              </p>
+            </div>
+            <div class="bg-surface-200-700-token rounded-lg p-3">
+              <h4 class="font-semibold text-primary-500 mb-1">UI & Styling</h4>
+              <p class="text-surface-600-300-token">
+                <strong>Skeleton UI + Tailwind CSS</strong> - Adaptive UI toolkit with utility-first styling
+              </p>
+            </div>
+            <div class="bg-surface-200-700-token rounded-lg p-3">
+              <h4 class="font-semibold text-primary-500 mb-1">RAG System</h4>
+              <p class="text-surface-600-300-token">
+                <strong>TF-IDF + IndexedDB</strong> - Lightweight embeddings with browser-based vector storage
+              </p>
+            </div>
+            <div class="bg-surface-200-700-token rounded-lg p-3">
+              <h4 class="font-semibold text-primary-500 mb-1">Build & Testing</h4>
+              <p class="text-surface-600-300-token">
+                <strong>Vite + Vitest + Playwright</strong> - Fast builds with comprehensive test coverage
+              </p>
+            </div>
+          </div>
+          
+          <div class="space-y-3">
+            <div class="text-xs text-surface-600-300-token bg-surface-200-700-token rounded-lg p-3">
+              <p class="font-semibold mb-2 text-primary-500">🔧 Additional Technologies:</p>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <span class="font-semibold">Language:</span> TypeScript
+                </div>
+                <div>
+                  <span class="font-semibold">Syntax Highlighting:</span> Highlight.js
+                </div>
+                <div>
+                  <span class="font-semibold">Storage:</span> IndexedDB + localStorage
+                </div>
+                <div>
+                  <span class="font-semibold">Background Processing:</span> Web Workers
+                </div>
+                <div>
+                  <span class="font-semibold">Mobile Support:</span> Capacitor (iOS/Android)
+                </div>
+                <div>
+                  <span class="font-semibold">Code Quality:</span> ESLint + Prettier
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-xs text-surface-600-300-token bg-primary-500/10 rounded-lg p-3">
+              <p class="font-semibold mb-1 text-primary-500">🏗️ Architecture Highlights:</p>
+              <ul class="space-y-1">
+                <li>• <strong>100% Client-Side:</strong> All processing happens in your browser</li>
+                <li>• <strong>Privacy-First:</strong> No data leaves your device</li>
+                <li>• <strong>Offline Capable:</strong> Works without internet after model download</li>
+                <li>• <strong>WebGPU Accelerated:</strong> Leverages your GPU for fast inference</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
         <!-- Tips -->
         <section class="bg-primary-500/10 rounded-lg p-4">
           <h3 class="text-sm font-semibold mb-2 flex items-center gap-2">
