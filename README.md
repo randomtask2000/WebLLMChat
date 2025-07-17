@@ -1,5 +1,7 @@
 # WebLLM Chat
 
+🌐 **[Live Demo: https://randomtask2000.github.io/WebLLMChat/](https://randomtask2000.github.io/WebLLMChat/)**
+
 A modern chat application built with SvelteKit and WebLLM that runs entirely in the browser without requiring a backend server. Features include RAG (Retrieval-Augmented Generation) capabilities, multiple theme support, and persistent chat history.
 
 ## Features
@@ -98,14 +100,64 @@ tests/
 5. **Theme Switching**: Use the theme picker to change the visual style
 6. **Chat History**: Previous conversations are automatically saved and can be restored
 
-## RAG (Document Search)
+## RAG (Retrieval-Augmented Generation)
 
-The app includes a built-in RAG system that:
+The app includes a powerful client-side RAG system that enhances AI responses with your uploaded documents. 
 
-- Processes uploaded documents into searchable chunks
-- Automatically searches relevant content for each user query
-- Includes source citations in AI responses
-- Supports multiple document formats
+### Supported Document Formats
+- 📄 PDF files
+- 📝 Text files (.txt)
+- 📋 Markdown files (.md)
+- 📊 Word documents (.docx)
+
+### How to Use RAG
+
+1. **Upload Documents**:
+   - Click the **+ button** in the chat input area, or
+   - **Drag and drop** files directly into the chat area
+   - Use the **📁 Documents** button in the top bar
+
+2. **Ask Questions**: The AI will automatically search your documents and use relevant content to answer
+
+3. **View RAG Context**: Click the **RAG Context** button (right sidebar) to see:
+   - Uploaded documents with chunk counts
+   - Search results from your last query
+   - RAG settings and configuration
+
+### RAG Settings
+
+Access settings in the RAG Context panel:
+
+- **Chunk Size** (50-1000 tokens): Smaller chunks find specific facts better
+- **Overlap Size** (0-200 tokens): Overlap between chunks for better context
+- **Search Accuracy** (0-100%): 
+  - Low (0-30%): Fuzzy matching, more results
+  - Medium (40-60%): Balanced approach
+  - High (70-100%): Exact matching only
+
+### Advanced RAG Commands
+
+Use the `/find` command to search for exact sentences:
+
+```
+/find tree
+/find Mormon
+/find any term
+```
+
+Or use natural language:
+- "Find sentences containing Mormon"
+- "Show me the exact sentence with Nephi"
+- "Quote the sentence about Jacob"
+- "Find where it says about Lehi"
+
+### Visual Indicators
+
+- **Token Badge**: Shows when RAG context is used in responses
+- **Source Citations**: Responses end with "📚 Source: [filename]"
+- **Search Status**: "🔍 Searching through X documents..." appears during search
+
+For more detailed RAG usage instructions, see [RAG_USAGE_GUIDE.md](RAG_USAGE_GUIDE.md)
 
 ## Browser Compatibility
 
