@@ -1276,7 +1276,7 @@
         class="chat-scrollable-area p-4 space-y-4 h-full"
         class:pt-24={!$isModelLoaded && $modelLoadingProgress < 100}
         class:with-rag-panel={showRAGPanel}
-        style="padding-bottom: 1rem; min-height: 100vh;"
+        style="padding-bottom: 10rem; min-height: 100vh;"
         on:scroll={handleScroll}
       >
         {#if $currentMessages.length === 0}
