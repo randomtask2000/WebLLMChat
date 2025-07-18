@@ -148,82 +148,34 @@
   }
 
   function handleDocumentLoaded(event) {
-    console.log('[RAGContext] handleDocumentLoaded called');
     // Document is already loaded in RAG system, just refresh the display
-    debounceLoadDocuments();
+    loadDocuments();
   }
 
   function handleDocumentRemoved(event) {
-    console.log('[RAGContext] handleDocumentRemoved called');
     // Document was removed, refresh the display
-    debounceLoadDocuments();
+    loadDocuments();
   }
 
-  let lastQueryId = '';
-  let lastForceRefresh = 0;
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  // Removed reactive query/refresh handling to prevent loops
+  // These will be handled manually when needed
 
-  function debounceLoadDocuments() {
-    console.log('[RAGContext] debounceLoadDocuments called');
-    if (debounceTimer) {
-      console.log('[RAGContext] Clearing existing debounce timer');
-      clearTimeout(debounceTimer);
-    }
-    debounceTimer = setTimeout(() => {
-      console.log('[RAGContext] Debounce timer triggered, calling loadDocuments');
-      loadDocuments();
-      debounceTimer = null;
-    }, 100);
+
+  // Only initialize once when feature is enabled and component is ready
+  $: if (featureManager.isEnabled('clientSideRAG') && !isInitialized && !isInitializing) {
+    initializeRAG();
   }
 
-  // Reactive statement to reload documents when feature is enabled
-  let hasTriggeredInit = false;
-  $: if (featureManager.isEnabled('clientSideRAG') && !isInitialized && !isInitializing && !hasTriggeredInit) {
-    console.log('[RAGContext] Reactive: Feature enabled and not initialized, calling initializeRAG');
-    hasTriggeredInit = true;
-    initializeRAG().finally(() => {
-      hasTriggeredInit = false;
-    });
-  }
-
-  // Reactive statement to reload documents when lastQuery changes (with deduplication)
-  $: if (lastQuery && isInitialized && lastQuery.query !== lastQueryId) {
-    lastQueryId = lastQuery.query;
-    debounceLoadDocuments();
-  }
-
-  // Reactive statement to refresh when forceRefresh counter changes (with deduplication)
-  $: if (forceRefresh > 0 && isInitialized && forceRefresh !== lastForceRefresh) {
-    lastForceRefresh = forceRefresh;
-    debounceLoadDocuments();
-  }
-
-  let refreshInterval: ReturnType<typeof setInterval> | null = null;
-
-  // Periodically refresh documents when panel is visible (reduced frequency)
-  $: {
-    if (isVisible && isInitialized) {
-      if (!refreshInterval) {
-        console.log('[RAGContext] Starting document refresh interval (10s)');
-        refreshInterval = setInterval(() => {
-          console.log('[RAGContext] Interval refresh trigger');
-          loadDocuments();
-        }, 10000); // Reduced from 2s to 10s
-      }
-    } else {
-      if (refreshInterval) {
-        console.log('[RAGContext] Clearing document refresh interval');
-        clearInterval(refreshInterval);
-        refreshInterval = null;
-      }
-    }
-  }
+  // Removed automatic refresh interval to prevent loops
+  // Documents will refresh manually via button or when needed
 </script>
 
-{#if featureManager.isEnabled('clientSideRAG') && isVisible}
+{#if featureManager.isEnabled('clientSideRAG')}
   <!-- Debug: RAG Panel is rendering -->
   <div
-    class="rag-context-panel bg-surface-100-800-token border-l border-surface-300-600-token p-4 w-80 flex flex-col"
+    class="fixed top-0 right-0 bg-surface-100-800-token border-l border-surface-300-600-token p-4 w-80 flex flex-col h-full shadow-lg z-40 transition-transform duration-300"
+    class:translate-x-0={isVisible}
+    class:translate-x-full={!isVisible}
   >
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold">RAG Context</h3>
@@ -512,10 +464,6 @@
 {/if}
 
 <style>
-  .rag-context-panel {
-    height: 100vh;
-  }
-
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;

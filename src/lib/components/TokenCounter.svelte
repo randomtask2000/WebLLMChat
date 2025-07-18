@@ -37,8 +37,8 @@
   }
 </script>
 
-<!-- Token counters positioned in bottom-right corner -->
-<div class="fixed bottom-4 right-20 z-30 flex flex-col gap-2">
+<!-- Token counters positioned under RAG toggle button -->
+<div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
   <!-- Total Context Used -->
   <div class="bg-surface-100-800-token backdrop-blur-sm border border-surface-300-600-token rounded-full px-3 py-1.5 shadow-md">
     <div class="flex items-center gap-2 text-xs font-medium">

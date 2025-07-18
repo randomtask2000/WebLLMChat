@@ -197,7 +197,7 @@
   </div>
 
   <!-- Fixed button bar at bottom -->
-  <div class="absolute bottom-0 left-0 right-0 theme-glass border-t border-white/20 p-3 z-50">
+  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-500/20 to-secondary-500/20 backdrop-blur-sm border-t border-surface-300-600-token p-3 z-50">
     <div class="flex space-x-2">
       <button
         class="btn variant-outline-surface flex-1 text-sm"

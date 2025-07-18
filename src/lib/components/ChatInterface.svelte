@@ -1223,11 +1223,13 @@
   // Removed problematic reactive statement that caused infinite loops
 </script>
 
-<div class="relative h-full overflow-hidden flex">
+<div class="h-full flex overflow-hidden">
   <!-- Progress bar - positioned absolutely at top -->
   {#if !$isModelLoaded && $modelLoadingProgress < 100}
     <div
-      class="absolute top-0 left-0 right-0 z-20 p-4 bg-surface-100-800-token border-b border-surface-300-600-token"
+      class="absolute top-0 left-0 z-20 p-4 bg-surface-100-800-token border-b border-surface-300-600-token"
+      class:right-0={!showRAGPanel}
+      class:right-80={showRAGPanel}
     >
       <div class="flex items-center justify-between mb-2">
         <span class="text-sm font-medium text-surface-700-200-token"
@@ -1241,14 +1243,14 @@
   {/if}
 
   <!-- Main chat area -->
-  <div class="flex-1 relative">
+  <div class="flex-1 min-h-0 flex flex-col transition-all duration-300" class:mr-80={showRAGPanel}>
     <!-- Chat messages with drag-and-drop -->
-    <DragDropZone className="h-full" on:files={handleFilesDropped} on:error={handleFileError}>
+    <DragDropZone className="flex-1 min-h-0" on:files={handleFilesDropped} on:error={handleFileError}>
       <div
         bind:this={chatContainer}
-        class="absolute inset-0 overflow-y-auto p-4 space-y-4 scroll-smooth"
+        class="h-full overflow-y-auto p-4 space-y-4 scroll-smooth"
         class:pt-24={!$isModelLoaded && $modelLoadingProgress < 100}
-        style="padding-bottom: 10rem; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;"
+        style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;"
         on:scroll={handleScroll}
       >
         {#if $currentMessages.length === 0}
@@ -1277,81 +1279,78 @@
       </div>
     </DragDropZone>
 
-    <!-- Gradient fade for smooth scroll under effect -->
-    <div
-      class="absolute bottom-20 left-0 right-0 h-24 bg-gradient-to-t from-surface-100/50 dark:from-surface-800/50 to-transparent pointer-events-none z-40"
-    ></div>
+    <!-- Input area at bottom -->
+    <div class="fixed bottom-0 left-80 flex flex-col bg-surface-100-800-token border-t border-surface-300-600-token p-4 z-30 transition-all duration-300" class:right-80={showRAGPanel} class:right-0={!showRAGPanel}>
+      <!-- Gradient fade above input -->
+      <div class="absolute -top-4 left-0 right-0 h-4 bg-gradient-to-t from-surface-100-800-token to-transparent pointer-events-none"></div>
+        <div class="relative w-full">
+          <div
+            class="flex items-end gap-2 p-2 bg-surface-200-700-token rounded-full ring-2 ring-surface-300-600-token hover:ring-primary-500 focus-within:ring-primary-500 transition-all duration-200 shadow-sm"
+          >
+            <button
+              class="btn-icon btn-icon-sm variant-soft-surface ml-1"
+              disabled={uploadingFiles}
+              aria-label="Upload documents"
+              on:click={handleFileButtonClick}
+            >
+              {#if uploadingFiles}
+                <i class="fa fa-spinner fa-spin"></i>
+              {:else}
+                <i class="fa fa-paperclip"></i>
+              {/if}
+            </button>
+            <textarea
+              id="message-input"
+              bind:value={messageInput}
+              on:keydown={handleKeydown}
+              placeholder={$isModelLoaded
+                ? 'Write a message...'
+                : 'Model loading... You can type but wait to send'}
+              disabled={isSubmitting || $isTyping}
+              class="flex-1 bg-transparent border-0 ring-0 resize-none px-2 py-1.5 leading-normal min-h-[2.5rem] max-h-32"
+              rows="1"
+              style="field-sizing: content;"
+            ></textarea>
+            <button
+              on:click={handleSubmit}
+              disabled={!messageInput.trim() || isSubmitting || $isTyping}
+              class="btn-icon btn-icon-sm variant-filled-primary mr-1"
+            >
+              {#if isSubmitting || $isTyping}
+                <i class="fa fa-spinner fa-spin"></i>
+              {:else}
+                <i class="fa fa-arrow-up"></i>
+              {/if}
+            </button>
+          </div>
 
-    <!-- Input area -->
-    <div
-      class="absolute bottom-0 left-0 right-0 bg-surface-100-800-token border-t border-surface-300-600-token p-4 z-50"
-    >
-      <div class="relative max-w-4xl mx-auto">
-        <div
-          class="flex items-end gap-2 p-2 bg-surface-200-700-token rounded-full ring-2 ring-surface-300-600-token hover:ring-primary-500 focus-within:ring-primary-500 transition-all duration-200 shadow-sm"
-        >
-          <button
-            class="btn-icon btn-icon-sm variant-soft-surface ml-1"
-            disabled={uploadingFiles}
-            aria-label="Upload documents"
-            on:click={handleFileButtonClick}
-          >
-            {#if uploadingFiles}
-              <i class="fa fa-spinner fa-spin"></i>
-            {:else}
-              <i class="fa fa-paperclip"></i>
-            {/if}
-          </button>
-          <textarea
-            id="message-input"
-            bind:value={messageInput}
-            on:keydown={handleKeydown}
-            placeholder={$isModelLoaded
-              ? 'Write a message...'
-              : 'Model loading... You can type but wait to send'}
-            disabled={isSubmitting || $isTyping}
-            class="flex-1 bg-transparent border-0 ring-0 resize-none px-2 py-1.5 leading-normal min-h-[2.5rem] max-h-32"
-            rows="1"
-            style="field-sizing: content;"
-          ></textarea>
-          <button
-            on:click={handleSubmit}
-            disabled={!messageInput.trim() || isSubmitting || $isTyping}
-            class="btn-icon btn-icon-sm variant-filled-primary mr-1"
-          >
-            {#if isSubmitting || $isTyping}
-              <i class="fa fa-spinner fa-spin"></i>
-            {:else}
-              <i class="fa fa-arrow-up"></i>
-            {/if}
-          </button>
+          <!-- Hidden file input for upload button -->
+          <input
+            bind:this={fileInput}
+            type="file"
+            multiple
+            accept=".pdf,.txt,.md,.docx"
+            on:change={handleFileInputChange}
+            style="display: none;"
+          />
         </div>
 
-        <!-- Hidden file input for upload button -->
-        <input
-          bind:this={fileInput}
-          type="file"
-          multiple
-          accept=".pdf,.txt,.md,.docx"
-          on:change={handleFileInputChange}
-          style="display: none;"
-        />
+        {#if !$isModelLoaded && $modelLoadingProgress < 100}
+          <div class="text-xs text-surface-700-200-token opacity-70 mt-2">
+            Model is loading ({$modelLoadingProgress}%)... Messages will queue until ready.
+          </div>
+        {/if}
       </div>
-
-      {#if !$isModelLoaded && $modelLoadingProgress < 100}
-        <div class="text-xs text-surface-700-200-token opacity-70 mt-2">
-          Model is loading ({$modelLoadingProgress}%)... Messages will queue until ready.
-        </div>
-      {/if}
     </div>
-  </div>
 
-  <!-- RAG Context Panel -->
-  <RAGContext
-    bind:isVisible={showRAGPanel}
-    bind:lastQuery={lastRAGQuery}
-    forceRefresh={ragRefreshCounter}
-  />
+  <!-- RAG Context Panel - fixed sidebar -->
+  {#if showRAGPanel}
+    <RAGContext
+      bind:isVisible={showRAGPanel}
+      bind:lastQuery={lastRAGQuery}
+      forceRefresh={ragRefreshCounter}
+    />
+  {/if}
 </div>
 
 <!-- RAG Toggle Button -->
