@@ -174,9 +174,10 @@
 {#if featureManager.isEnabled('clientSideRAG')}
   <!-- Debug: RAG Panel is rendering -->
   <div
-    class="fixed top-0 right-0 bg-surface-100-800-token border-l border-surface-300-600-token p-4 w-80 flex flex-col h-full shadow-lg z-40 transition-transform duration-300"
+    class="fixed top-16 right-0 bg-surface-100-800-token border-l border-surface-300-600-token p-4 w-80 flex flex-col shadow-lg z-40 transition-transform duration-300"
     class:translate-x-0={isVisible}
     class:translate-x-full={!isVisible}
+    style="height: calc(100vh - 4rem);"
   >
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold">RAG Context</h3>
