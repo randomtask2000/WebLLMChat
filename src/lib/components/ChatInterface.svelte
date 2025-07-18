@@ -12,7 +12,8 @@
     startResponseTiming,
     isTyping,
     saveChatHistory,
-    retryLastUserMessage
+    retryLastUserMessage,
+    newChat
   } from '$lib/stores/chat';
   import { generateChatResponse, webLLMService } from '$lib/utils/webllm';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
@@ -250,6 +251,57 @@
       
       messageInput = '';
       await showAllChunks();
+      return;
+    }
+
+    // Delete previous messages command
+    if (trimmedInput === '/delete-previous' || trimmedInput === 'delete-previous') {
+      // Add user message to chat history before clearing input
+      const userMessage: ChatMessageType = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: messageInput.trim(),
+        timestamp: Date.now()
+      };
+      addMessage(userMessage);
+      
+      messageInput = '';
+      
+      // Remove the second-to-last message if it exists
+      const messages = $currentMessages;
+      if (messages.length >= 2) {
+        const secondToLastMessage = messages[messages.length - 2];
+        removeMessageById(secondToLastMessage.id);
+        
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '✅ Deleted the previous message. You can now continue the conversation with more context space.',
+          timestamp: Date.now()
+        });
+      } else {
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '❌ No previous message to delete.',
+          timestamp: Date.now()
+        });
+      }
+      return;
+    }
+
+    // New chat command
+    if (trimmedInput === '/new-chat' || trimmedInput === 'new-chat') {
+      newChat();
+      
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: '✅ Started a new chat. Previous conversation history has been cleared.',
+        timestamp: Date.now()
+      });
+      
+      messageInput = '';
       return;
     }
 
@@ -543,11 +595,24 @@
       scrollToBottom();
     } catch (error) {
       console.error('Error generating response:', error);
-      updateLastMessage(
-        'Sorry, I encountered an error while processing your request. Please try again.',
-        undefined,
-        true
-      );
+      
+      // Check if error might be due to context length
+      const isContextError = error instanceof Error && 
+        (error.message.includes('context') || 
+         error.message.includes('token') || 
+         error.message.includes('length') ||
+         $currentMessages.length > 10);
+      
+      let errorMessage = '❌ **Error Processing Request**\n\nSorry, I encountered an error while processing your request. Please try again.';
+      
+      if (isContextError) {
+        errorMessage += '\n\n💡 **Context may be full** - Try one of these options:\n\n';
+        errorMessage += '• [Delete previous messages and continue](cmd:delete-previous)\n';
+        errorMessage += '• [Start a new chat](cmd:new-chat)\n';
+        errorMessage += '• Use the close button (✕) on messages to remove them manually';
+      }
+      
+      updateLastMessage(errorMessage, undefined, true);
     } finally {
       isSubmitting = false;
       isTyping.set(false);
