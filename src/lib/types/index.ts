@@ -6,6 +6,7 @@ export interface ChatMessage {
   chunks?: DocumentChunk[];
   tokenCount?: number;
   responseTime?: number; // Response time in milliseconds for assistant messages
+  documentData?: any; // Document data for preview messages with popup functionality
 }
 
 export interface DocumentChunk {

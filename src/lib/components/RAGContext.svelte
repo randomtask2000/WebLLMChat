@@ -12,6 +12,7 @@
   export let isVisible = false;
   export let lastQuery: RAGQueryResult | null = null;
   export let forceRefresh = 0; // Counter to trigger refresh from parent
+  export let sendDocumentPreviewToChat: (document: any) => void = () => {};
 
   let documents: RAGDocument[] = [];
   let isInitialized = false;
@@ -457,6 +458,7 @@
           bind:isCollapsed={documentBrowserCollapsed}
           on:documentLoaded={handleDocumentLoaded}
           on:documentRemoved={handleDocumentRemoved}
+          {sendDocumentPreviewToChat}
         />
       </div>
     {/if}

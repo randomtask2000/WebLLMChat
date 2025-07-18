@@ -29,6 +29,7 @@ export interface RAGDocument {
   };
   createdAt: Date;
   updatedAt: Date;
+  originalFileData?: string; // Base64 encoded original file data for popup functionality
 }
 
 export interface SearchResult {

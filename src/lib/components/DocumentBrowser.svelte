@@ -9,6 +9,7 @@
 
   export let documents: RAGDocument[] = [];
   export let isCollapsed = false;
+  export let sendDocumentPreviewToChat: (document: any) => void = () => {};
 
   let selectedDocument: RAGDocument | null = null;
   let showDocumentPreview = false;
@@ -336,7 +337,7 @@
             <div class="flex flex-col space-y-1">
               <button
                 class="btn btn-sm variant-ghost-primary"
-                on:click={() => openDocumentPreview(document)}
+                on:click={() => sendDocumentPreviewToChat(documentStorageService.toRAGDocument(document))}
                 title="Preview document"
               >
                 <i class="fa fa-eye text-xs mr-1"></i>
@@ -422,7 +423,7 @@
         <!-- Document Content -->
         <div class="flex-1 overflow-y-auto p-4">
           <h4 class="font-medium mb-2">Content Preview</h4>
-          <div class="bg-surface-50-900-token rounded p-4 text-sm leading-relaxed whitespace-pre-wrap border max-h-80 overflow-y-auto">
+          <div class="bg-surface-50-900-token rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap border shadow-inner chat-bubble-preview overflow-y-auto" style="max-height: 60vh; min-height: 200px;">
             {getPreviewContent(selectedDocument)}
           </div>
         </div>

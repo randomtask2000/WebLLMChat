@@ -47,6 +47,9 @@
 
   export let message: ChatMessage;
   export let onRetry: ((content: string) => void) | undefined = undefined;
+  export let onClose: ((messageId: string) => void) | undefined = undefined;
+  
+  let isCollapsed = false;
 
   // For code blocks, we'll estimate token count (rough approximation)
   function estimateTokens(text: string): number {
@@ -308,6 +311,75 @@
   function formatTimestamp(timestamp: number): string {
     return new Date(timestamp).toLocaleTimeString();
   }
+
+  function toggleCollapse() {
+    isCollapsed = !isCollapsed;
+  }
+
+  function closeMessage() {
+    if (onClose) {
+      onClose(message.id);
+    }
+  }
+
+  function hasOriginalFileData(documentData: any): boolean {
+    return documentData && documentData.originalFileData && documentData.originalFileData.length > 0;
+  }
+
+  function openDocumentPopup(documentData: any): void {
+    try {
+      // Check if we have original file data
+      if (!documentData.originalFileData) {
+        console.warn('No original file data available for document:', documentData.fileName);
+        return;
+      }
+
+      // Determine the MIME type based on file extension
+      const fileName = documentData.fileName.toLowerCase();
+      let mimeType = 'application/octet-stream';
+      
+      if (fileName.endsWith('.pdf')) {
+        mimeType = 'application/pdf';
+      } else if (fileName.endsWith('.docx')) {
+        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      } else if (fileName.endsWith('.doc')) {
+        mimeType = 'application/msword';
+      } else if (fileName.endsWith('.txt')) {
+        mimeType = 'text/plain';
+      } else if (fileName.endsWith('.md')) {
+        mimeType = 'text/markdown';
+      }
+
+      // Decode base64 to binary
+      const binaryString = atob(documentData.originalFileData);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      // Create blob and object URL
+      const blob = new Blob([bytes], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+
+      // Open in new window/tab
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      if (!newWindow) {
+        // If popup was blocked, try downloading instead
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = documentData.fileName;
+        link.click();
+      }
+
+      // Clean up the URL after a delay to prevent memory leaks
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 10000);
+    } catch (error) {
+      console.error('Error opening document popup:', error);
+    }
+  }
 </script>
 
 <div class="chat-message {message.role}" bind:this={messageElement}>
@@ -329,51 +401,90 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <div class="flex items-center space-x-2 mb-1">
-        <span class="font-semibold text-sm text-surface-700-200-token">
-          {message.role === 'user' ? 'You' : 'Assistant'}
-        </span>
-        <span class="text-xs text-surface-700-200-token opacity-70">
-          {formatTimestamp(message.timestamp)}
-        </span>
-        {#if message.tokenCount && message.tokenCount > 0}
-          <span
-            class="text-xs text-surface-700-200-token opacity-80 bg-surface-200-700-token px-2 py-0.5 rounded"
-          >
-            {formatTokenCount(message.tokenCount)}
+      <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center space-x-2">
+          <span class="font-semibold text-sm text-surface-700-200-token">
+            {message.role === 'user' ? 'You' : 'Assistant'}
           </span>
-        {:else if message.content && message.content.length > 0}
-          <span class="text-xs text-red-200 bg-red-500/30 px-2 py-0.5 rounded"> No tokens </span>
-        {/if}
-        {#if message.role === 'assistant' && message.responseTime}
-          <span
-            class="text-xs text-surface-700-200-token opacity-80 bg-surface-200-700-token px-2 py-0.5 rounded"
-          >
-            ⏱️ {formatResponseTime(message.responseTime)}
+          <span class="text-xs text-surface-700-200-token opacity-70">
+            {formatTimestamp(message.timestamp)}
           </span>
-        {/if}
-      </div>
-
-      {#if message.content && message.content.trim().length > 0}
-        <div class="prose prose-sm max-w-none text-surface-700-200-token">
-          {@html formatContent(message.content)}
+          {#if message.tokenCount && message.tokenCount > 0}
+            <span
+              class="text-xs text-surface-700-200-token opacity-80 bg-surface-200-700-token px-2 py-0.5 rounded"
+            >
+              {formatTokenCount(message.tokenCount)}
+            </span>
+          {:else if message.content && message.content.length > 0}
+            <span class="text-xs text-red-200 bg-red-500/30 px-2 py-0.5 rounded"> No tokens </span>
+          {/if}
+          {#if message.role === 'assistant' && message.responseTime}
+            <span
+              class="text-xs text-surface-700-200-token opacity-80 bg-surface-200-700-token px-2 py-0.5 rounded"
+            >
+              ⏱️ {formatResponseTime(message.responseTime)}
+            </span>
+          {/if}
         </div>
-      {/if}
-
-      {#if message.role === 'user' && onRetry}
-        <div class="mt-2">
+        
+        <!-- Collapse and Close buttons -->
+        <div class="flex items-center space-x-1">
           <button
-            class="btn btn-sm variant-ghost-surface text-xs"
-            on:click={() => onRetry && onRetry(message.content)}
-            title="Retry this prompt"
+            class="btn-icon btn-icon-sm variant-ghost-surface opacity-70 hover:opacity-100"
+            on:click={toggleCollapse}
+            title={isCollapsed ? 'Expand message' : 'Collapse message'}
+            aria-label={isCollapsed ? 'Expand message' : 'Collapse message'}
           >
-            <i class="fa fa-redo mr-1"></i>
-            Retry
+            <i class="fa {isCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'} text-xs"></i>
+          </button>
+          <button
+            class="btn-icon btn-icon-sm variant-ghost-surface opacity-70 hover:opacity-100"
+            on:click={closeMessage}
+            title="Close message"
+            aria-label="Close message"
+          >
+            <i class="fa fa-times text-xs"></i>
           </button>
         </div>
+      </div>
+
+      {#if !isCollapsed}
+        {#if message.content && message.content.trim().length > 0}
+          <div class="prose prose-sm max-w-none text-surface-700-200-token">
+            {@html formatContent(message.content)}
+          </div>
+        {/if}
       {/if}
 
-      {#if message.chunks && message.chunks.length > 0}
+      {#if !isCollapsed}
+        {#if message.role === 'user' && onRetry}
+          <div class="mt-2">
+            <button
+              class="btn btn-sm variant-ghost-surface text-xs"
+              on:click={() => onRetry && onRetry(message.content)}
+              title="Retry this prompt"
+            >
+              <i class="fa fa-redo mr-1"></i>
+              Retry
+            </button>
+          </div>
+        {/if}
+
+        {#if message.documentData && hasOriginalFileData(message.documentData)}
+          <div class="mt-2">
+            <button
+              class="btn btn-sm variant-ghost-primary text-xs"
+              on:click={() => openDocumentPopup(message.documentData)}
+              title="View original document"
+            >
+              <i class="fa fa-external-link-alt mr-1"></i>
+              View Original
+            </button>
+          </div>
+        {/if}
+      {/if}
+
+      {#if !isCollapsed && message.chunks && message.chunks.length > 0}
         <div class="mt-3 bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
           <div class="flex items-center gap-2 mb-2">
             <div class="flex items-center gap-1 text-blue-500">

@@ -186,7 +186,8 @@ class DocumentStorageService {
         avgChunkSize: storedDoc.metadata.avgChunkSize
       },
       createdAt: storedDoc.createdAt,
-      updatedAt: storedDoc.updatedAt
+      updatedAt: storedDoc.updatedAt,
+      originalFileData: storedDoc.originalFileData // Include original file data for popup functionality
     };
   }
 

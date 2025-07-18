@@ -127,6 +127,88 @@ body {
   @apply bg-surface-100-800-token mr-8;
 }
 
+.chat-bubble-preview {
+  @apply relative;
+  background: var(--color-surface-100);
+  border: 1px solid var(--color-surface-300);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-400) var(--color-surface-100);
+}
+
+.chat-bubble-preview::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-bubble-preview::-webkit-scrollbar-track {
+  background: var(--color-surface-200);
+  border-radius: 4px;
+}
+
+.chat-bubble-preview::-webkit-scrollbar-thumb {
+  background: var(--color-surface-400);
+  border-radius: 4px;
+}
+
+.chat-bubble-preview::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-500);
+}
+
+@media (prefers-color-scheme: dark) {
+  .chat-bubble-preview {
+    background: var(--color-surface-800);
+    border-color: var(--color-surface-600);
+    scrollbar-color: var(--color-surface-500) var(--color-surface-800);
+  }
+}
+
+/* Scrollable chat area positioning */
+.chat-scrollable-area {
+  height: 100%;
+  min-height: calc(100vh - 8rem);
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-400) transparent;
+  background-color: var(--color-surface-50);
+}
+
+
+.chat-scrollable-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scrollable-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-scrollable-area::-webkit-scrollbar-thumb {
+  background: var(--color-surface-400);
+  border-radius: 4px;
+}
+
+.chat-scrollable-area::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-500);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chat-scrollable-area {
+    min-height: calc(100vh - 6rem);
+    max-height: calc(100vh - 6rem);
+  }
+}
+
+/* Adjust for RAG panel - removed margins to let background extend to border */
+
+@media (prefers-color-scheme: dark) {
+  .chat-scrollable-area {
+    scrollbar-color: var(--color-surface-500) transparent;
+    background-color: var(--color-surface-900);
+  }
+}
+
 .upload-zone {
   @apply border-2 border-dashed border-surface-300-600-token rounded-lg p-8 text-center;
   transition: all 200ms ease-in-out;

@@ -571,6 +571,10 @@
     handleSubmit();
   }
 
+  function handleMessageClose(messageId: string) {
+    removeMessageById(messageId);
+  }
+
   // File handling for drag-and-drop
   async function handleFilesDropped(event: CustomEvent<FileList>) {
     if (!featureManager.isEnabled('dragDropUpload')) return;
@@ -1107,6 +1111,27 @@
     }
   }
 
+  // Function to send document preview to chat
+  export function sendDocumentPreviewToChat(document: any) {
+    const content = document.content.length <= 2000 ? document.content : document.content.substring(0, 2000) + '...';
+    
+    const previewMessage: ChatMessageType = {
+      id: crypto.randomUUID(),
+      role: 'assistant',
+      content: `📄 **Document Preview: ${document.fileName}**\n\n${content}`,
+      timestamp: Date.now(),
+      documentData: document // Store document data for popup functionality
+    };
+    
+    addMessage(previewMessage);
+    
+    // Auto-scroll to show the new message
+    shouldAutoScroll = true;
+    tick().then(() => {
+      scrollToBottom();
+    });
+  }
+
   async function handleFileInputChange(event: Event) {
     const input = event.target as HTMLInputElement;
     const files = input.files;
@@ -1223,7 +1248,7 @@
   // Removed problematic reactive statement that caused infinite loops
 </script>
 
-<div class="h-full flex overflow-hidden">
+<div class="h-full flex overflow-hidden bg-surface-50-900-token">
   <!-- Progress bar - positioned absolutely at top -->
   {#if !$isModelLoaded && $modelLoadingProgress < 100}
     <div
@@ -1243,14 +1268,15 @@
   {/if}
 
   <!-- Main chat area -->
-  <div class="flex-1 min-h-0 flex flex-col transition-all duration-300" class:mr-80={showRAGPanel}>
+  <div class="flex-1 min-h-0 flex flex-col transition-all duration-300 bg-surface-50-900-token" class:mr-80={showRAGPanel}>
     <!-- Chat messages with drag-and-drop -->
-    <DragDropZone className="flex-1 min-h-0" on:files={handleFilesDropped} on:error={handleFileError}>
+    <DragDropZone className="flex-1 min-h-0 h-full bg-surface-50-900-token" on:files={handleFilesDropped} on:error={handleFileError}>
       <div
         bind:this={chatContainer}
-        class="h-full overflow-y-auto p-4 space-y-4 scroll-smooth"
+        class="chat-scrollable-area p-4 space-y-4 h-full"
         class:pt-24={!$isModelLoaded && $modelLoadingProgress < 100}
-        style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;"
+        class:with-rag-panel={showRAGPanel}
+        style="padding-bottom: 1rem; min-height: 100vh;"
         on:scroll={handleScroll}
       >
         {#if $currentMessages.length === 0}
@@ -1264,7 +1290,7 @@
           </div>
         {:else}
           {#each $currentMessages.filter(m => m.content && m.content.trim().length > 0) as message (message.id)}
-            <ChatMessage {message} onRetry={handleRetry} />
+            <ChatMessage {message} onRetry={handleRetry} onClose={handleMessageClose} />
           {/each}
 
           {#if $isTyping}
@@ -1349,6 +1375,7 @@
       bind:isVisible={showRAGPanel}
       bind:lastQuery={lastRAGQuery}
       forceRefresh={ragRefreshCounter}
+      {sendDocumentPreviewToChat}
     />
   {/if}
 </div>
