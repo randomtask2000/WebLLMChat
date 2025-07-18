@@ -182,3 +182,52 @@ body {
 /* Let Skeleton UI manage all text colors */
 
 /* Let Skeleton UI manage all styling */
+
+/* Chunk loading progress bar */
+.chunk-loading-container {
+  @apply w-full py-4;
+}
+
+.chunk-loading-progress {
+  @apply w-full h-2 bg-surface-300-600-token rounded-full overflow-hidden relative;
+}
+
+.chunk-loading-bar {
+  @apply h-full rounded-full;
+  background: linear-gradient(90deg, rgb(59, 130, 246) 0%, rgb(99, 102, 241) 50%, rgb(59, 130, 246) 100%);
+  animation: loading-progress 1.5s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+.chunk-loading-text {
+  @apply text-xs text-surface-600-300-token mt-2 text-center font-medium;
+}
+
+@keyframes loading-progress {
+  0% {
+    width: 30%;
+    margin-left: -30%;
+  }
+  50% {
+    width: 30%;
+    margin-left: 50%;
+  }
+  100% {
+    width: 30%;
+    margin-left: 100%;
+  }
+}
+
+/* Add a subtle pulse to the loading text */
+.chunk-loading-text {
+  animation: pulse-opacity 2s ease-in-out infinite;
+}
+
+@keyframes pulse-opacity {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}

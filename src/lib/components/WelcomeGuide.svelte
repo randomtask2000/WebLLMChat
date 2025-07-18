@@ -157,6 +157,12 @@
               </span>
             </div>
             <div>
+              <code class="bg-surface-300-600-token px-2 py-1 rounded text-sm">/chunks</code>
+              <span class="text-sm text-surface-600-300-token ml-2">
+                Show all RAG chunks in order with full content
+              </span>
+            </div>
+            <div>
               <code class="bg-surface-300-600-token px-2 py-1 rounded text-sm">/debug rag</code>
               <span class="text-sm text-surface-600-300-token ml-2">
                 Show RAG system information and indexed documents

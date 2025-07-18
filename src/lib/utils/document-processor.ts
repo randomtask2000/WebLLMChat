@@ -76,11 +76,22 @@ async function extractTextFromPDF(file: File): Promise<ExtractedContent> {
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
+    // Basic validation - check for PDF header
+    const pdfHeader = new TextDecoder().decode(uint8Array.slice(0, 4));
+    if (pdfHeader !== '%PDF') {
+      throw new Error('Invalid PDF file: Missing PDF header');
+    }
+
     const pdfjsLib = await import('pdfjs-dist');
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
+    const pdf = await pdfjsLib.getDocument({ 
+      data: uint8Array,
+      verbosity: 0, // Reduce console warnings
+      isEvalSupported: false, // Disable eval for security
+      disableFontFace: true // Skip font loading issues
+    }).promise;
     const structuredContent: StructuredContent[] = [];
     let fullText = '';
 
@@ -145,7 +156,21 @@ async function extractTextFromPDF(file: File): Promise<ExtractedContent> {
     };
   } catch (error) {
     console.error('PDF processing error:', error);
-    throw new Error('Failed to process PDF file: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    
+    // Provide specific error messages for common PDF issues
+    if (error instanceof Error) {
+      if (error.message.includes('Invalid PDF structure') || 
+          error.message.includes('Missing PDF header') ||
+          error.message.includes('InvalidPDFException')) {
+        throw new Error('Invalid PDF file: The file appears to be corrupted or not a valid PDF document.');
+      }
+      if (error.message.includes('password') || error.message.includes('encrypted')) {
+        throw new Error('Password-protected PDF: This PDF is encrypted and cannot be processed.');
+      }
+      throw new Error('Failed to process PDF file: ' + error.message);
+    }
+    
+    throw new Error('Failed to process PDF file: Unknown error occurred');
   }
 }
 

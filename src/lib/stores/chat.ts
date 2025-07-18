@@ -83,6 +83,20 @@ export function removeLastMessage() {
   });
 }
 
+export function removeMessageById(messageId: string) {
+  currentMessages.update((messages) => {
+    return messages.filter(msg => msg.id !== messageId);
+  });
+}
+
+export function updateMessage(messageId: string, updatedMessage: ChatMessage) {
+  currentMessages.update((messages) => {
+    return messages.map(msg => 
+      msg.id === messageId ? updatedMessage : msg
+    );
+  });
+}
+
 export function saveChatHistory() {
   const chatId = crypto.randomUUID();
   const timestamp = Date.now();

@@ -7,6 +7,8 @@
     addMessage,
     updateLastMessage,
     removeLastMessage,
+    removeMessageById,
+    updateMessage,
     startResponseTiming,
     isTyping,
     saveChatHistory,
@@ -25,6 +27,7 @@
   import DragDropZone from './DragDropZone.svelte';
   import RAGContext from './RAGContext.svelte';
   import FeatureToggle from './FeatureToggle.svelte';
+  import TokenCounter from './TokenCounter.svelte';
   import type { ChatMessage as ChatMessageType } from '$lib/types';
   import type { RAGQueryResult } from '$lib/types/rag';
   import { featureManager } from '$lib/config/features';
@@ -174,10 +177,12 @@
           `**Available Commands:**\n\n` +
           `• \`/debug rag\` or \`/rag-debug\` - Show RAG system information\n` +
           `• \`/find [term]\` - Find exact sentences containing a term\n` +
+          `• \`/chunks\` - Show all RAG chunks in order\n` +
           `• \`/help\` or \`/?\` - Show this help message\n\n` +
           `**Quick Actions:**\n` +
           `• [Click here to run: /debug rag](cmd:/debug%20rag)\n` +
           `• [Click here to run: /find](cmd:/find%20)\n` +
+          `• [Click here to run: /chunks](cmd:/chunks)\n` +
           `• [Click here to run: /help](cmd:/help)\n\n` +
           `**Finding Exact Sentences:**\n` +
           `• **Command**: \`/find [term]\` - finds all sentences with "[term]"\n` +
@@ -232,6 +237,22 @@
       return;
     }
 
+    // Chunks command to show all RAG chunks in order
+    if (trimmedInput === '/chunks' || trimmedInput === '/list-chunks' || trimmedInput === '/show-chunks') {
+      // Add user message to chat history before clearing input
+      const userMessage: ChatMessageType = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: messageInput.trim(),
+        timestamp: Date.now()
+      };
+      addMessage(userMessage);
+      
+      messageInput = '';
+      await showAllChunks();
+      return;
+    }
+
     if (!$isModelLoaded) {
       const waitingMessage: ChatMessageType = {
         id: crypto.randomUUID(),
@@ -274,37 +295,72 @@
           const documents = await ragService.getDocuments();
 
           if (documents.length === 0) {
-            // No documents uploaded yet
-            const noDocsMessage: ChatMessageType = {
-              id: 'no-docs-' + Date.now(),
+            // No documents uploaded yet - proceed without RAG context instead of blocking
+            console.log('🔍 RAG: No documents found, proceeding without RAG context');
+            contextPrompt = `${userMessage.content}\n\nNote: No documents are currently uploaded. To get answers based on your documents, please upload them using the + button or by dragging and dropping files into the chat area.`;
+          } else {
+            // Calculate total chunks across all documents
+            let totalChunks = 0;
+            for (const doc of documents) {
+              totalChunks += doc.metadata?.totalChunks || 0;
+            }
+            
+            // Add a temporary "searching" message with progress bar
+            const searchingMessageId = 'searching-' + Date.now();
+            const searchingMessage: ChatMessageType = {
+              id: searchingMessageId,
               role: 'assistant',
-              content:
-                '📚 No documents uploaded yet. Please upload documents using the + button or by dragging and dropping files into the chat area.',
+              content: `🔍 Searching through ${documents.length} document${documents.length > 1 ? 's' : ''} (${totalChunks} chunks)...\n\n<div class="chunk-loading-container">
+  <div class="chunk-loading-progress">
+    <div class="chunk-loading-bar"></div>
+  </div>
+  <div class="chunk-loading-text">🔄 Generating query embedding...</div>
+</div>`,
               timestamp: Date.now()
             };
-            addMessage(noDocsMessage);
-            return;
-          }
+            addMessage(searchingMessage);
+            
+            // Store timeout IDs so we can clear them if needed
+            const timeoutIds: number[] = [];
+            
+            // Update the loading message after a short delay to show progress
+            timeoutIds.push(setTimeout(() => {
+              updateMessage(searchingMessageId, {
+                ...searchingMessage,
+                content: `🔍 Searching through ${documents.length} document${documents.length > 1 ? 's' : ''} (${totalChunks} chunks)...\n\n<div class="chunk-loading-container">
+  <div class="chunk-loading-progress">
+    <div class="chunk-loading-bar" style="animation-duration: 2s;"></div>
+  </div>
+  <div class="chunk-loading-text">📊 Scanning ${totalChunks} document chunks...</div>
+</div>`
+              });
+            }, 500));
+            
+            timeoutIds.push(setTimeout(() => {
+              updateMessage(searchingMessageId, {
+                ...searchingMessage,
+                content: `🔍 Searching through ${documents.length} document${documents.length > 1 ? 's' : ''} (${totalChunks} chunks)...\n\n<div class="chunk-loading-container">
+  <div class="chunk-loading-progress">
+    <div class="chunk-loading-bar" style="animation-duration: 1s;"></div>
+  </div>
+  <div class="chunk-loading-text">🎯 Ranking results by relevance...</div>
+</div>`
+              });
+            }, 1000));
 
-          // Add a temporary "searching" message
-          const searchingMessage: ChatMessageType = {
-            id: 'searching-' + Date.now(),
-            role: 'assistant',
-            content: `🔍 Searching through ${documents.length} document${documents.length > 1 ? 's' : ''}...`,
-            timestamp: Date.now()
-          };
-          addMessage(searchingMessage);
+            console.log('🔍 RAG: Starting document search for query:', userMessage.content);
+            const ragResult = await ragService.search(userMessage.content);
+            lastRAGQuery = ragResult;
 
-          console.log('🔍 RAG: Starting document search for query:', userMessage.content);
-          const ragResult = await ragService.search(userMessage.content);
-          lastRAGQuery = ragResult;
+            console.log(`🔍 RAG: Found ${ragResult.results.length} relevant chunks`);
 
-          console.log(`🔍 RAG: Found ${ragResult.results.length} relevant chunks`);
+            // Clear any pending timeout updates
+            timeoutIds.forEach(id => clearTimeout(id));
+            
+            // Remove the searching message by ID
+            removeMessageById(searchingMessageId);
 
-          // Remove the searching message
-          removeLastMessage();
-
-          if (ragResult.results.length > 0) {
+            if (ragResult.results.length > 0) {
             console.log(
               '🔍 RAG: Using context from documents:',
               ragResult.results.map((r) => r.document.fileName)
@@ -384,10 +440,11 @@
               // Regular RAG response
               contextPrompt = `You have access to the following document content. Answer the user's question based ONLY on this information:\n\n${context}\n\n---\n\nUser question: ${userMessage.content}\n\nIMPORTANT: \n1. Answer directly based on the document content above\n2. Do NOT repeat the same information multiple times\n3. Do NOT quote the entire context back - only reference relevant parts\n4. Provide a concise, focused answer\n\nAt the end of your response, add: "📚 Source: ${ragResult.results.map((r) => r.document.fileName).join(', ')}"`;
             }
-          } else {
-            console.log('🔍 RAG: No relevant documents found');
-            // When no RAG results, add a note to check if documents are uploaded
-            contextPrompt = `${userMessage.content}\n\nNote: No relevant information was found in the uploaded documents. If you haven't uploaded any documents yet, please upload them first.`;
+            } else {
+              console.log('🔍 RAG: No relevant documents found');
+              // When no RAG results, add a note to check if documents are uploaded
+              contextPrompt = `${userMessage.content}\n\nNote: No relevant information was found in the uploaded documents. If you haven't uploaded any documents yet, please upload them first.`;
+            }
           }
         } catch (ragError) {
           console.warn('RAG search failed, falling back to legacy search:', ragError);
@@ -883,6 +940,21 @@
           debugContent += `- Has embeddings: ${doc.chunks[0].embedding ? 'Yes' : 'No'}\n`;
         }
         debugContent += '\n';
+        
+        // Add detailed chunk information
+        if (doc.chunks.length > 0) {
+          debugContent += '**Chunks:**\n';
+          doc.chunks.forEach((chunk, chunkIndex) => {
+            debugContent += `\n**Chunk ${chunkIndex + 1}:**\n`;
+            debugContent += `- Chunk ID: ${chunk.id}\n`;
+            debugContent += `- Document ID: ${chunk.documentId}\n`;
+            debugContent += `- Index: ${chunk.metadata?.chunkIndex || 'N/A'}\n`;
+            debugContent += `- Tokens: ${chunk.metadata?.tokenCount || 'N/A'}\n`;
+            debugContent += `- Has Embedding: ${chunk.embedding ? 'Yes' : 'No'}\n`;
+            debugContent += `- Content Preview: "${chunk.content.substring(0, 150)}${chunk.content.length > 150 ? '...' : ''}"\n`;
+          });
+        }
+        debugContent += '\n';
       });
 
       // Test search functionality
@@ -911,6 +983,119 @@
         id: crypto.randomUUID(),
         role: 'assistant',
         content: `🔍 RAG Debug Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  async function showAllChunks() {
+    try {
+      if (!ragService.isReady()) {
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '📄 RAG service is not initialized. Upload a document first.',
+          timestamp: Date.now()
+        });
+        return;
+      }
+
+      // Add loading message
+      const loadingMessageId = 'loading-chunks-' + Date.now();
+      const loadingMessage: ChatMessageType = {
+        id: loadingMessageId,
+        role: 'assistant',
+        content: `📄 Loading chunks...\n\n<div class="chunk-loading-container">
+  <div class="chunk-loading-progress">
+    <div class="chunk-loading-bar"></div>
+  </div>
+  <div class="chunk-loading-text">🔄 Fetching document chunks...</div>
+</div>`,
+        timestamp: Date.now()
+      };
+      addMessage(loadingMessage);
+
+      const documents = await ragService.getDocuments();
+
+      if (documents.length === 0) {
+        // Remove loading message
+        removeMessageById(loadingMessageId);
+        
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '📄 No documents found in RAG system. Upload some documents first.',
+          timestamp: Date.now()
+        });
+        return;
+      }
+
+      // Collect all chunks and sort them by document and chunk index
+      const allChunks: Array<{chunk: any, document: any}> = [];
+      
+      documents.forEach(doc => {
+        doc.chunks.forEach(chunk => {
+          allChunks.push({ chunk, document: doc });
+        });
+      });
+
+      // Sort by document creation time, then by chunk index
+      allChunks.sort((a, b) => {
+        const docTimeA = a.document.createdAt || 0;
+        const docTimeB = b.document.createdAt || 0;
+        if (docTimeA !== docTimeB) return docTimeA - docTimeB;
+        
+        const indexA = a.chunk.metadata?.chunkIndex || 0;
+        const indexB = b.chunk.metadata?.chunkIndex || 0;
+        return indexA - indexB;
+      });
+
+      let chunksContent = '📄 **Document Chunks Overview**\n\n';
+      chunksContent += `Total Documents: ${documents.length}\n`;
+      chunksContent += `Total Chunks: ${allChunks.length}\n\n`;
+
+      if (allChunks.length === 0) {
+        chunksContent += 'No chunks found. Upload documents to create chunks.\n';
+      } else {
+        let currentDocId = '';
+
+        allChunks.forEach((item, index) => {
+          const { chunk, document } = item;
+          
+          // Add document header when we encounter a new document
+          if (document.id !== currentDocId) {
+            currentDocId = document.id;
+            chunksContent += `\n📁 **${document.fileName}** (${document.chunks.length} chunks)\n`;
+          }
+
+          // Add simple chunk preview - just show first 100 chars
+          const preview = chunk.content.substring(0, 100).replace(/\n/g, ' ');
+          chunksContent += `  • Chunk ${chunk.metadata?.chunkIndex + 1 || index + 1}: "${preview}${chunk.content.length > 100 ? '...' : ''}"\n`;
+        });
+        
+        chunksContent += '\n💡 *Use `/debug rag` for detailed chunk information including IDs, tokens, and full content.*';
+      }
+
+      // Remove loading message
+      removeMessageById(loadingMessageId);
+      
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: chunksContent,
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      console.error('Error showing all chunks:', error);
+      // Remove loading message if it exists
+      if (typeof loadingMessageId !== 'undefined') {
+        removeMessageById(loadingMessageId);
+      }
+      
+      addMessage({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: `📄 Error retrieving chunks: ${error instanceof Error ? error.message : 'Unknown error'}`,
         timestamp: Date.now()
       });
     }
@@ -1035,9 +1220,7 @@
     }
   }
 
-  $: {
-    scrollToBottom();
-  }
+  // Removed problematic reactive statement that caused infinite loops
 </script>
 
 <div class="relative h-full overflow-hidden flex">
@@ -1193,12 +1376,15 @@
   </div>
 {/if}
 
+<!-- Token Counter -->
+<TokenCounter />
+
 <!-- Feature Toggle Modal -->
 <FeatureToggle bind:isVisible={showFeatureToggle} />
 
 <!-- Developer Toggle Button (for easy access during development) -->
 <button
-  class="fixed top-4 right-4 btn-icon btn-icon-sm variant-soft-surface opacity-50 hover:opacity-100 z-40"
+  class="fixed top-16 right-4 btn-icon btn-icon-sm variant-soft-surface opacity-50 hover:opacity-100 z-40"
   on:click={() => (showFeatureToggle = true)}
   aria-label="Toggle experimental features (Ctrl+Shift+F)"
   title="Experimental Features (Ctrl+Shift+F)"

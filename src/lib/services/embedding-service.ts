@@ -9,12 +9,13 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
   private isInitialized = false;
 
   constructor() {
-    this.initializeVocabulary();
     // Start with at least 1 document to avoid division issues
     this.totalDocuments = 1;
+    // Initialize vocabulary synchronously
+    this.initializeVocabulary();
   }
 
-  private async initializeVocabulary() {
+  private initializeVocabulary() {
     // Pre-populate with common words to ensure consistent dimensions
     const commonWords = [
       'the',
@@ -83,7 +84,7 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
 
   async generateEmbedding(text: string): Promise<number[]> {
     if (!this.isInitialized) {
-      await this.initializeVocabulary();
+      this.initializeVocabulary();
     }
 
     const words = this.tokenize(text);
@@ -125,6 +126,7 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
   }
 
   isReady(): boolean {
+    console.log('[TFIDFEmbeddingProvider] isReady called, isInitialized:', this.isInitialized);
     return this.isInitialized;
   }
 

@@ -11,28 +11,35 @@ export class IndexedDBVectorStore implements VectorStore {
   private isInitialized = false;
 
   constructor() {
-    this.initialize();
+    console.log('[IndexedDBVectorStore] Constructor called');
+    // Don't initialize in constructor - wait for explicit waitForReady call
   }
 
   private async initialize(): Promise<void> {
+    console.log('[IndexedDBVectorStore] Starting initialization...');
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => {
+        console.error('[IndexedDBVectorStore] Failed to open IndexedDB:', request.error);
         reject(new Error('Failed to open IndexedDB'));
       };
 
       request.onsuccess = () => {
+        console.log('[IndexedDBVectorStore] IndexedDB opened successfully');
         this.db = request.result;
         this.isInitialized = true;
+        console.log('[IndexedDBVectorStore] Initialization complete, isInitialized:', this.isInitialized);
         resolve();
       };
 
       request.onupgradeneeded = (event) => {
+        console.log('[IndexedDBVectorStore] Database upgrade needed');
         const db = (event.target as IDBOpenDBRequest).result;
 
         // Create documents store
         if (!db.objectStoreNames.contains(DOCUMENTS_STORE)) {
+          console.log('[IndexedDBVectorStore] Creating documents store');
           const documentsStore = db.createObjectStore(DOCUMENTS_STORE, { keyPath: 'id' });
           documentsStore.createIndex('fileName', 'fileName', { unique: false });
           documentsStore.createIndex('createdAt', 'createdAt', { unique: false });
@@ -40,6 +47,7 @@ export class IndexedDBVectorStore implements VectorStore {
 
         // Create chunks store
         if (!db.objectStoreNames.contains(CHUNKS_STORE)) {
+          console.log('[IndexedDBVectorStore] Creating chunks store');
           const chunksStore = db.createObjectStore(CHUNKS_STORE, { keyPath: 'id' });
           chunksStore.createIndex('documentId', 'documentId', { unique: false });
           chunksStore.createIndex('chunkIndex', 'metadata.chunkIndex', { unique: false });
@@ -49,9 +57,19 @@ export class IndexedDBVectorStore implements VectorStore {
   }
 
   private async ensureInitialized(): Promise<void> {
+    console.log('[IndexedDBVectorStore] ensureInitialized called, isInitialized:', this.isInitialized);
     if (!this.isInitialized) {
+      console.log('[IndexedDBVectorStore] Not initialized, calling initialize()');
       await this.initialize();
+    } else {
+      console.log('[IndexedDBVectorStore] Already initialized');
     }
+  }
+
+  async waitForReady(): Promise<void> {
+    console.log('[IndexedDBVectorStore] waitForReady called, isInitialized:', this.isInitialized);
+    await this.ensureInitialized();
+    console.log('[IndexedDBVectorStore] waitForReady complete, isInitialized:', this.isInitialized);
   }
 
   async addDocument(document: RAGDocument): Promise<void> {
@@ -287,6 +305,11 @@ export class MemoryVectorStore implements VectorStore {
   async clear(): Promise<void> {
     this.documents.clear();
     this.chunks.clear();
+  }
+
+  async waitForReady(): Promise<void> {
+    // Memory store is always ready
+    return Promise.resolve();
   }
 }
 

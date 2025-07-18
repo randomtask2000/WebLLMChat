@@ -25,11 +25,23 @@ Open browser DevTools (F12) to see detailed RAG activity:
 
 ### 3. Debug Commands
 
-Type `/debug rag` in chat to see:
+Available slash commands for RAG inspection:
 
-- Number of indexed documents
-- Total chunks and embeddings
-- Storage statistics
+- **`/debug rag`** - Show RAG system information:
+  - Number of indexed documents
+  - Total chunks and embeddings
+  - Storage statistics
+  - Test search functionality
+
+- **`/chunks`** - Show all RAG chunks in order:
+  - Complete list of all document chunks
+  - Organized by document and chunk index
+  - Shows chunk content, metadata, and embedding status
+
+- **`/find [term]`** - Find exact sentences containing a term:
+  - Searches for specific terms in document chunks
+  - Returns exact sentences with highlighting
+  - Useful for locating specific information
 
 ### 4. Effective Query Strategies
 

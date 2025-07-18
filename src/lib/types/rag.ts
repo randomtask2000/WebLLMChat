@@ -57,6 +57,7 @@ export interface VectorStore {
   getDocument(documentId: string): Promise<RAGDocument | null>;
   getAllDocuments(): Promise<RAGDocument[]>;
   clear(): Promise<void>;
+  waitForReady?(): Promise<void>;
 }
 
 export interface RAGService {

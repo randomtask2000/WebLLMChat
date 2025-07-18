@@ -12,6 +12,7 @@ export class ClientRAGService implements RAGService {
   private embeddingProvider: EmbeddingProvider | null = null;
   private vectorStore: VectorStore | null = null;
   private isInitialized = false;
+  private lastReadyState: boolean | undefined;
 
   constructor(embeddingProvider?: EmbeddingProvider, vectorStore?: VectorStore) {
     if (embeddingProvider) this.embeddingProvider = embeddingProvider;
@@ -19,22 +20,44 @@ export class ClientRAGService implements RAGService {
   }
 
   async initialize(embeddingProvider: EmbeddingProvider, vectorStore: VectorStore): Promise<void> {
+    console.log('[RAGService] initialize called');
+    console.log('[RAGService] clientSideRAG feature enabled:', featureManager.isEnabled('clientSideRAG'));
+    
     if (!featureManager.isEnabled('clientSideRAG')) {
       throw new Error('Client-side RAG is not enabled');
     }
 
+    console.log('[RAGService] Setting embedding provider:', embeddingProvider);
     this.embeddingProvider = embeddingProvider;
+    
+    console.log('[RAGService] Setting vector store:', vectorStore);
     this.vectorStore = vectorStore;
+    
     this.isInitialized = true;
+    console.log('[RAGService] Initialization complete. isInitialized:', this.isInitialized);
   }
 
   isReady(): boolean {
-    return (
-      this.isInitialized &&
-      featureManager.isEnabled('clientSideRAG') &&
-      this.embeddingProvider?.isReady() === true &&
-      this.vectorStore !== null
-    );
+    const isInitialized = this.isInitialized;
+    const featureEnabled = featureManager.isEnabled('clientSideRAG');
+    const embeddingProviderReady = this.embeddingProvider?.isReady();
+    const hasVectorStore = this.vectorStore !== null;
+    
+    const isReady = isInitialized && featureEnabled && embeddingProviderReady === true && hasVectorStore;
+    
+    // Only log when state changes to reduce spam
+    if (this.lastReadyState !== isReady) {
+      console.log('[RAGService] isReady state changed:', {
+        isInitialized,
+        featureEnabled,
+        embeddingProviderReady,
+        hasVectorStore,
+        result: isReady
+      });
+      this.lastReadyState = isReady;
+    }
+    
+    return isReady;
   }
 
   async addDocument(file: File): Promise<string> {
