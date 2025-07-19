@@ -6,7 +6,16 @@ const createMockFile = (content: string, name: string, type: string) => {
   const file = new File([content], name, { type });
   // Mock the async methods
   file.text = vi.fn(() => Promise.resolve(content));
-  file.arrayBuffer = vi.fn(() => Promise.resolve(new ArrayBuffer(content.length)));
+  
+  // For PDF files, ensure the header is correct
+  if (type === 'application/pdf') {
+    const pdfContent = '%PDF-1.4\n' + content;
+    const encoder = new TextEncoder();
+    const uint8Array = encoder.encode(pdfContent);
+    file.arrayBuffer = vi.fn(() => Promise.resolve(uint8Array.buffer));
+  } else {
+    file.arrayBuffer = vi.fn(() => Promise.resolve(new ArrayBuffer(content.length)));
+  }
   return file;
 };
 

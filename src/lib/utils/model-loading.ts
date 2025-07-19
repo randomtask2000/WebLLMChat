@@ -2,6 +2,7 @@ import { addMessage, updateLastMessage } from '$lib/stores/chat';
 import { switchModel } from '$lib/utils/webllm';
 import type { ChatMessage as ChatMessageType } from '$lib/types';
 
+// Loads model with chat UI feedback
 export async function loadModelWithChatBubble(
   modelId: string,
   scrollToBottom?: () => void
@@ -99,4 +100,36 @@ export async function loadModelWithChatBubble(
 
   if (scrollToBottom) scrollToBottom();
   console.log('🏁 loadModelWithChatBubble completed');
+}
+
+// Model management functions
+const loadedModels = new Map<string, any>();
+
+// Stores loaded model engine in memory
+export async function loadModel(modelId: string, engine: any): Promise<void> {
+  // Unload existing model with same ID if present
+  if (loadedModels.has(modelId)) {
+    const existingEngine = loadedModels.get(modelId);
+    if (existingEngine.dispose) {
+      existingEngine.dispose();
+    }
+  }
+  
+  loadedModels.set(modelId, engine);
+}
+
+// Unloads and disposes model from memory
+export function unloadModel(modelId: string): void {
+  if (loadedModels.has(modelId)) {
+    const engine = loadedModels.get(modelId);
+    if (engine && engine.dispose) {
+      engine.dispose();
+    }
+    loadedModels.delete(modelId);
+  }
+}
+
+// Returns list of currently loaded models
+export function getLoadedModels(): string[] {
+  return Array.from(loadedModels.keys());
 }

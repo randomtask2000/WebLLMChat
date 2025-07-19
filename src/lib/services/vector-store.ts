@@ -10,11 +10,13 @@ export class IndexedDBVectorStore implements VectorStore {
   private db: IDBDatabase | null = null;
   private isInitialized = false;
 
+  // Creates IndexedDB vector store instance
   constructor() {
     console.log('[IndexedDBVectorStore] Constructor called');
     // Don't initialize in constructor - wait for explicit waitForReady call
   }
 
+  // Opens IndexedDB connection and creates object stores
   private async initialize(): Promise<void> {
     console.log('[IndexedDBVectorStore] Starting initialization...');
     return new Promise((resolve, reject) => {
@@ -56,6 +58,7 @@ export class IndexedDBVectorStore implements VectorStore {
     });
   }
 
+  // Ensures database is initialized before operations
   private async ensureInitialized(): Promise<void> {
     console.log('[IndexedDBVectorStore] ensureInitialized called, isInitialized:', this.isInitialized);
     if (!this.isInitialized) {
@@ -66,12 +69,14 @@ export class IndexedDBVectorStore implements VectorStore {
     }
   }
 
+  // Waits for database initialization to complete
   async waitForReady(): Promise<void> {
     console.log('[IndexedDBVectorStore] waitForReady called, isInitialized:', this.isInitialized);
     await this.ensureInitialized();
     console.log('[IndexedDBVectorStore] waitForReady complete, isInitialized:', this.isInitialized);
   }
 
+  // Stores a document and its chunks in IndexedDB
   async addDocument(document: RAGDocument): Promise<void> {
     await this.ensureInitialized();
 
@@ -95,6 +100,7 @@ export class IndexedDBVectorStore implements VectorStore {
     });
   }
 
+  // Removes a document and all its chunks from storage
   async removeDocument(documentId: string): Promise<void> {
     await this.ensureInitialized();
 
@@ -124,6 +130,7 @@ export class IndexedDBVectorStore implements VectorStore {
     });
   }
 
+  // Searches for similar chunks using cosine similarity
   async search(queryEmbedding: number[], topK = 5, threshold = 0.1): Promise<SearchResult[]> {
     await this.ensureInitialized();
 
@@ -152,6 +159,7 @@ export class IndexedDBVectorStore implements VectorStore {
     return results.slice(0, topK);
   }
 
+  // Retrieves a document with all its chunks
   async getDocument(documentId: string): Promise<RAGDocument | null> {
     await this.ensureInitialized();
 
@@ -185,6 +193,7 @@ export class IndexedDBVectorStore implements VectorStore {
     });
   }
 
+  // Returns all documents with their chunks loaded
   async getAllDocuments(): Promise<RAGDocument[]> {
     await this.ensureInitialized();
 
@@ -211,6 +220,7 @@ export class IndexedDBVectorStore implements VectorStore {
     });
   }
 
+  // Clears all documents and chunks from storage
   async clear(): Promise<void> {
     await this.ensureInitialized();
 
@@ -228,6 +238,7 @@ export class IndexedDBVectorStore implements VectorStore {
     });
   }
 
+  // Retrieves all chunks from the chunks store
   private async getAllChunks(): Promise<DocumentChunk[]> {
     await this.ensureInitialized();
 
@@ -250,6 +261,7 @@ export class MemoryVectorStore implements VectorStore {
   private documents = new Map<string, RAGDocument>();
   private chunks = new Map<string, DocumentChunk>();
 
+  // Adds document to in-memory storage
   async addDocument(document: RAGDocument): Promise<void> {
     this.documents.set(document.id, { ...document });
 
@@ -258,6 +270,7 @@ export class MemoryVectorStore implements VectorStore {
     }
   }
 
+  // Removes document from memory store
   async removeDocument(documentId: string): Promise<void> {
     const document = this.documents.get(documentId);
     if (document) {
@@ -269,6 +282,7 @@ export class MemoryVectorStore implements VectorStore {
     }
   }
 
+  // Performs similarity search in memory
   async search(queryEmbedding: number[], topK = 5, threshold = 0.1): Promise<SearchResult[]> {
     const results: SearchResult[] = [];
 
@@ -294,26 +308,30 @@ export class MemoryVectorStore implements VectorStore {
     return results.slice(0, topK);
   }
 
+  // Gets document from memory map
   async getDocument(documentId: string): Promise<RAGDocument | null> {
     return this.documents.get(documentId) || null;
   }
 
+  // Returns all documents from memory
   async getAllDocuments(): Promise<RAGDocument[]> {
     return Array.from(this.documents.values());
   }
 
+  // Clears all data from memory
   async clear(): Promise<void> {
     this.documents.clear();
     this.chunks.clear();
   }
 
+  // Always ready for memory store
   async waitForReady(): Promise<void> {
     // Memory store is always ready
     return Promise.resolve();
   }
 }
 
-// Factory function
+// Creates appropriate vector store instance
 export function createVectorStore(type: 'indexeddb' | 'memory' = 'indexeddb'): VectorStore {
   switch (type) {
     case 'memory':

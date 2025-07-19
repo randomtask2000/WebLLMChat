@@ -3,6 +3,7 @@
  * Uses a rough approximation of 1 token ≈ 4 characters for English text
  */
 
+// Estimates token count using 4 characters per token approximation
 export function estimateTokenCount(text: string): number {
   if (!text || text.length === 0) return 0;
 
@@ -12,6 +13,7 @@ export function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / avgCharsPerToken);
 }
 
+// Formats token count with appropriate units (tokens, k, M)
 export function formatTokenCount(tokens: number): string {
   if (tokens < 1000) {
     return `${tokens} tokens`;

@@ -43,7 +43,7 @@ describe('Chat Store', () => {
     addMessage(userMessage);
     addMessage(assistantMessage);
 
-    updateLastMessage('Hello there!');
+    updateLastMessage('Hello there!', undefined, true);
 
     const messages = get(currentMessages);
     expect(messages[1].content).toBe('Hello there!');

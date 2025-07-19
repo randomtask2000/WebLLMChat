@@ -10,12 +10,14 @@ export const isTyping = writable(false);
 // Response timing tracking
 let responseStartTime: number | null = null;
 
+// Sums up token counts for all messages in the chat
 function calculateTotalTokens(messages: ChatMessage[]): number {
   return messages.reduce((total, message) => {
     return total + (message.tokenCount || estimateTokenCount(message.content));
   }, 0);
 }
 
+// Adds a new message to the chat with token count estimation
 export function addMessage(message: ChatMessage) {
   if (!message.tokenCount) {
     message.tokenCount = estimateTokenCount(message.content);
@@ -26,10 +28,12 @@ export function addMessage(message: ChatMessage) {
   currentMessages.update((messages) => [...messages, message]);
 }
 
+// Marks the start time for measuring response generation duration
 export function startResponseTiming() {
   responseStartTime = performance.now();
 }
 
+// Updates the last assistant message content during streaming
 export function updateLastMessage(content: string, chunks?: any[], isComplete: boolean = false) {
   currentMessages.update((messages) => {
     const lastMessage = messages[messages.length - 1];
@@ -73,6 +77,7 @@ export function updateLastMessage(content: string, chunks?: any[], isComplete: b
   });
 }
 
+// Removes the last assistant message from the chat
 export function removeLastMessage() {
   currentMessages.update((messages) => {
     const lastMessage = messages[messages.length - 1];
@@ -83,12 +88,14 @@ export function removeLastMessage() {
   });
 }
 
+// Removes a specific message by its unique ID
 export function removeMessageById(messageId: string) {
   currentMessages.update((messages) => {
     return messages.filter(msg => msg.id !== messageId);
   });
 }
 
+// Replaces a message with an updated version
 export function updateMessage(messageId: string, updatedMessage: ChatMessage) {
   currentMessages.update((messages) => {
     return messages.map(msg => 
@@ -97,6 +104,7 @@ export function updateMessage(messageId: string, updatedMessage: ChatMessage) {
   });
 }
 
+// Saves current chat as a new history entry in localStorage
 export function saveChatHistory() {
   const chatId = crypto.randomUUID();
   const timestamp = Date.now();
@@ -124,6 +132,7 @@ export function saveChatHistory() {
   })();
 }
 
+// Loads a specific chat history by ID into the current session
 export function loadChatHistory(chatId: string) {
   // First clear current chat
   currentMessages.set([]);
@@ -138,6 +147,7 @@ export function loadChatHistory(chatId: string) {
   }
 }
 
+// Loads all chat histories from localStorage with token counts
 export function loadChatHistories() {
   const stored = localStorage.getItem('chat-histories');
   if (stored) {
@@ -164,6 +174,7 @@ export function loadChatHistories() {
   }
 }
 
+// Deletes a chat history and clears current if active
 export function deleteChatHistory(chatId: string) {
   chatHistories.update((histories) => {
     const updated = histories.filter((h) => h.id !== chatId);
@@ -179,11 +190,13 @@ export function deleteChatHistory(chatId: string) {
   })();
 }
 
+// Clears the current chat to start a new conversation
 export function newChat() {
   currentMessages.set([]);
   currentChatId.set(null);
 }
 
+// Retrieves and removes the last user message for retry
 export function retryLastUserMessage(): string | null {
   let lastUserMessage: string | null = null;
 

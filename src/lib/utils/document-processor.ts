@@ -22,6 +22,7 @@ interface StructuredContent {
   pageNumber?: number;
 }
 
+// Processes a file into document chunks with metadata extraction
 export async function processDocument(file: File): Promise<Document> {
   const extractedContent = await extractContent(file);
   const chunks = createSmartChunks(extractedContent, file.name);
@@ -37,6 +38,7 @@ export async function processDocument(file: File): Promise<Document> {
   };
 }
 
+// Determines file type and routes to appropriate extractor
 async function extractContent(file: File): Promise<ExtractedContent> {
   const fileType = file.type;
   const fileName = file.name.toLowerCase();
@@ -60,6 +62,7 @@ async function extractContent(file: File): Promise<ExtractedContent> {
   throw new Error(`Unsupported file type: ${fileType || 'unknown'}`);
 }
 
+// Extracts content from plain text files
 async function extractTextFromPlainText(file: File): Promise<ExtractedContent> {
   const text = await file.text();
   return {
@@ -71,6 +74,7 @@ async function extractTextFromPlainText(file: File): Promise<ExtractedContent> {
   };
 }
 
+// Extracts text and structure from PDF files with page tracking
 async function extractTextFromPDF(file: File): Promise<ExtractedContent> {
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -174,6 +178,7 @@ async function extractTextFromPDF(file: File): Promise<ExtractedContent> {
   }
 }
 
+// Extracts text and structure from DOCX files using mammoth
 async function extractTextFromDOCX(file: File): Promise<ExtractedContent> {
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -250,6 +255,7 @@ async function extractTextFromDOCX(file: File): Promise<ExtractedContent> {
   }
 }
 
+// Creates semantic chunks preserving structure with overlap
 function createSmartChunks(
   extractedContent: ExtractedContent,
   filename: string,
@@ -371,17 +377,20 @@ function createSmartChunks(
   return chunks;
 }
 
+// Extracts overlap text from end of chunk for continuity
 function getOverlapText(text: string, overlapSize: number): string {
   const words = text.split(/\s+/);
   const overlapWords = words.slice(-Math.min(overlapSize, words.length));
   return overlapWords.join(' ');
 }
 
+// Estimates tokens using 0.75 words per token ratio
 function estimateTokens(text: string): number {
   // Rough estimation: 1 token ≈ 4 characters or 0.75 words
   return Math.ceil(text.split(/\s+/).length * 0.75);
 }
 
+// Checks if file type is supported for document processing
 export function isValidFileType(file: File): boolean {
   const allowedTypes = [
     'text/plain',
@@ -397,6 +406,7 @@ export function isValidFileType(file: File): boolean {
   return allowedTypes.includes(file.type) || allowedExtensions.some(ext => fileName.endsWith(ext));
 }
 
+// Formats byte size into human-readable units
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
 

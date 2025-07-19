@@ -15,6 +15,7 @@ class WebLLMService {
   private currentModelId: string = '';
   private webllm: any = null;
 
+  // Dynamically loads WebLLM module with validation
   private async loadWebLLM() {
     if (this.webllm) return this.webllm;
 
@@ -83,6 +84,7 @@ class WebLLMService {
     }
   }
 
+  // Initializes WebLLM engine with specified model
   async initializeEngine(
     modelId: string,
     progressCallback?: (status: string, progress: number) => void
@@ -370,6 +372,7 @@ class WebLLMService {
     }
   }
 
+  // Generates streaming response from model
   async generateResponse(
     messages: Array<{ role: string; content: string }>,
     onUpdate?: (content: string, isComplete?: boolean) => void
@@ -441,6 +444,7 @@ class WebLLMService {
     }
   }
 
+  // Checks if model is cached locally
   async isModelAvailable(modelId: string): Promise<boolean> {
     try {
       const webllm = await this.loadWebLLM();
@@ -461,6 +465,7 @@ class WebLLMService {
     }
   }
 
+  // Returns list of all available WebLLM models
   async getAvailableModels(): Promise<string[]> {
     try {
       const webllm = await this.loadWebLLM();
@@ -483,6 +488,7 @@ class WebLLMService {
     }
   }
 
+  // Unloads current model and frees resources
   unload(): void {
     if (this.engine) {
       this.engine.unload();
@@ -495,6 +501,7 @@ class WebLLMService {
 
 export const webLLMService = new WebLLMService();
 
+// Switches to a different model with progress tracking
 export async function switchModel(
   modelId: string,
   progressCallback?: (status: string, progress: number) => void
@@ -502,6 +509,7 @@ export async function switchModel(
   await webLLMService.initializeEngine(modelId, progressCallback);
 }
 
+// Generates chat response with auto-initialization
 export async function generateChatResponse(
   messages: Array<{ role: string; content: string }>,
   onUpdate?: (content: string, isComplete?: boolean) => void

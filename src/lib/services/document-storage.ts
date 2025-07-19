@@ -31,10 +31,12 @@ export interface StoredDocument {
 class DocumentStorageService {
   private documents: Map<string, StoredDocument> = new Map();
 
+  // Initializes service and loads stored documents
   constructor() {
     this.loadFromStorage();
   }
 
+  // Loads documents from localStorage
   private loadFromStorage(): void {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -54,6 +56,7 @@ class DocumentStorageService {
     }
   }
 
+  // Persists documents to localStorage
   private saveToStorage(): void {
     try {
       const documents = Array.from(this.documents.values());
@@ -63,6 +66,7 @@ class DocumentStorageService {
     }
   }
 
+  // Processes and stores document with metadata
   async addDocument(file: File): Promise<StoredDocument> {
     const id = crypto.randomUUID();
     const now = new Date();
@@ -131,16 +135,19 @@ class DocumentStorageService {
     }
   }
 
+  // Retrieves document by ID
   getDocument(id: string): StoredDocument | null {
     return this.documents.get(id) || null;
   }
 
+  // Returns all documents sorted by date
   getAllDocuments(): StoredDocument[] {
     return Array.from(this.documents.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
   }
 
+  // Deletes document and updates storage
   removeDocument(id: string): boolean {
     const deleted = this.documents.delete(id);
     if (deleted) {
@@ -149,6 +156,7 @@ class DocumentStorageService {
     return deleted;
   }
 
+  // Determines file type from extension
   private getFileType(fileName: string): string {
     const extension = fileName.toLowerCase().split('.').pop();
     switch (extension) {
@@ -169,7 +177,7 @@ class DocumentStorageService {
     }
   }
 
-  // Convert StoredDocument to RAGDocument format for compatibility
+  // Converts to RAG-compatible format
   toRAGDocument(storedDoc: StoredDocument): RAGDocument {
     return {
       id: storedDoc.id,
@@ -191,6 +199,7 @@ class DocumentStorageService {
     };
   }
 
+  // Clears all stored documents
   clear(): void {
     this.documents.clear();
     localStorage.removeItem(STORAGE_KEY);

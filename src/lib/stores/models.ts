@@ -123,6 +123,7 @@ export const MODELS: ModelInfo[] = [
 
 availableModels.set(MODELS);
 
+// Updates download progress for a model
 export function setModelDownloadProgress(
   modelId: string,
   progress: number,
@@ -140,6 +141,7 @@ export function setModelDownloadProgress(
   }));
 }
 
+// Sets error state for model download
 export function setModelDownloadError(modelId: string, error: string) {
   downloadProgress.update((state) => ({
     ...state,
@@ -153,6 +155,7 @@ export function setModelDownloadError(modelId: string, error: string) {
   }));
 }
 
+// Marks model as successfully downloaded
 export function setModelDownloaded(modelId: string) {
   downloadProgress.update((state) => ({
     ...state,
@@ -166,6 +169,7 @@ export function setModelDownloaded(modelId: string) {
   }));
 }
 
+// Checks which models are cached locally
 export async function checkCachedModels(): Promise<void> {
   console.log('🔍 Checking cached models...');
   const { webLLMService } = await import('../utils/webllm');

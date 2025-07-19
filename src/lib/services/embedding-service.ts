@@ -8,6 +8,7 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
   private dimensions = 512; // Fixed dimension size
   private isInitialized = false;
 
+  // Initializes TF-IDF provider with basic vocabulary
   constructor() {
     // Start with at least 1 document to avoid division issues
     this.totalDocuments = 1;
@@ -15,6 +16,7 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
     this.initializeVocabulary();
   }
 
+  // Pre-populates vocabulary with common words
   private initializeVocabulary() {
     // Pre-populate with common words to ensure consistent dimensions
     const commonWords = [
@@ -82,6 +84,7 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
     this.isInitialized = true;
   }
 
+  // Generates TF-IDF embedding vector for text
   async generateEmbedding(text: string): Promise<number[]> {
     if (!this.isInitialized) {
       this.initializeVocabulary();
@@ -121,15 +124,18 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
     return embedding;
   }
 
+  // Returns embedding vector dimensions
   getDimensions(): number {
     return this.dimensions;
   }
 
+  // Checks if provider is initialized
   isReady(): boolean {
     console.log('[TFIDFEmbeddingProvider] isReady called, isInitialized:', this.isInitialized);
     return this.isInitialized;
   }
 
+  // Tokenizes text preserving capitalized words
   private tokenize(text: string): string[] {
     // First extract potential names (capitalized words) before lowercasing
     const capitalizedWords = text.match(/\b[A-Z][a-z]+\b/g) || [];
@@ -152,6 +158,7 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
     return tokens;
   }
 
+  // Calculates relative term frequencies
   private calculateTermFrequency(words: string[]): Map<string, number> {
     const tf = new Map<string, number>();
     const totalWords = words.length;
@@ -168,7 +175,7 @@ export class TFIDFEmbeddingProvider implements EmbeddingProvider {
     return tf;
   }
 
-  // Update vocabulary with new document
+  // Updates vocabulary with new document terms
   updateVocabulary(text: string): void {
     const words = this.tokenize(text);
     const uniqueWords = new Set(words);
@@ -190,17 +197,20 @@ export class WebLLMEmbeddingProvider implements EmbeddingProvider {
   private webllmService: any; // TODO: Type this properly when WebLLM embeddings are available
   private ready = false;
 
+  // Creates WebLLM embedding provider instance
   constructor(webllmService: any) {
     this.webllmService = webllmService;
     this.initialize();
   }
 
+  // Initializes WebLLM embedding model
   private async initialize() {
     // TODO: Initialize WebLLM embedding model when available
     // For now, this is a placeholder
     this.ready = false;
   }
 
+  // Generates embeddings using WebLLM
   async generateEmbedding(text: string): Promise<number[]> {
     if (!this.ready) {
       throw new Error('WebLLM embedding provider is not ready');
@@ -211,16 +221,18 @@ export class WebLLMEmbeddingProvider implements EmbeddingProvider {
     throw new Error('WebLLM embeddings not yet implemented');
   }
 
+  // Returns typical embedding dimensions
   getDimensions(): number {
     return 768; // Typical embedding dimension
   }
 
+  // Checks if WebLLM is ready
   isReady(): boolean {
     return this.ready;
   }
 }
 
-// Utility function to calculate cosine similarity
+// Calculates cosine similarity between vectors
 export function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) {
     throw new Error('Vectors must have the same length');
@@ -246,7 +258,7 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   return dotProduct / (normA * normB);
 }
 
-// Factory function to create appropriate embedding provider
+// Creates appropriate embedding provider instance
 export function createEmbeddingProvider(
   type: 'tfidf' | 'webllm' = 'tfidf',
   webllmService?: any

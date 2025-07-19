@@ -4,6 +4,7 @@ import type { Document, DocumentChunk } from '../types';
 export const documents = writable<Document[]>([]);
 export const isProcessingDocument = writable(false);
 
+// Adds a document to the store and persists it to localStorage
 export function addDocument(doc: Document) {
   documents.update((docs) => {
     const updated = [...docs, doc];
@@ -12,6 +13,7 @@ export function addDocument(doc: Document) {
   });
 }
 
+// Removes a document by ID from the store and localStorage
 export function removeDocument(docId: string) {
   documents.update((docs) => {
     const updated = docs.filter((d) => d.id !== docId);
@@ -20,6 +22,7 @@ export function removeDocument(docId: string) {
   });
 }
 
+// Updates an existing document with partial changes
 export function updateDocument(docId: string, updates: Partial<Document>) {
   documents.update((docs) => {
     const updated = docs.map((d) => (d.id === docId ? { ...d, ...updates } : d));
@@ -28,6 +31,7 @@ export function updateDocument(docId: string, updates: Partial<Document>) {
   });
 }
 
+// Loads documents from localStorage into the store
 export function loadDocuments() {
   const stored = localStorage.getItem('rag-documents');
   if (stored) {
@@ -35,6 +39,7 @@ export function loadDocuments() {
   }
 }
 
+// Searches document chunks using basic keyword similarity scoring
 export function searchDocuments(query: string): Promise<DocumentChunk[]> {
   return new Promise((resolve) => {
     documents.subscribe((docs) => {
@@ -61,6 +66,7 @@ export function searchDocuments(query: string): Promise<DocumentChunk[]> {
   });
 }
 
+// Calculates word-based similarity score between query and text
 function calculateSimilarity(query: string, text: string): number {
   const queryWords = query.split(' ');
   const textWords = text.split(' ');

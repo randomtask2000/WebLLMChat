@@ -76,3 +76,29 @@ export function shouldDelayModelDownload(): boolean {
 
   return false;
 }
+
+// Device detection functions
+export function detectDevice(): 'mobile' | 'tablet' | 'desktop' {
+  const userAgent = navigator.userAgent.toLowerCase();
+  
+  // Check for tablets first (they often contain mobile keywords too)
+  if (/ipad|android.*tablet|tablet.*android|android.*pad|kindle|silk/i.test(userAgent)) {
+    return 'tablet';
+  }
+  
+  // Check for mobile devices
+  if (/mobile|android|iphone|ipod|blackberry|opera mini|iemobile/i.test(userAgent)) {
+    return 'mobile';
+  }
+  
+  // Default to desktop
+  return 'desktop';
+}
+
+export function isMobileDevice(): boolean {
+  return detectDevice() === 'mobile';
+}
+
+export function isTabletDevice(): boolean {
+  return detectDevice() === 'tablet';
+}
