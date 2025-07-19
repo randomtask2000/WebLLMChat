@@ -224,236 +224,233 @@
         {/if}
       </div>
     {:else}
-      <!-- Scrollable content area -->
-      <div class="overflow-y-auto">
-        <!-- Documents Section -->
-        <div class="mb-6">
+      <!-- Documents Section -->
+      <div class="mb-6">
+        <h4 class="font-medium mb-2 flex items-center">
+          <i class="fa fa-file-text mr-2"></i>
+          Documents ({documents.length})
+        </h4>
+
+        {#if documents.length === 0}
+          <p class="text-sm text-surface-600-300-token italic">
+            No documents indexed yet. Drop files in the chat to get started.
+          </p>
+        {:else}
+          <div class="space-y-2">
+            {#each documents as doc}
+              <div class="bg-surface-200-700-token rounded-lg p-3">
+                <div class="flex items-start justify-between mb-2">
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-sm truncate" title={doc.fileName}>
+                      {doc.fileName}
+                    </p>
+                    <p class="text-xs text-surface-600-300-token">
+                      {formatFileSize(doc.metadata.fileSize)} • {doc.metadata.totalChunks} chunks
+                      {#if doc.metadata.avgChunkSize}
+                        • ~{doc.metadata.avgChunkSize} chars/chunk
+                      {/if}
+                    </p>
+                  </div>
+                  <button
+                    class="btn-icon btn-icon-sm variant-soft-error ml-2"
+                    on:click={() => removeDocument(doc.id)}
+                    aria-label="Remove document"
+                  >
+                    <i class="fa fa-trash text-xs"></i>
+                  </button>
+                </div>
+
+                <div class="flex items-center space-x-2 text-xs">
+                  <span class="flex items-center {getStatusColor(doc.metadata.processingStatus)}">
+                    <i class="fa fa-circle mr-1 text-xs"></i>
+                    Processing: {doc.metadata.processingStatus}
+                  </span>
+
+                  {#if featureManager.isEnabled('documentEmbeddings')}
+                    <span class="flex items-center {getStatusColor(doc.metadata.embeddingStatus)}">
+                      <i class="fa fa-circle mr-1 text-xs"></i>
+                      Embeddings: {doc.metadata.embeddingStatus}
+                    </span>
+                  {/if}
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      <!-- Last Query Results -->
+      {#if lastQuery && featureManager.isEnabled('ragContextDisplay')}
+        <div class="mb-4">
           <h4 class="font-medium mb-2 flex items-center">
-            <i class="fa fa-file-text mr-2"></i>
-            Documents ({documents.length})
+            <i class="fa fa-search mr-2"></i>
+            Last Query Results
           </h4>
 
-          {#if documents.length === 0}
+          {#if lastQuery.results.length === 0}
             <p class="text-sm text-surface-600-300-token italic">
-              No documents indexed yet. Drop files in the chat to get started.
+              No relevant documents found for the last query.
             </p>
           {:else}
             <div class="space-y-2">
-              {#each documents as doc}
-                <div class="bg-surface-200-700-token rounded-lg p-3">
-                  <div class="flex items-start justify-between mb-2">
-                    <div class="flex-1 min-w-0">
-                      <p class="font-medium text-sm truncate" title={doc.fileName}>
-                        {doc.fileName}
-                      </p>
-                      <p class="text-xs text-surface-600-300-token">
-                        {formatFileSize(doc.metadata.fileSize)} • {doc.metadata.totalChunks} chunks
-                        {#if doc.metadata.avgChunkSize}
-                          • ~{doc.metadata.avgChunkSize} chars/chunk
-                        {/if}
-                      </p>
-                    </div>
-                    <button
-                      class="btn-icon btn-icon-sm variant-soft-error ml-2"
-                      on:click={() => removeDocument(doc.id)}
-                      aria-label="Remove document"
-                    >
-                      <i class="fa fa-trash text-xs"></i>
-                    </button>
-                  </div>
+              <div class="text-xs text-surface-600-300-token mb-2">
+                Found {lastQuery.results.length} relevant chunks ({Math.round(lastQuery.tokensUsed)}
+                tokens)
+              </div>
 
-                  <div class="flex items-center space-x-2 text-xs">
-                    <span class="flex items-center {getStatusColor(doc.metadata.processingStatus)}">
-                      <i class="fa fa-circle mr-1 text-xs"></i>
-                      Processing: {doc.metadata.processingStatus}
+              {#each lastQuery.results as result}
+                <div class="bg-surface-200-700-token rounded p-2">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-medium truncate">
+                      {result.document.fileName}
                     </span>
-
-                    {#if featureManager.isEnabled('documentEmbeddings')}
-                      <span class="flex items-center {getStatusColor(doc.metadata.embeddingStatus)}">
-                        <i class="fa fa-circle mr-1 text-xs"></i>
-                        Embeddings: {doc.metadata.embeddingStatus}
-                      </span>
-                    {/if}
+                    <span class="text-xs text-surface-600-300-token">
+                      {Math.round(result.similarity * 100)}% match
+                    </span>
                   </div>
+                  <p class="text-xs text-surface-600-300-token line-clamp-3">
+                    {result.chunk.content.substring(0, 150)}...
+                  </p>
                 </div>
               {/each}
             </div>
           {/if}
         </div>
+      {/if}
 
-        <!-- Last Query Results -->
-        {#if lastQuery && featureManager.isEnabled('ragContextDisplay')}
-          <div class="mb-4">
-            <h4 class="font-medium mb-2 flex items-center">
-              <i class="fa fa-search mr-2"></i>
-              Last Query Results
-            </h4>
+      <!-- RAG Settings - positioned at bottom, takes minimal space -->
+      <div class="border-t border-surface-300-600-token pt-2">
+        <div class="flex items-center justify-between">
+          <h4 class="font-medium text-sm">RAG Settings</h4>
+          <button
+            class="btn-icon btn-icon-sm variant-soft-primary"
+            on:click={() => (showSettings = !showSettings)}
+            aria-label="Toggle settings"
+          >
+            <i class="fa fa-{showSettings ? 'chevron-up' : 'chevron-down'}"></i>
+          </button>
+        </div>
 
-            {#if lastQuery.results.length === 0}
-              <p class="text-sm text-surface-600-300-token italic">
-                No relevant documents found for the last query.
-              </p>
-            {:else}
-              <div class="space-y-2">
-                <div class="text-xs text-surface-600-300-token mb-2">
-                  Found {lastQuery.results.length} relevant chunks ({Math.round(lastQuery.tokensUsed)}
-                  tokens)
-                </div>
-
-                {#each lastQuery.results as result}
-                  <div class="bg-surface-200-700-token rounded p-2">
-                    <div class="flex items-center justify-between mb-1">
-                      <span class="text-xs font-medium truncate">
-                        {result.document.fileName}
-                      </span>
-                      <span class="text-xs text-surface-600-300-token">
-                        {Math.round(result.similarity * 100)}% match
-                      </span>
-                    </div>
-                    <p class="text-xs text-surface-600-300-token line-clamp-3">
-                      {result.chunk.content.substring(0, 150)}...
-                    </p>
-                  </div>
-                {/each}
+        {#if showSettings}
+          <div class="space-y-3 text-sm mt-2">
+            <div>
+              <label for="chunk-size" class="block text-xs text-surface-600-300-token mb-1">
+                Chunk Size: {chunkSize} tokens
+              </label>
+              <input
+                id="chunk-size"
+                type="range"
+                bind:value={chunkSize}
+                on:change={handleChunkSizeChange}
+                min="50"
+                max="1000"
+                step="50"
+                class="w-full"
+              />
+              <div class="flex justify-between text-xs text-surface-600-300-token">
+                <span>50</span>
+                <span>1000</span>
               </div>
-            {/if}
+            </div>
+
+            <div>
+              <label for="overlap-size" class="block text-xs text-surface-600-300-token mb-1">
+                Overlap Size: {overlapSize} tokens
+              </label>
+              <input
+                id="overlap-size"
+                type="range"
+                bind:value={overlapSize}
+                on:change={handleOverlapSizeChange}
+                min="0"
+                max="200"
+                step="10"
+                class="w-full"
+              />
+              <div class="flex justify-between text-xs text-surface-600-300-token">
+                <span>0</span>
+                <span>200</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="search-accuracy" class="block text-xs text-surface-600-300-token mb-1">
+                Search Accuracy: {searchAccuracy}%
+              </label>
+              <input
+                id="search-accuracy"
+                type="range"
+                bind:value={searchAccuracy}
+                on:change={handleSearchAccuracyChange}
+                min="0"
+                max="100"
+                step="5"
+                class="w-full"
+              />
+              <div class="flex justify-between text-xs text-surface-600-300-token">
+                <span>Fuzzy</span>
+                <span>Exact</span>
+              </div>
+            </div>
+
+            <div class="text-xs text-surface-600-300-token bg-surface-200-700-token p-2 rounded">
+              <strong>Note:</strong> Changes will apply to new documents. Re-upload existing documents
+              to use new settings.
+            </div>
           </div>
         {/if}
-
-        <!-- RAG Settings -->
-        <div class="border-t border-surface-300-600-token pt-2 mb-2">
-          <div class="flex items-center justify-between">
-            <h4 class="font-medium text-sm">RAG Settings</h4>
-            <button
-              class="btn-icon btn-icon-sm variant-soft-primary"
-              on:click={() => (showSettings = !showSettings)}
-              aria-label="Toggle settings"
-            >
-              <i class="fa fa-{showSettings ? 'chevron-up' : 'chevron-down'}"></i>
-            </button>
-          </div>
-
-          {#if showSettings}
-            <div class="space-y-3 text-sm mt-2">
-              <div>
-                <label for="chunk-size" class="block text-xs text-surface-600-300-token mb-1">
-                  Chunk Size: {chunkSize} tokens
-                </label>
-                <input
-                  id="chunk-size"
-                  type="range"
-                  bind:value={chunkSize}
-                  on:change={handleChunkSizeChange}
-                  min="50"
-                  max="1000"
-                  step="50"
-                  class="w-full"
-                />
-                <div class="flex justify-between text-xs text-surface-600-300-token">
-                  <span>50</span>
-                  <span>1000</span>
-                </div>
-              </div>
-
-              <div>
-                <label for="overlap-size" class="block text-xs text-surface-600-300-token mb-1">
-                  Overlap Size: {overlapSize} tokens
-                </label>
-                <input
-                  id="overlap-size"
-                  type="range"
-                  bind:value={overlapSize}
-                  on:change={handleOverlapSizeChange}
-                  min="0"
-                  max="200"
-                  step="10"
-                  class="w-full"
-                />
-                <div class="flex justify-between text-xs text-surface-600-300-token">
-                  <span>0</span>
-                  <span>200</span>
-                </div>
-              </div>
-
-              <div>
-                <label for="search-accuracy" class="block text-xs text-surface-600-300-token mb-1">
-                  Search Accuracy: {searchAccuracy}%
-                </label>
-                <input
-                  id="search-accuracy"
-                  type="range"
-                  bind:value={searchAccuracy}
-                  on:change={handleSearchAccuracyChange}
-                  min="0"
-                  max="100"
-                  step="5"
-                  class="w-full"
-                />
-                <div class="flex justify-between text-xs text-surface-600-300-token">
-                  <span>Fuzzy</span>
-                  <span>Exact</span>
-                </div>
-              </div>
-
-              <div class="text-xs text-surface-600-300-token bg-surface-200-700-token p-2 rounded">
-                <strong>Note:</strong> Changes will apply to new documents. Re-upload existing documents
-                to use new settings.
-              </div>
-            </div>
-          {/if}
-        </div>
-
-        <!-- Feature Toggles -->
-        <div class="border-t border-surface-300-600-token pt-2">
-          <div class="flex items-center justify-between">
-            <h4 class="font-medium text-sm">Features</h4>
-            <button
-              class="btn-icon btn-icon-sm variant-soft-primary"
-              on:click={() => (showFeatures = !showFeatures)}
-              aria-label="Toggle features"
-            >
-              <i class="fa fa-{showFeatures ? 'chevron-up' : 'chevron-down'}"></i>
-            </button>
-          </div>
-
-          {#if showFeatures}
-            <div class="space-y-1 text-sm mt-2">
-              <label class="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={featureManager.isEnabled('vectorSearch')}
-                  on:change={() => featureManager.toggle('vectorSearch')}
-                  class="mr-2"
-                />
-                Vector Search
-              </label>
-
-              <label class="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={featureManager.isEnabled('documentEmbeddings')}
-                  on:change={() => featureManager.toggle('documentEmbeddings')}
-                  class="mr-2"
-                />
-                Document Embeddings
-              </label>
-
-              <label class="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={featureManager.isEnabled('ragContextDisplay')}
-                  on:change={() => featureManager.toggle('ragContextDisplay')}
-                  class="mr-2"
-                />
-                Show Context in UI
-              </label>
-            </div>
-          {/if}
-        </div>
       </div>
 
-      <!-- Document Browser - now positioned to fill remaining space -->
-      <div class="flex-1 min-h-0">
+      <!-- Feature Toggles - positioned at bottom, takes minimal space -->
+      <div class="border-t border-surface-300-600-token pt-2">
+        <div class="flex items-center justify-between">
+          <h4 class="font-medium text-sm">Features</h4>
+          <button
+            class="btn-icon btn-icon-sm variant-soft-primary"
+            on:click={() => (showFeatures = !showFeatures)}
+            aria-label="Toggle features"
+          >
+            <i class="fa fa-{showFeatures ? 'chevron-up' : 'chevron-down'}"></i>
+          </button>
+        </div>
+
+        {#if showFeatures}
+          <div class="space-y-1 text-sm mt-2">
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                checked={featureManager.isEnabled('vectorSearch')}
+                on:change={() => featureManager.toggle('vectorSearch')}
+                class="mr-2"
+              />
+              Vector Search
+            </label>
+
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                checked={featureManager.isEnabled('documentEmbeddings')}
+                on:change={() => featureManager.toggle('documentEmbeddings')}
+                class="mr-2"
+              />
+              Document Embeddings
+            </label>
+
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                checked={featureManager.isEnabled('ragContextDisplay')}
+                on:change={() => featureManager.toggle('ragContextDisplay')}
+                class="mr-2"
+              />
+              Show Context in UI
+            </label>
+          </div>
+        {/if}
+      </div>
+
+      <!-- Document Browser -->
+      <div>
         <DocumentBrowser 
           {documents}
           bind:isCollapsed={documentBrowserCollapsed}
