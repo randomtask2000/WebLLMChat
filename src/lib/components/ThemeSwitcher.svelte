@@ -94,12 +94,10 @@
 
 <div
   class="relative theme-dropdown"
-  class:border-2={isDropdownOpen}
-  class:border-blue-500={isDropdownOpen}
 >
   <button
     bind:this={buttonRef}
-    class="btn btn-sm variant-ghost-surface flex items-center space-x-2"
+    class="btn btn-sm variant-ghost-surface flex items-center space-x-2 focus:outline-none"
     on:click={() => {
       console.log('Theme button click event fired');
       toggleDropdown();
@@ -179,7 +177,7 @@
             </div>
           </div>
           <button
-            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 {$isDarkMode
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none {$isDarkMode
               ? 'bg-white/30'
               : 'bg-white/20'}"
             on:click={handleDarkModeToggle}
