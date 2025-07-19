@@ -2,7 +2,7 @@
 
 ## Project Root
 ```
-claude-webllm-app/
+webllm-app/
 ├── src/                          # Source code directory
 │   ├── app.css                   # Global styles
 │   ├── app.html                  # HTML template

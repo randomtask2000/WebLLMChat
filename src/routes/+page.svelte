@@ -21,8 +21,17 @@
     isMobileDevice = isMobile();
     // Check which models are cached on startup with a small delay
     // to ensure WebLLM is ready
-    setTimeout(() => {
-      checkCachedModels().catch(console.error);
+    setTimeout(async () => {
+      try {
+        // First log all available models for debugging
+        const { webLLMService } = await import('../lib/utils/webllm');
+        await webLLMService.getAvailableModels();
+        
+        // Then check cached models
+        await checkCachedModels();
+      } catch (error) {
+        console.error('Error during startup model check:', error);
+      }
     }, 1000);
   });
 </script>

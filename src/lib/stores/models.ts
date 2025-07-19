@@ -72,21 +72,21 @@ export const MODELS: ModelInfo[] = [
     context_length: 32768
   },
 
-  // Code-Specialized Models
-  {
-    model_id: 'CodeLlama-7b-Instruct-hf-q4f16_1-MLC',
-    vram_required_MB: 4096,
-    low_resource_required: false,
-    description: '💻 CodeLlama 7B - Specialized for programming',
-    context_length: 16384
-  },
-  {
-    model_id: 'CodeQwen1.5-7B-Chat-q4f16_1-MLC',
-    vram_required_MB: 4096,
-    low_resource_required: false,
-    description: '💻 CodeQwen 7B - Advanced code generation',
-    context_length: 65536
-  },
+  // Code-Specialized Models (Commented out - not available in current WebLLM version)
+  // {
+  //   model_id: 'CodeLlama-7b-Instruct-hf-q4f16_1-MLC',
+  //   vram_required_MB: 4096,
+  //   low_resource_required: false,
+  //   description: '💻 CodeLlama 7B - Specialized for programming',
+  //   context_length: 16384
+  // },
+  // {
+  //   model_id: 'CodeQwen1.5-7B-Chat-q4f16_1-MLC',
+  //   vram_required_MB: 4096,
+  //   low_resource_required: false,
+  //   description: '💻 CodeQwen 7B - Advanced code generation',
+  //   context_length: 65536
+  // },
 
   // Math & Reasoning Models
   {

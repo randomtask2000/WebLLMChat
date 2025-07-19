@@ -44,6 +44,22 @@ class WebLLMService {
 
       this.webllm = webllmModule;
       console.log('✅ WebLLM loaded successfully with exports:', Object.keys(webllmModule));
+      
+      // Override console.warn to filter out known non-critical WebLLM warnings
+      const originalWarn = console.warn;
+      console.warn = (...args: any[]) => {
+        const message = args.join(' ');
+        // Filter out tokenizer warning that doesn't affect functionality
+        if (message.includes('Cannot find `tokenizer_info` or `token_table_postproc_method`') ||
+            message.includes('using default token_postproc_method `raw`') ||
+            message.includes('This field is only used for json mode')) {
+          // Convert to a less alarming info log
+          console.info('ℹ️ WebLLM: Using default tokenizer configuration (this is normal)');
+          return;
+        }
+        // Pass through other warnings
+        originalWarn.apply(console, args);
+      };
 
       // Test basic functionality
       try {
@@ -428,6 +444,14 @@ class WebLLMService {
   async isModelAvailable(modelId: string): Promise<boolean> {
     try {
       const webllm = await this.loadWebLLM();
+      
+      // First check if the model exists in the WebLLM model list
+      const availableModels = webllm.prebuiltAppConfig.model_list.map((model: any) => model.model_id);
+      if (!availableModels.includes(modelId)) {
+        console.warn(`Model ${modelId} not found in WebLLM model list. Available models:`, availableModels.filter((id: string) => id.includes('Llama') || id.includes('Code') || id.includes('Qwen')));
+        return false;
+      }
+      
       const result = await webllm.hasModelInCache(modelId);
       console.log(`Cache check for ${modelId}: ${result}`);
       return result;
@@ -442,9 +466,16 @@ class WebLLMService {
       const webllm = await this.loadWebLLM();
       const models = webllm.prebuiltAppConfig.model_list.map((model: any) => model.model_id);
       console.log('📋 Available WebLLM models:', models);
-      // Log models that contain "Llama-3.2-3B"
-      const llamaModels = models.filter((id: string) => id.includes('Llama-3.2-3B'));
-      console.log('🦙 Available Llama 3.2 3B models:', llamaModels);
+      
+      // Log specific model categories for debugging
+      const codeModels = models.filter((id: string) => id.toLowerCase().includes('code'));
+      const llamaModels = models.filter((id: string) => id.includes('Llama'));
+      const qwenModels = models.filter((id: string) => id.includes('Qwen'));
+      
+      console.log('💻 Available Code models:', codeModels);
+      console.log('🦙 Available Llama models:', llamaModels);
+      console.log('🧠 Available Qwen models:', qwenModels);
+      
       return models;
     } catch (error) {
       console.error('❌ Error getting available models:', error);
