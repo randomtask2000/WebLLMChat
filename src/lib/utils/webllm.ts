@@ -421,8 +421,11 @@ class WebLLMService {
   async isModelAvailable(modelId: string): Promise<boolean> {
     try {
       const webllm = await this.loadWebLLM();
-      return await webllm.hasModelInCache(modelId);
-    } catch {
+      const result = await webllm.hasModelInCache(modelId);
+      console.log(`Cache check for ${modelId}: ${result}`);
+      return result;
+    } catch (error) {
+      console.error(`Error checking cache for ${modelId}:`, error);
       return false;
     }
   }

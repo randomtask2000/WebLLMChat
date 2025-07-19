@@ -7,6 +7,7 @@ export const currentModel = writable<string>('TinyLlama-1.1B-Chat-v0.4-q4f16_1-M
 export const isModelLoaded = writable(false);
 export const modelLoadingProgress = writable<number>(0);
 export const modelLoadingStatus = writable<string>('');
+export const cachedModels = writable<Set<string>>(new Set());
 
 export const MODELS: ModelInfo[] = [
   // Lightweight/Fast Models
@@ -170,4 +171,30 @@ export function setModelDownloaded(modelId: string) {
       error: undefined
     }
   }));
+}
+
+export async function checkCachedModels(): Promise<void> {
+  console.log('🔍 Checking cached models...');
+  const { webLLMService } = await import('../utils/webllm');
+  const cached = new Set<string>();
+  
+  for (const model of MODELS) {
+    try {
+      const isCached = await webLLMService.isModelAvailable(model.model_id);
+      console.log(`Model ${model.model_id}: ${isCached ? 'CACHED' : 'not cached'}`);
+      if (isCached) {
+        cached.add(model.model_id);
+      }
+    } catch (error) {
+      console.error(`Error checking cache for ${model.model_id}:`, error);
+    }
+  }
+  
+  console.log(`✅ Found ${cached.size} cached models:`, Array.from(cached));
+  cachedModels.set(cached);
+  
+  // Also update downloadProgress for cached models
+  cached.forEach(modelId => {
+    setModelDownloaded(modelId);
+  });
 }

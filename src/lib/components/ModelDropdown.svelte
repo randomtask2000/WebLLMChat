@@ -3,7 +3,9 @@
     currentModel,
     availableModels,
     isModelLoaded,
-    modelLoadingProgress
+    modelLoadingProgress,
+    cachedModels,
+    checkCachedModels
   } from '$lib/stores/models';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
   import { isMobile, getMobileOptimizedModels, canHandleLargeModels } from '$lib/utils/mobile';
@@ -109,10 +111,21 @@
       style="z-index: 999999 !important; top: {dropdownPosition.top}px; left: {dropdownPosition.left}px;"
     >
       <div class="p-4 border-b border-surface-300-600-token">
-        <h3 class="font-semibold text-lg text-surface-700-200-token">Select LLM Model</h3>
-        <p class="text-sm text-surface-700-200-token opacity-80">
-          Choose from {$availableModels.length} available models
-        </p>
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-lg text-surface-700-200-token">Select LLM Model</h3>
+            <p class="text-sm text-surface-700-200-token opacity-80">
+              Choose from {$availableModels.length} available models
+            </p>
+          </div>
+          <button
+            class="btn btn-sm variant-ghost-surface"
+            on:click={() => checkCachedModels()}
+            title="Refresh cache status"
+          >
+            <i class="fa fa-refresh"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Fast/Lightweight Models -->
@@ -150,6 +163,11 @@
                         <i class="fa fa-spinner fa-spin text-yellow-400"></i>
                         <span class="text-xs text-yellow-400">{$modelLoadingProgress}%</span>
                       {/if}
+                    </div>
+                  {:else if $cachedModels.has(model.model_id)}
+                    <div class="flex items-center space-x-1 flex-shrink-0">
+                      <i class="fa fa-download text-blue-400"></i>
+                      <span class="text-xs text-blue-400">Cached</span>
                     </div>
                   {/if}
                 </div>
@@ -217,6 +235,11 @@
                         <i class="fa fa-spinner fa-spin text-yellow-400"></i>
                         <span class="text-xs text-yellow-400">{$modelLoadingProgress}%</span>
                       {/if}
+                    </div>
+                  {:else if $cachedModels.has(model.model_id)}
+                    <div class="flex items-center space-x-1 flex-shrink-0">
+                      <i class="fa fa-download text-blue-400"></i>
+                      <span class="text-xs text-blue-400">Cached</span>
                     </div>
                   {/if}
                 </div>
@@ -291,6 +314,11 @@
                         <i class="fa fa-spinner fa-spin text-warning-500"></i>
                         <span class="text-xs text-warning-500">{$modelLoadingProgress}%</span>
                       {/if}
+                    </div>
+                  {:else if $cachedModels.has(model.model_id)}
+                    <div class="flex items-center space-x-1 flex-shrink-0">
+                      <i class="fa fa-download text-blue-400"></i>
+                      <span class="text-xs text-blue-400">Cached</span>
                     </div>
                   {/if}
                 </div>

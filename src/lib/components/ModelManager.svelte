@@ -4,7 +4,8 @@
     availableModels,
     downloadProgress,
     currentModel,
-    isModelLoaded
+    isModelLoaded,
+    cachedModels
   } from '$lib/stores/models';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
 
@@ -67,7 +68,10 @@
                   <span class="badge variant-filled-success">Active</span>
                 {:else if progress.downloading}
                   <span class="badge variant-filled-warning">Downloading</span>
-                {:else if progress.downloaded}
+                {:else if progress.downloaded || $cachedModels.has(model.model_id)}
+                  <span class="badge variant-filled-tertiary">
+                    <i class="fa fa-download mr-1"></i> Cached
+                  </span>
                   <button
                     class="btn btn-sm variant-filled-primary"
                     on:click={() => handleModelSwitch(model.model_id)}

@@ -9,14 +9,20 @@
   import MobileLayout from '$lib/components/MobileLayout.svelte';
   import WelcomeGuide from '$lib/components/WelcomeGuide.svelte';
   import { isMobile } from '$lib/utils/mobile';
+  import { checkCachedModels } from '$lib/stores/models';
 
   let showDocumentManager = false;
   let showSidebar = false;
   let isMobileDevice = false;
   let showWelcomeGuide = false;
 
-  onMount(() => {
+  onMount(async () => {
     isMobileDevice = isMobile();
+    // Check which models are cached on startup with a small delay
+    // to ensure WebLLM is ready
+    setTimeout(() => {
+      checkCachedModels().catch(console.error);
+    }, 1000);
   });
 </script>
 
