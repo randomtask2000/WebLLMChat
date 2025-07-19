@@ -43,3 +43,6 @@ coverage/
 
 # Local scripts
 git-commit-push.sh
+
+# Gemini
+.gemini-clipboard/
