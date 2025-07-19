@@ -4,7 +4,7 @@
 
 To change the app title from "WebLLM Chat" to something else:
 
-1. Edit the `app.config.json` file in the root directory:
+1. Edit the `src/app.config.json` file:
    ```json
    {
      "title": "Your Custom Title",

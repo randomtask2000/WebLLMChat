@@ -122,8 +122,9 @@
             class="btn btn-sm variant-ghost-surface"
             on:click={() => checkCachedModels()}
             title="Refresh cache status"
+            aria-label="Refresh cache status"
           >
-            <i class="fa fa-refresh"></i>
+            <i class="fa fa-refresh" aria-hidden="true"></i>
           </button>
         </div>
       </div>

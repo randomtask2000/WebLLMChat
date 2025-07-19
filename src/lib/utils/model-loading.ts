@@ -12,7 +12,7 @@ export async function loadModelWithChatBubble(
   const loadingMessage: ChatMessageType = {
     id: `loading-model-${modelId}-${Date.now()}`,
     role: 'assistant',
-    content: `🔄 Switching to ${modelId}...`,
+    content: `🔄 Switching to **${modelId}**...\n\nPreparing to load model...`,
     timestamp: Date.now()
   };
   addMessage(loadingMessage);
@@ -26,7 +26,19 @@ export async function loadModelWithChatBubble(
     // Load the model with progress updates
     await switchModel(modelId, (status: string, progress: number) => {
       console.log(`📊 Model download progress: ${progress}% - ${status}`);
-      updateLastMessage(`🤖 ${status}\n\nProgress: ${progress}%`, []);
+      
+      // Create a visual progress bar
+      const barLength = 30;
+      const filledLength = Math.round((progress / 100) * barLength);
+      const emptyLength = barLength - filledLength;
+      const progressBar = '█'.repeat(filledLength) + '░'.repeat(emptyLength);
+      
+      // Format the message with model name and progress bar
+      const message = `🤖 Loading **${modelId}**\n\n${status}\n\n` +
+        `Progress: ${progress}%\n` +
+        `[${progressBar}]`;
+      
+      updateLastMessage(message, []);
       if (scrollToBottom) scrollToBottom();
     });
 
@@ -34,7 +46,8 @@ export async function loadModelWithChatBubble(
 
     // Success message
     updateLastMessage(
-      `🎉 Successfully loaded ${modelId}!\n\nI'm ready to chat with the new model!`,
+      `🎉 Successfully loaded **${modelId}**!\n\n` +
+      `The model is now ready. I'm here to help with your questions!`,
       [],
       true
     );

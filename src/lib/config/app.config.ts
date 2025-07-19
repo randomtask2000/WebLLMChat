@@ -1,4 +1,4 @@
-import appConfigJson from '../../../app.config.json';
+import appConfigJson from '../../app.config.json';
 
 export const appConfig = {
   title: appConfigJson.title,

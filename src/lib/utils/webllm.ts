@@ -440,8 +440,14 @@ class WebLLMService {
   async getAvailableModels(): Promise<string[]> {
     try {
       const webllm = await this.loadWebLLM();
-      return webllm.prebuiltAppConfig.model_list.map((model: any) => model.model_id);
-    } catch {
+      const models = webllm.prebuiltAppConfig.model_list.map((model: any) => model.model_id);
+      console.log('📋 Available WebLLM models:', models);
+      // Log models that contain "Llama-3.2-3B"
+      const llamaModels = models.filter((id: string) => id.includes('Llama-3.2-3B'));
+      console.log('🦙 Available Llama 3.2 3B models:', llamaModels);
+      return models;
+    } catch (error) {
+      console.error('❌ Error getting available models:', error);
       return [];
     }
   }

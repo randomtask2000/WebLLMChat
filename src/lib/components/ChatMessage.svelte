@@ -4,6 +4,8 @@
   import { formatTokenCount } from '$lib/utils/tokenCount';
   import { formatResponseTime } from '$lib/utils/timeFormat';
   import hljs from 'highlight.js/lib/core';
+  import { ProgressBar } from '@skeletonlabs/skeleton';
+  import { modelLoadingProgress, modelLoadingStatus, currentModel, isModelLoaded } from '$lib/stores/models';
 
   // Import common languages
   import javascript from 'highlight.js/lib/languages/javascript';
@@ -50,6 +52,17 @@
   export let onClose: ((messageId: string) => void) | undefined = undefined;
   
   let isCollapsed = false;
+  
+  // Check if this is a model loading message
+  $: isModelLoadingMessage = message.id.startsWith('loading-model-') && 
+    (message.content.includes('🔄 Switching to') || 
+     message.content.includes('🤖') ||
+     message.content.includes('Loading model'));
+     
+  // Extract model name from loading message
+  $: loadingModelName = isModelLoadingMessage && message.content.includes('Switching to') 
+    ? message.content.match(/Switching to (.+?)\.\.\./)?.[ 1] || $currentModel 
+    : $currentModel;
 
   // For code blocks, we'll estimate token count (rough approximation)
   function estimateTokens(text: string): number {
@@ -458,6 +471,22 @@
           <div class="prose prose-sm max-w-none text-surface-700-200-token">
             {@html formatContent(message.content)}
           </div>
+          
+          <!-- Show loading progress bar for model loading messages -->
+          {#if isModelLoadingMessage && !$isModelLoaded && $modelLoadingProgress < 100}
+            <div class="mt-4 p-3 bg-surface-200-700-token rounded-lg">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-surface-700-200-token">
+                  Loading Model: {loadingModelName}
+                </span>
+                <span class="text-sm text-surface-700-200-token opacity-70">
+                  {$modelLoadingProgress}%
+                </span>
+              </div>
+              <ProgressBar value={$modelLoadingProgress} max={100} class="mb-2" />
+              <p class="text-xs text-surface-700-200-token opacity-70">{$modelLoadingStatus}</p>
+            </div>
+          {/if}
         {/if}
       {/if}
 

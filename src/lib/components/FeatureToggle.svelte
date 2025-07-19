@@ -48,10 +48,17 @@
   <div
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-60"
     on:click={() => (isVisible = false)}
+    on:keydown={(e) => e.key === 'Escape' && (isVisible = false)}
+    role="presentation"
+    tabindex="-1"
   >
     <div
       class="bg-surface-100-800-token rounded-lg p-6 max-w-md w-full mx-4"
       on:click|stopPropagation
+      on:keydown|stopPropagation
+      role="dialog"
+      aria-modal="true"
+      aria-label="Experimental Features"
     >
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold">Experimental Features</h3>

@@ -42,13 +42,6 @@ export const MODELS: ModelInfo[] = [
     context_length: 131072
   },
   {
-    model_id: 'Llama-3.2-3B-Instruct-q4f16_1-1k-MLC',
-    vram_required_MB: 2048,
-    low_resource_required: false,
-    description: '🦙 Llama 3.2 3B with 1M context - Extended conversations',
-    context_length: 1048576
-  },
-  {
     model_id: 'Qwen2.5-3B-Instruct-q4f16_1-MLC',
     vram_required_MB: 2048,
     low_resource_required: false,
@@ -176,6 +169,10 @@ export function setModelDownloaded(modelId: string) {
 export async function checkCachedModels(): Promise<void> {
   console.log('🔍 Checking cached models...');
   const { webLLMService } = await import('../utils/webllm');
+  
+  // Log available models from WebLLM
+  await webLLMService.getAvailableModels();
+  
   const cached = new Set<string>();
   
   for (const model of MODELS) {

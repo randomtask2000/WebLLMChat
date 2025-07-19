@@ -32,7 +32,6 @@
 </script>
 
 {#if isVisible}
-  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
   <div
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
     role="dialog"
@@ -40,11 +39,14 @@
     aria-labelledby="welcome-title"
     on:keydown={handleKeydown}
     transition:fade={{ duration: 200 }}
+    tabindex="-1"
   >
     <div
       class="bg-surface-100-800-token rounded-xl shadow-2xl max-w-4xl max-h-[90vh] overflow-y-auto"
       transition:scale={{ duration: 300, easing: quintOut }}
       on:click|stopPropagation
+      on:keydown|stopPropagation
+      role="document"
     >
       <!-- Header -->
       <div class="sticky top-0 bg-surface-100-800-token border-b border-surface-300-600-token p-6">

@@ -1315,23 +1315,7 @@
 </script>
 
 <div class="h-full flex overflow-hidden bg-surface-50-900-token">
-  <!-- Progress bar - positioned absolutely at top -->
-  {#if !$isModelLoaded && $modelLoadingProgress < 100}
-    <div
-      class="absolute top-0 left-0 z-20 p-4 bg-surface-100-800-token border-b border-surface-300-600-token"
-      class:right-0={!showRAGPanel}
-      class:right-80={showRAGPanel}
-    >
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-sm font-medium text-surface-700-200-token"
-          >Loading Model: {$currentModel}</span
-        >
-        <span class="text-sm text-surface-700-200-token opacity-70">{$modelLoadingProgress}%</span>
-      </div>
-      <ProgressBar value={$modelLoadingProgress} max={100} class="mb-2" />
-      <p class="text-xs text-surface-700-200-token opacity-70">{$modelLoadingStatus}</p>
-    </div>
-  {/if}
+  <!-- Progress bar removed - now shown in ChatMessage component -->
 
   <!-- Main chat area -->
   <div class="flex-1 min-h-0 flex flex-col transition-all duration-300 bg-surface-50-900-token" class:mr-80={showRAGPanel}>
