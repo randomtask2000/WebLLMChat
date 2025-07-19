@@ -84,8 +84,6 @@
 
 <div
   class="relative model-dropdown"
-  class:border-2={isDropdownOpen}
-  class:border-red-500={isDropdownOpen}
 >
   <button
     bind:this={buttonRef}
