@@ -388,6 +388,239 @@ graph TB
     style BrowserCache fill:#f3e5f5
 ```
 
+### UML Class Diagram
+
+```mermaid
+classDiagram
+    class ChatInterface {
+        -messages: ChatMessage[]
+        -inputText: string
+        -isLoading: boolean
+        +sendMessage(text: string): void
+        +clearChat(): void
+        +handleFileUpload(files: File[]): void
+    }
+    
+    class ModelManager {
+        -currentModel: string
+        -availableModels: ModelInfo[]
+        -loadingProgress: number
+        +loadModel(modelId: string): Promise~void~
+        +switchModel(modelId: string): void
+        +getModelInfo(): ModelInfo
+    }
+    
+    class RAGService {
+        -vectorStore: VectorStore
+        -embeddingService: EmbeddingService
+        +addDocument(doc: Document): Promise~void~
+        +search(query: string): Promise~SearchResult[]~
+        +updateSettings(settings: RAGSettings): void
+    }
+    
+    class VectorStore {
+        -embeddings: Map~string, Vector~
+        -documents: Map~string, DocumentChunk~
+        +addEmbedding(id: string, vector: Vector): void
+        +findSimilar(query: Vector, k: number): SearchResult[]
+        +clear(): void
+    }
+    
+    class EmbeddingService {
+        -model: EmbeddingModel
+        +generateEmbedding(text: string): Promise~Vector~
+        +batchEmbed(texts: string[]): Promise~Vector[]~
+    }
+    
+    class DocumentProcessor {
+        +processFile(file: File): Promise~ProcessedDocument~
+        +extractText(buffer: ArrayBuffer, type: string): Promise~string~
+        +chunkDocument(text: string, options: ChunkOptions): DocumentChunk[]
+    }
+    
+    class WebLLMCore {
+        -engine: MLCEngine
+        -config: EngineConfig
+        +initializeEngine(): Promise~void~
+        +chat(messages: Message[]): Promise~string~
+        +streamChat(messages: Message[]): AsyncGenerator~string~
+    }
+    
+    class ChatStore {
+        -sessions: ChatSession[]
+        -currentSession: ChatSession
+        +addMessage(message: ChatMessage): void
+        +createSession(): ChatSession
+        +loadSession(id: string): void
+        +saveToLocalStorage(): void
+    }
+    
+    class DocumentStore {
+        -documents: Document[]
+        -chunks: DocumentChunk[]
+        +addDocument(doc: Document): void
+        +removeDocument(id: string): void
+        +getChunksByDocument(docId: string): DocumentChunk[]
+    }
+    
+    class ThemeStore {
+        -currentTheme: string
+        -availableThemes: Theme[]
+        +setTheme(theme: string): void
+        +getTheme(): Theme
+    }
+    
+    ChatInterface --> ChatStore : uses
+    ChatInterface --> ModelManager : uses
+    ChatInterface --> RAGService : uses
+    ChatInterface --> DocumentProcessor : uses file upload
+    
+    ModelManager --> WebLLMCore : manages
+    
+    RAGService --> VectorStore : stores vectors
+    RAGService --> EmbeddingService : generates embeddings
+    RAGService --> DocumentStore : retrieves documents
+    
+    DocumentProcessor --> DocumentStore : stores processed docs
+    
+    ChatStore --> WebLLMCore : sends messages
+    
+    VectorStore --> IndexedDB : persists data
+    DocumentStore --> IndexedDB : persists data
+    ChatStore --> LocalStorage : persists sessions
+    ThemeStore --> LocalStorage : persists theme
+    
+    class IndexedDB {
+        <<external>>
+        +put(store: string, data: any): Promise~void~
+        +get(store: string, key: string): Promise~any~
+        +delete(store: string, key: string): Promise~void~
+    }
+    
+    class LocalStorage {
+        <<external>>
+        +setItem(key: string, value: string): void
+        +getItem(key: string): string
+        +removeItem(key: string): void
+    }
+```
+
+### LLM Access Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant ChatInterface
+    participant ChatStore
+    participant ModelManager
+    participant WebLLMCore
+    participant WebGPU
+    participant BrowserCache
+    
+    User->>ChatInterface: Types message and sends
+    ChatInterface->>ChatStore: addMessage(userMessage)
+    ChatStore->>ChatStore: Save to LocalStorage
+    ChatInterface->>ModelManager: checkModelLoaded()
+    
+    alt Model not loaded
+        ModelManager->>WebLLMCore: initializeEngine()
+        WebLLMCore->>BrowserCache: Check for cached model
+        alt Model cached
+            BrowserCache-->>WebLLMCore: Return cached model
+        else Model not cached
+            WebLLMCore->>WebLLMCore: Download model from CDN
+            WebLLMCore->>BrowserCache: Cache model
+        end
+        WebLLMCore->>WebGPU: Load model to GPU
+        WebGPU-->>WebLLMCore: Model ready
+        WebLLMCore-->>ModelManager: Engine initialized
+    end
+    
+    ChatInterface->>ChatStore: getConversationHistory()
+    ChatStore-->>ChatInterface: Return messages[]
+    ChatInterface->>ModelManager: generateResponse(messages)
+    ModelManager->>WebLLMCore: streamChat(messages)
+    WebLLMCore->>WebGPU: Process tokens
+    
+    loop Streaming response
+        WebGPU-->>WebLLMCore: Generated tokens
+        WebLLMCore-->>ModelManager: Token stream
+        ModelManager-->>ChatInterface: Update response
+        ChatInterface->>ChatInterface: Display streaming text
+    end
+    
+    ChatInterface->>ChatStore: addMessage(aiResponse)
+    ChatStore->>ChatStore: Save to LocalStorage
+    ChatInterface-->>User: Display complete response
+```
+
+### RAG Access Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant ChatInterface
+    participant DocumentProcessor
+    participant RAGService
+    participant EmbeddingService
+    participant VectorStore
+    participant DocumentStore
+    participant IndexedDB
+    
+    Note over User,ChatInterface: Document Upload Flow
+    User->>ChatInterface: Uploads document
+    ChatInterface->>DocumentProcessor: processFile(file)
+    
+    alt PDF Document
+        DocumentProcessor->>DocumentProcessor: PDF.js extraction
+    else DOCX Document
+        DocumentProcessor->>DocumentProcessor: Mammoth.js conversion
+    else Text/Markdown
+        DocumentProcessor->>DocumentProcessor: Direct text processing
+    end
+    
+    DocumentProcessor->>DocumentProcessor: chunkDocument(text, options)
+    DocumentProcessor->>DocumentStore: addDocument(processedDoc)
+    DocumentStore->>IndexedDB: persistDocument()
+    
+    DocumentProcessor->>RAGService: indexDocument(chunks)
+    
+    loop For each chunk
+        RAGService->>EmbeddingService: generateEmbedding(chunkText)
+        EmbeddingService->>EmbeddingService: TF-IDF calculation
+        EmbeddingService-->>RAGService: Return vector
+        RAGService->>VectorStore: addEmbedding(chunkId, vector)
+    end
+    
+    VectorStore->>IndexedDB: persistEmbeddings()
+    RAGService-->>ChatInterface: Document indexed
+    ChatInterface-->>User: Show upload success
+    
+    Note over User,ChatInterface: Query with RAG Flow
+    User->>ChatInterface: Sends question
+    ChatInterface->>RAGService: search(userQuery)
+    RAGService->>EmbeddingService: generateEmbedding(query)
+    EmbeddingService-->>RAGService: Query vector
+    
+    RAGService->>VectorStore: findSimilar(queryVector, k)
+    VectorStore->>VectorStore: Calculate cosine similarity
+    VectorStore-->>RAGService: Top k chunks
+    
+    RAGService->>DocumentStore: getChunkDetails(chunkIds)
+    DocumentStore->>IndexedDB: fetchChunks()
+    IndexedDB-->>DocumentStore: Chunk data
+    DocumentStore-->>RAGService: Enriched chunks
+    
+    RAGService->>RAGService: Format context
+    RAGService-->>ChatInterface: SearchResults + Context
+    
+    ChatInterface->>ChatInterface: Augment prompt with context
+    ChatInterface->>ModelManager: generateResponse(augmentedPrompt)
+    Note right of ModelManager: Continue with LLM flow
+    
+    ChatInterface-->>User: Display response with sources
+```
+
 ## Performance Notes
 
 - First model load may take 1-5 minutes depending on internet speed
