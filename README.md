@@ -629,6 +629,45 @@ sequenceDiagram
 - Larger models provide better quality but require more VRAM
 - The app continues working offline after initial model download
 
+## App Naming and Rebranding
+
+To customize the app name and branding for your own deployment, you'll need to update several configuration files:
+
+### Primary Configuration
+**`src/app.config.json` (Line 2)** - Main app title source
+```json
+{
+  "title": "Your App Name",
+  "description": "Your app description"
+}
+```
+
+### Additional Files to Update
+
+1. **Mobile App Configuration** - `capacitor.config.ts` (Line 5)
+   ```typescript
+   appName: 'Your App Name',
+   ```
+
+2. **Progressive Web App Manifest** - `static/manifest.json` (Lines 2-3)
+   ```json
+   {
+     "name": "Your App Name",
+     "short_name": "Your App Name",
+     "description": "Your app description"
+   }
+   ```
+
+3. **Package Configuration** - `package.json` (Line 2)
+   ```json
+   "name": "your-app-name"
+   ```
+
+### Notes
+- The primary `src/app.config.json` configuration automatically updates most UI references through the `{appConfig.title}` system
+- Components that display the app name (ChatInterface, WelcomeGuide, MobileLayout) will automatically use the updated title
+- Remember to also update any documentation, README files, and deployment configurations with your new app name
+
 ## License
 
 MIT License - feel free to use this project as a starting point for your own applications.
