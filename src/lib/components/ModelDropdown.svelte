@@ -10,6 +10,8 @@
   import type { ModelInfo } from '$lib/types';
 
   let isDropdownOpen = false;
+  let buttonRef: HTMLButtonElement;
+  let dropdownPosition = { top: 0, left: 0 };
 
   // Filter models for mobile devices
   $: filteredModels = $availableModels.filter((model) => {
@@ -58,6 +60,14 @@
     console.log('Toggle dropdown clicked, current state:', isDropdownOpen);
     isDropdownOpen = !isDropdownOpen;
     console.log('New state:', isDropdownOpen);
+    
+    if (isDropdownOpen && buttonRef) {
+      const rect = buttonRef.getBoundingClientRect();
+      dropdownPosition = {
+        top: rect.bottom + 8,
+        left: rect.right - 448 // 28rem = 448px
+      };
+    }
   }
 
   // Close dropdown when clicking outside
@@ -78,6 +88,7 @@
   class:border-red-500={isDropdownOpen}
 >
   <button
+    bind:this={buttonRef}
     class="btn btn-sm variant-ghost-surface flex items-center space-x-2"
     on:click={() => {
       console.log('Button click event fired');
@@ -96,7 +107,8 @@
 
   {#if isDropdownOpen}
     <div
-      class="absolute top-full right-0 mt-2 w-[28rem] bg-surface-100-800-token border border-surface-300-600-token rounded-lg shadow-xl z-[9999] max-h-[32rem] overflow-y-auto"
+      class="fixed w-[28rem] bg-surface-100-800-token border border-surface-300-600-token rounded-lg shadow-xl max-h-[32rem] overflow-y-auto"
+      style="z-index: 999999 !important; top: {dropdownPosition.top}px; left: {dropdownPosition.left}px;"
     >
       <div class="p-4 border-b border-surface-300-600-token">
         <h3 class="font-semibold text-lg text-surface-700-200-token">Select LLM Model</h3>
