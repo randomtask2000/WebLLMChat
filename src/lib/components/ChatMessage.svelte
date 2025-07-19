@@ -295,9 +295,9 @@
 
     // Handle other markdown formatting and convert newlines to br for non-code content
     result = result
-      // Handle bold code blocks first (removes backticks when inside bold)
-      .replace(/\*\*`([^`]+)`\*\*/g, '<strong>$1</strong>')
-      // Then handle regular inline code
+      // Handle bold text that contains backticks (remove backticks but keep bold)
+      .replace(/\*\*([^*]*)`([^`]+)`([^*]*)\*\*/g, '<strong>$1$2$3</strong>')
+      // Handle regular inline code (keep code highlighting)
       .replace(
         /`([^`]+)`/g,
         '<code class="bg-surface-200-700-token text-surface-700-200-token px-1 rounded ">$1</code>'
