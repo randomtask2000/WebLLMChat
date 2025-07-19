@@ -5,7 +5,8 @@ import {
   currentModel,
   isModelLoaded,
   modelLoadingProgress,
-  modelLoadingStatus
+  modelLoadingStatus,
+  cachedModels
 } from '../stores/models';
 import { get } from 'svelte/store';
 
@@ -325,6 +326,12 @@ class WebLLMService {
       setModelDownloaded(modelId);
       isModelLoaded.set(true);
       currentModel.set(modelId);
+      
+      // Update cachedModels to show the cached icon immediately
+      cachedModels.update(set => {
+        set.add(modelId);
+        return set;
+      });
 
       if (progressCallback) {
         console.log('📞 Final progress callback: Model loaded successfully! 100%');
