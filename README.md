@@ -2,7 +2,11 @@
 
 🌐 **[Live Demo: https://randomtask2000.github.io/WebLLMChat/](https://randomtask2000.github.io/WebLLMChat/)**
 
-A modern chat application built with SvelteKit and WebLLM that runs entirely in the browser without requiring a backend server. Features include RAG (Retrieval-Augmented Generation) capabilities, multiple theme support, and persistent chat history.
+A privacy-first AI assistant with powerful document analysis capabilities that runs entirely in your browser, built with SvelteKit, Skeleton UI and WebLLM. Features include RAG (Retrieval-Augmented Generation) capabilities, multiple theme support, and persistent chat history.
+
+![WebLLM Chat Interface](claude-webllm-app/docs/assets/chat-interface.png)
+
+![Welcome Screen](claude-webllm-app/docs/assets/welcome-screen.png)
 
 ## Features
 
