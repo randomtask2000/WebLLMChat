@@ -4,10 +4,7 @@
 
 A privacy-first AI assistant with powerful document analysis capabilities that runs entirely in your browser, built with SvelteKit, Skeleton UI and WebLLM. Features include RAG (Retrieval-Augmented Generation) capabilities, multiple theme support, and persistent chat history.
 
-![WebLLM Chat Interface](claude-webllm-app/docs/assets/chat-interface.png)
-
-![Welcome Screen](claude-webllm-app/docs/assets/welcome-screen.png)
-
+![WebLLM Chat Interface](./docs/assets/preview1.png)
 ## Features
 
 - 🤖 **WebLLM Integration**: Run large language models directly in the browser
