@@ -18,6 +18,7 @@
   import { generateChatResponse, webLLMService } from '$lib/utils/webllm';
   import { loadModelWithChatBubble } from '$lib/utils/model-loading';
   import { searchDocuments } from '$lib/stores/documents';
+  import { appConfig } from '$lib/config/app.config';
   import {
     currentModel,
     isModelLoaded,
@@ -1347,7 +1348,7 @@
         {#if $currentMessages.length === 0}
           <div class="text-center text-surface-700-200-token opacity-80 mt-8">
             <div class="text-6xl mb-4">💬</div>
-            <h2 class="h3 mb-2 text-surface-700-200-token">Welcome to WebLLM Chat</h2>
+            <h2 class="h3 mb-2 text-surface-700-200-token">Welcome to {appConfig.title}</h2>
             <p>Start a conversation by typing a message below.</p>
             {#if !$isModelLoaded}
               <p class="text-sm mt-2">Loading model... Please wait.</p>

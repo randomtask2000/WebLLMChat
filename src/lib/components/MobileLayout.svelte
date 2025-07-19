@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { isMobile, getMobileUIConfig } from '$lib/utils/mobile';
   import { writable } from 'svelte/store';
+  import { appConfig } from '$lib/config/app.config';
 
   export let showSidebar = false;
 
@@ -36,7 +37,7 @@
       >
         <i class="fa fa-bars"></i>
       </button>
-      <h1 class="text-lg font-bold">WebLLM Chat</h1>
+      <h1 class="text-lg font-bold">{appConfig.title}</h1>
       <div class="w-8"></div>
       <!-- Spacer for centering -->
     </div>

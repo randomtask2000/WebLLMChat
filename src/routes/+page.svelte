@@ -10,6 +10,7 @@
   import WelcomeGuide from '$lib/components/WelcomeGuide.svelte';
   import { isMobile } from '$lib/utils/mobile';
   import { checkCachedModels } from '$lib/stores/models';
+  import { appConfig } from '$lib/config/app.config';
 
   let showDocumentManager = false;
   let showSidebar = false;
@@ -67,7 +68,7 @@
     <svelte:fragment slot="header">
       <AppBar class="app-bar-glass">
         <svelte:fragment slot="lead">
-          <h1 class="text-xl font-bold theme-text">WebLLM Chat</h1>
+          <h1 class="text-xl font-bold theme-text">{appConfig.title}</h1>
         </svelte:fragment>
         <svelte:fragment slot="trail">
           <button

@@ -5,6 +5,7 @@
   import { loadTheme } from '$lib/stores/theme';
   import { loadChatHistories } from '$lib/stores/chat';
   import { loadDocuments } from '$lib/stores/documents';
+  import { appConfig } from '$lib/config/app.config';
 
   // Initialize Skeleton UI stores (including modalStore)
   initializeStores();
@@ -15,6 +16,10 @@
     loadDocuments();
   });
 </script>
+
+<svelte:head>
+  <title>{appConfig.title}</title>
+</svelte:head>
 
 <div class="h-full">
   <slot />

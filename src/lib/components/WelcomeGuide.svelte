@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
+  import { appConfig } from '$lib/config/app.config';
 
   export let isVisible = false;
 
@@ -49,7 +50,7 @@
       <div class="sticky top-0 bg-surface-100-800-token border-b border-surface-300-600-token p-6">
         <h2 id="welcome-title" class="text-2xl font-bold flex items-center gap-3">
           <span class="text-4xl">🎉</span>
-          Welcome to WebLLM Chat!
+          Welcome to {appConfig.title}!
         </h2>
         <p class="text-surface-600-300-token mt-2">
           Your privacy-first AI assistant with powerful document analysis
