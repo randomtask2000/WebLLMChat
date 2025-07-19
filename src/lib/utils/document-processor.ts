@@ -1,6 +1,7 @@
 import type { Document, DocumentChunk } from '../types';
 import mammoth from 'mammoth';
 
+// Metadata extracted from documents
 interface DocumentMetadata {
   title?: string;
   author?: string;
@@ -9,12 +10,14 @@ interface DocumentMetadata {
   documentType: 'pdf' | 'docx' | 'text';
 }
 
+// Content and metadata extracted from files
 interface ExtractedContent {
   text: string;
   metadata: DocumentMetadata;
   structuredContent?: StructuredContent[];
 }
 
+// Structured content segments from documents
 interface StructuredContent {
   type: 'heading' | 'paragraph' | 'list' | 'table';
   level?: number; // For headings

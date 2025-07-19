@@ -47,6 +47,7 @@ describe('Embedding Service', () => {
       provider = new TFIDFEmbeddingProvider();
     });
 
+    // Tests TFIDF provider generates valid embeddings from text
     it('should generate embeddings for text', async () => {
       const text = 'Test text for embedding';
       const embedding = await provider.generateEmbedding(text);
@@ -56,24 +57,28 @@ describe('Embedding Service', () => {
       expect(embedding.length).toBeGreaterThan(0);
     });
 
+    // Tests TFIDF provider handles empty text gracefully
     it('should handle empty text', async () => {
       const embedding = await provider.generateEmbedding('');
       expect(embedding).toBeDefined();
       expect(Array.isArray(embedding)).toBe(true);
     });
 
+    // Tests TFIDF provider is immediately ready to use
     it('should be ready after initialization', () => {
       expect(provider.isReady()).toBe(true);
     });
   });
 
   describe('WebLLMEmbeddingProvider', () => {
+    // Tests WebLLMEmbeddingProvider class is properly exported
     it('should be defined', () => {
       expect(WebLLMEmbeddingProvider).toBeDefined();
     });
   });
 
   describe('cosineSimilarity', () => {
+    // Tests cosine similarity calculation for orthogonal vectors
     it('should calculate cosine similarity between vectors', () => {
       const vec1 = [1, 0, 0];
       const vec2 = [0, 1, 0];
@@ -81,12 +86,14 @@ describe('Embedding Service', () => {
       expect(similarity).toBe(0);
     });
 
+    // Tests cosine similarity returns 1 for identical vectors
     it('should return 1 for identical vectors', () => {
       const vec = [0.5, 0.5, 0.5];
       const similarity = cosineSimilarity(vec, vec);
       expect(similarity).toBeCloseTo(1);
     });
 
+    // Tests cosine similarity handles zero vectors correctly
     it('should handle zero vectors', () => {
       const vec1 = [0, 0, 0];
       const vec2 = [1, 1, 1];
@@ -113,6 +120,7 @@ describe('RAG Service', () => {
   });
 
   describe('search', () => {
+    // Tests RAG service performs semantic search on documents
     it('should perform semantic search', async () => {
       const mockDocuments: Document[] = [{
         id: '1',
@@ -136,6 +144,7 @@ describe('RAG Service', () => {
       expect(Array.isArray(results.matchedChunks)).toBe(true);
     });
 
+    // Tests RAG search handles empty document collection gracefully
     it('should handle no documents', async () => {
       documents.set([]);
       
@@ -147,6 +156,7 @@ describe('RAG Service', () => {
   });
 
   describe('addDocument', () => {
+    // Tests adding document to RAG service returns valid ID
     it('should add document to the service', async () => {
       const file = new File(['Test content'], 'test.txt', { type: 'text/plain' });
       
@@ -157,6 +167,7 @@ describe('RAG Service', () => {
   });
 
   describe('getDocuments', () => {
+    // Tests retrieving all documents from RAG service
     it('should retrieve documents', async () => {
       const docs = await ragService.getDocuments();
       expect(docs).toBeDefined();
@@ -173,6 +184,7 @@ describe('Document Storage', () => {
   });
 
   describe('addDocument', () => {
+    // Tests adding document to storage preserves filename
     it('should add document to storage', async () => {
       const file = new File(['Test content'], 'test.txt', { type: 'text/plain' });
       
@@ -184,6 +196,7 @@ describe('Document Storage', () => {
   });
 
   describe('getAllDocuments', () => {
+    // Tests retrieving all documents returns correct count
     it('should retrieve all documents', async () => {
       const file1 = new File(['Content 1'], 'test1.txt', { type: 'text/plain' });
       const file2 = new File(['Content 2'], 'test2.txt', { type: 'text/plain' });
@@ -197,6 +210,7 @@ describe('Document Storage', () => {
   });
 
   describe('getDocument', () => {
+    // Tests retrieving specific document by its ID
     it('should retrieve document by id', async () => {
       const file = new File(['Test content'], 'test.txt', { type: 'text/plain' });
       const saved = await documentStorage.addDocument(file);
@@ -208,6 +222,7 @@ describe('Document Storage', () => {
   });
 
   describe('removeDocument', () => {
+    // Tests removing document deletes it permanently
     it('should remove document from storage', async () => {
       const file = new File(['Test content'], 'test.txt', { type: 'text/plain' });
       const saved = await documentStorage.addDocument(file);
@@ -221,6 +236,7 @@ describe('Document Storage', () => {
   });
 
   describe('clear', () => {
+    // Tests clearing storage removes all documents
     it('should clear all documents', async () => {
       const file = new File(['Test content'], 'test.txt', { type: 'text/plain' });
       await documentStorage.addDocument(file);

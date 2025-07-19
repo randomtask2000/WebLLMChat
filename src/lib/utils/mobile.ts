@@ -4,18 +4,22 @@
 
 import { Capacitor } from '@capacitor/core';
 
+// Checks if running on native mobile platform
 export function isMobile(): boolean {
   return Capacitor.isNativePlatform();
 }
 
+// Checks if running on iOS platform
 export function isIOS(): boolean {
   return Capacitor.getPlatform() === 'ios';
 }
 
+// Checks if running on Android platform
 export function isAndroid(): boolean {
   return Capacitor.getPlatform() === 'android';
 }
 
+// Returns platform and environment information
 export function getDeviceInfo() {
   return {
     platform: Capacitor.getPlatform(),
@@ -25,6 +29,7 @@ export function getDeviceInfo() {
 }
 
 // Mobile-specific WebLLM optimizations
+// Returns list of models optimized for mobile devices
 export function getMobileOptimizedModels() {
   const mobileModels = [
     'TinyLlama-1.1B-Chat-v0.4-q4f16_1-MLC-1k',
@@ -37,6 +42,7 @@ export function getMobileOptimizedModels() {
 }
 
 // Check if device can handle larger models (rough estimation)
+// Estimates if device can handle larger AI models
 export function canHandleLargeModels(): boolean {
   if (!isMobile()) return true;
 
@@ -46,6 +52,7 @@ export function canHandleLargeModels(): boolean {
 }
 
 // Mobile-specific UI helpers
+// Returns UI configuration optimized for mobile
 export function getMobileUIConfig() {
   return {
     sidebarCollapsed: isMobile(),
@@ -56,11 +63,13 @@ export function getMobileUIConfig() {
 }
 
 // Storage helpers for mobile
+// Returns platform-specific storage key prefix
 export function getStoragePrefix(): string {
   return isMobile() ? 'mobile_' : 'web_';
 }
 
 // Network awareness for mobile
+// Checks if model download should be delayed on slow networks
 export function shouldDelayModelDownload(): boolean {
   if (!isMobile()) return false;
 
@@ -78,6 +87,7 @@ export function shouldDelayModelDownload(): boolean {
 }
 
 // Device detection functions
+// Detects device type from user agent
 export function detectDevice(): 'mobile' | 'tablet' | 'desktop' {
   const userAgent = navigator.userAgent.toLowerCase();
   
@@ -95,10 +105,12 @@ export function detectDevice(): 'mobile' | 'tablet' | 'desktop' {
   return 'desktop';
 }
 
+// Checks if device is mobile phone
 export function isMobileDevice(): boolean {
   return detectDevice() === 'mobile';
 }
 
+// Checks if device is tablet
 export function isTabletDevice(): boolean {
   return detectDevice() === 'tablet';
 }

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { processDocument, isValidFileType } from '$lib/utils/document-processor';
 
 // Mock File methods
+// Creates mock file with proper text/arrayBuffer methods
 const createMockFile = (content: string, name: string, type: string) => {
   const file = new File([content], name, { type });
   // Mock the async methods
@@ -67,6 +68,7 @@ vi.mock('mammoth', () => ({
 
 describe('Advanced Document Processor', () => {
   describe('PDF Processing', () => {
+    // Tests PDF text extraction with metadata
     it('should extract text and metadata from PDF files', async () => {
       const pdfFile = createMockFile('pdf content', 'test.pdf', 'application/pdf');
       const result = await processDocument(pdfFile);
@@ -80,6 +82,7 @@ describe('Advanced Document Processor', () => {
       expect(result.chunks.length).toBeGreaterThan(0);
     });
 
+    // Verifies PDF chunks contain page numbers
     it('should preserve page information in chunks', async () => {
       const pdfFile = createMockFile('pdf content', 'test.pdf', 'application/pdf');
       const result = await processDocument(pdfFile);
@@ -91,6 +94,7 @@ describe('Advanced Document Processor', () => {
   });
 
   describe('DOCX Processing', () => {
+    // Tests DOCX content extraction with structure
     it('should extract text and structure from DOCX files', async () => {
       const docxFile = createMockFile('docx content', 'test.docx', 
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
@@ -103,6 +107,7 @@ describe('Advanced Document Processor', () => {
       expect(result.chunks.length).toBeGreaterThan(0);
     });
 
+    // Tests DOCX processing fallback using file extension
     it('should handle DOCX files by extension when MIME type is missing', async () => {
       const docxFile = createMockFile('docx content', 'test.docx', '');
       const result = await processDocument(docxFile);
@@ -113,6 +118,7 @@ describe('Advanced Document Processor', () => {
   });
 
   describe('Smart Chunking', () => {
+    // Verifies chunking algorithm creates overlapping segments
     it('should create chunks with overlap', async () => {
       const textFile = createMockFile(
         'This is sentence one. This is sentence two. This is sentence three. This is sentence four.',
@@ -131,11 +137,13 @@ describe('Advanced Document Processor', () => {
   });
 
   describe('File Type Validation', () => {
+    // Tests PDF file type validation
     it('should accept PDF files', () => {
       const pdfFile = new File(['content'], 'test.pdf', { type: 'application/pdf' });
       expect(isValidFileType(pdfFile)).toBe(true);
     });
 
+    // Tests DOCX file type validation
     it('should accept DOCX files', () => {
       const docxFile = new File(['content'], 'test.docx', { 
         type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
@@ -143,6 +151,7 @@ describe('Advanced Document Processor', () => {
       expect(isValidFileType(docxFile)).toBe(true);
     });
 
+    // Tests file validation using extension fallback
     it('should accept files by extension when MIME type is empty', () => {
       const pdfFile = new File(['content'], 'test.pdf', { type: '' });
       const docxFile = new File(['content'], 'test.docx', { type: '' });
@@ -151,6 +160,7 @@ describe('Advanced Document Processor', () => {
       expect(isValidFileType(docxFile)).toBe(true);
     });
 
+    // Verifies rejection of unsupported file formats
     it('should reject unsupported file types', () => {
       const exeFile = new File(['content'], 'test.exe', { type: 'application/x-msdownload' });
       expect(isValidFileType(exeFile)).toBe(false);
@@ -158,6 +168,7 @@ describe('Advanced Document Processor', () => {
   });
 
   describe('Error Handling', () => {
+    // Tests error handling for unsupported files
     it('should throw error for unsupported file types', async () => {
       const unsupportedFile = createMockFile('content', 'test.xyz', 'application/unknown');
       

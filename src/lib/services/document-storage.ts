@@ -9,6 +9,7 @@ import type { RAGDocument } from '$lib/types/rag';
 
 const STORAGE_KEY = 'document_browser_storage';
 
+// Document structure for browser storage
 export interface StoredDocument {
   id: string;
   fileName: string;
@@ -28,14 +29,17 @@ export interface StoredDocument {
   updatedAt: Date;
 }
 
+// Service for managing document storage in browser
 class DocumentStorageService {
   private documents: Map<string, StoredDocument> = new Map();
 
   // Initializes service and loads stored documents
+  // Initializes service and loads existing documents
   constructor() {
     this.loadFromStorage();
   }
 
+  // Loads documents from localStorage
   // Loads documents from localStorage
   private loadFromStorage(): void {
     try {
@@ -57,6 +61,7 @@ class DocumentStorageService {
   }
 
   // Persists documents to localStorage
+  // Persists documents to localStorage
   private saveToStorage(): void {
     try {
       const documents = Array.from(this.documents.values());
@@ -67,6 +72,7 @@ class DocumentStorageService {
   }
 
   // Processes and stores document with metadata
+  // Processes and stores a new document
   async addDocument(file: File): Promise<StoredDocument> {
     const id = crypto.randomUUID();
     const now = new Date();
@@ -136,11 +142,13 @@ class DocumentStorageService {
   }
 
   // Retrieves document by ID
+  // Retrieves document by ID
   getDocument(id: string): StoredDocument | null {
     return this.documents.get(id) || null;
   }
 
   // Returns all documents sorted by date
+  // Returns all documents sorted by creation date
   getAllDocuments(): StoredDocument[] {
     return Array.from(this.documents.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
@@ -148,6 +156,7 @@ class DocumentStorageService {
   }
 
   // Deletes document and updates storage
+  // Deletes document and returns success status
   removeDocument(id: string): boolean {
     const deleted = this.documents.delete(id);
     if (deleted) {
@@ -156,6 +165,7 @@ class DocumentStorageService {
     return deleted;
   }
 
+  // Determines file type from extension
   // Determines file type from extension
   private getFileType(fileName: string): string {
     const extension = fileName.toLowerCase().split('.').pop();
@@ -178,6 +188,7 @@ class DocumentStorageService {
   }
 
   // Converts to RAG-compatible format
+  // Converts stored document to RAG format
   toRAGDocument(storedDoc: StoredDocument): RAGDocument {
     return {
       id: storedDoc.id,
@@ -200,6 +211,7 @@ class DocumentStorageService {
   }
 
   // Clears all stored documents
+  // Removes all documents from storage
   clear(): void {
     this.documents.clear();
     localStorage.removeItem(STORAGE_KEY);

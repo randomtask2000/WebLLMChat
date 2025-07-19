@@ -8,6 +8,7 @@ import type {
 import { featureManager, ragSettingsManager } from '$lib/config/features';
 import { processDocument } from '$lib/utils/document-processor';
 
+// Client-side implementation of RAG service for document search
 export class ClientRAGService implements RAGService {
   private embeddingProvider: EmbeddingProvider | null = null;
   private vectorStore: VectorStore | null = null;
@@ -15,12 +16,14 @@ export class ClientRAGService implements RAGService {
   private lastReadyState: boolean | undefined;
 
   // Creates RAG service with optional providers
+  // Initializes RAG service with optional providers
   constructor(embeddingProvider?: EmbeddingProvider, vectorStore?: VectorStore) {
     if (embeddingProvider) this.embeddingProvider = embeddingProvider;
     if (vectorStore) this.vectorStore = vectorStore;
   }
 
   // Initializes RAG service with required providers
+  // Sets up embedding provider and vector store
   async initialize(embeddingProvider: EmbeddingProvider, vectorStore: VectorStore): Promise<void> {
     console.log('[RAGService] initialize called');
     console.log('[RAGService] clientSideRAG feature enabled:', featureManager.isEnabled('clientSideRAG'));
@@ -39,6 +42,7 @@ export class ClientRAGService implements RAGService {
     console.log('[RAGService] Initialization complete. isInitialized:', this.isInitialized);
   }
 
+  // Checks if service is ready for operations
   // Checks if service is ready for operations
   isReady(): boolean {
     const isInitialized = this.isInitialized;
@@ -63,6 +67,7 @@ export class ClientRAGService implements RAGService {
     return isReady;
   }
 
+  // Processes and adds document to RAG system
   // Processes and adds document to RAG system
   async addDocument(file: File): Promise<string> {
     if (!this.isReady()) {
@@ -144,6 +149,7 @@ export class ClientRAGService implements RAGService {
   }
 
   // Removes document from RAG system
+  // Removes document from vector store
   async removeDocument(documentId: string): Promise<void> {
     if (!this.isReady()) {
       throw new Error('RAG service is not ready');
@@ -153,6 +159,7 @@ export class ClientRAGService implements RAGService {
   }
 
   // Searches for relevant documents using semantic and keyword search
+  // Searches documents using semantic and keyword search
   async search(query: string, topK = 3): Promise<RAGQueryResult> {
     if (!this.isReady()) {
       throw new Error('RAG service is not ready');
@@ -252,6 +259,7 @@ export class ClientRAGService implements RAGService {
   }
 
   // Retrieves all documents from vector store
+  // Retrieves all stored documents
   async getDocuments(): Promise<RAGDocument[]> {
     if (!this.isReady()) {
       return [];
@@ -261,6 +269,7 @@ export class ClientRAGService implements RAGService {
   }
 
   // Splits document into semantic chunks with overlap
+  // Splits document into overlapping chunks
   private async chunkDocument(document: RAGDocument): Promise<any[]> {
     const CHUNK_SIZE = ragSettingsManager.getChunkSize();
     const OVERLAP = ragSettingsManager.getOverlapSize();
@@ -339,6 +348,7 @@ export class ClientRAGService implements RAGService {
   }
 
   // Generates embeddings for all document chunks
+  // Generates embeddings for all document chunks
   private async generateEmbeddings(document: RAGDocument): Promise<void> {
     if (!this.embeddingProvider) return;
 
@@ -347,6 +357,7 @@ export class ClientRAGService implements RAGService {
     }
   }
 
+  // Performs keyword-based search on documents
   // Performs keyword-based search on documents
   private async keywordSearch(query: string, topK: number, accuracy: number): Promise<any[]> {
     const documents = await this.vectorStore!.getAllDocuments();

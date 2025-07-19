@@ -6,11 +6,13 @@ const DB_VERSION = 1;
 const DOCUMENTS_STORE = 'documents';
 const CHUNKS_STORE = 'chunks';
 
+// IndexedDB-based vector store for persistent document storage
 export class IndexedDBVectorStore implements VectorStore {
   private db: IDBDatabase | null = null;
   private isInitialized = false;
 
   // Creates IndexedDB vector store instance
+  // Initializes vector store without immediate DB connection
   constructor() {
     console.log('[IndexedDBVectorStore] Constructor called');
     // Don't initialize in constructor - wait for explicit waitForReady call

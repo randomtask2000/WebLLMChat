@@ -1,3 +1,4 @@
+// Represents a single message in a chat conversation
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -9,6 +10,7 @@ export interface ChatMessage {
   documentData?: any; // Document data for preview messages with popup functionality
 }
 
+// Represents a chunk of a document with metadata
 export interface DocumentChunk {
   id: string;
   content: string;
@@ -27,6 +29,7 @@ export interface DocumentChunk {
   };
 }
 
+// Represents a complete document with its chunks
 export interface Document {
   id: string;
   filename: string;
@@ -43,6 +46,7 @@ export interface Document {
   };
 }
 
+// Contains information about an available AI model
 export interface ModelInfo {
   model_id: string;
   model_lib_url?: string;
@@ -52,6 +56,7 @@ export interface ModelInfo {
   context_length?: number;
 }
 
+// Tracks the download progress of a model
 export interface ModelDownloadProgress {
   modelId: string;
   progress: number;
@@ -60,6 +65,7 @@ export interface ModelDownloadProgress {
   error?: string;
 }
 
+// Stores a complete chat conversation history
 export interface ChatHistory {
   id: string;
   title: string;
@@ -69,6 +75,7 @@ export interface ChatHistory {
   totalTokens?: number;
 }
 
+// Available theme options for the UI
 export type Theme =
   | 'skeleton'
   | 'wintry'

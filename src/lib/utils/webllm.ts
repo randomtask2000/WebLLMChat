@@ -10,12 +10,14 @@ import {
 } from '../stores/models';
 import { get } from 'svelte/store';
 
+// Service for managing WebLLM model loading and inference
 class WebLLMService {
   private engine: any = null;
   private currentModelId: string = '';
   private webllm: any = null;
 
   // Dynamically loads WebLLM module with validation
+  // Dynamically loads and validates WebLLM module
   private async loadWebLLM() {
     if (this.webllm) return this.webllm;
 
@@ -84,6 +86,7 @@ class WebLLMService {
     }
   }
 
+  // Initializes WebLLM engine with specified model
   // Initializes WebLLM engine with specified model
   async initializeEngine(
     modelId: string,
@@ -373,6 +376,7 @@ class WebLLMService {
   }
 
   // Generates streaming response from model
+  // Generates streaming response from messages
   async generateResponse(
     messages: Array<{ role: string; content: string }>,
     onUpdate?: (content: string, isComplete?: boolean) => void
@@ -445,6 +449,7 @@ class WebLLMService {
   }
 
   // Checks if model is cached locally
+  // Checks if model exists in cache
   async isModelAvailable(modelId: string): Promise<boolean> {
     try {
       const webllm = await this.loadWebLLM();
@@ -466,6 +471,7 @@ class WebLLMService {
   }
 
   // Returns list of all available WebLLM models
+  // Returns list of all available model IDs
   async getAvailableModels(): Promise<string[]> {
     try {
       const webllm = await this.loadWebLLM();
@@ -489,6 +495,7 @@ class WebLLMService {
   }
 
   // Unloads current model and frees resources
+  // Unloads current model and frees resources
   unload(): void {
     if (this.engine) {
       this.engine.unload();
@@ -499,8 +506,10 @@ class WebLLMService {
   }
 }
 
+// Singleton instance of WebLLM service
 export const webLLMService = new WebLLMService();
 
+// Switches to a different model with progress tracking
 // Switches to a different model with progress tracking
 export async function switchModel(
   modelId: string,
@@ -510,6 +519,7 @@ export async function switchModel(
 }
 
 // Generates chat response with auto-initialization
+// Generates chat response, loading model if needed
 export async function generateChatResponse(
   messages: Array<{ role: string; content: string }>,
   onUpdate?: (content: string, isComplete?: boolean) => void

@@ -10,6 +10,7 @@ describe('Chat Store', () => {
     currentMessages.set([]);
   });
 
+  // Tests adding messages to chat store
   it('should add messages to the store', () => {
     const message: ChatMessage = {
       id: '1',
@@ -25,6 +26,7 @@ describe('Chat Store', () => {
     expect(messages[0]).toEqual(message);
   });
 
+  // Tests updating assistant message content
   it('should update the last message', () => {
     const userMessage: ChatMessage = {
       id: '1',
@@ -51,6 +53,7 @@ describe('Chat Store', () => {
 });
 
 describe('Theme Store', () => {
+  // Tests theme store update functionality
   it('should update theme', () => {
     setTheme('wintry');
     expect(get(currentTheme)).toBe('wintry');
@@ -62,6 +65,7 @@ describe('Documents Store', () => {
     documents.set([]);
   });
 
+  // Tests adding documents to store
   it('should add documents', () => {
     const doc: Document = {
       id: '1',
@@ -79,6 +83,7 @@ describe('Documents Store', () => {
     expect(docs[0]).toEqual(doc);
   });
 
+  // Tests document removal by ID
   it('should remove documents', () => {
     const doc: Document = {
       id: '1',

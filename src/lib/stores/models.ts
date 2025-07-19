@@ -9,6 +9,7 @@ export const modelLoadingProgress = writable<number>(0);
 export const modelLoadingStatus = writable<string>('');
 export const cachedModels = writable<Set<string>>(new Set());
 
+// List of available WebLLM models with metadata
 export const MODELS: ModelInfo[] = [
   // Lightweight/Fast Models
   {
@@ -170,6 +171,7 @@ export function setModelDownloaded(modelId: string) {
 }
 
 // Checks which models are cached locally
+// Checks which models are cached and updates store
 export async function checkCachedModels(): Promise<void> {
   console.log('🔍 Checking cached models...');
   const { webLLMService } = await import('../utils/webllm');
